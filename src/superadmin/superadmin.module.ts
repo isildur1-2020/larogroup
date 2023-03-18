@@ -1,9 +1,27 @@
-import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { SuperadminService } from './superadmin.service';
 import { SuperadminController } from './superadmin.controller';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Superadmin, SuperadminSchema } from './entities/superadmin.entity';
+import { HashPasswordMiddleware } from 'src/common/middlewares/hash-password.middleware';
 
 @Module({
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Superadmin.name,
+        schema: SuperadminSchema,
+      },
+    ]),
+  ],
   controllers: [SuperadminController],
-  providers: [SuperadminService]
+  providers: [SuperadminService],
 })
-export class SuperadminModule {}
+export class SuperadminModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HashPasswordMiddleware).forRoutes({
+      path: 'superadmin',
+      method: RequestMethod.POST,
+    });
+  }
+}

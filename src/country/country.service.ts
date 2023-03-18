@@ -1,34 +1,59 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateCountryDto } from './dto/create-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { Country, CountryDocument } from './entities/country.entity';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class CountryService {
   constructor(
     @InjectModel(Country.name)
-    private catModel: Model<CountryDocument>,
+    private countryModel: Model<CountryDocument>,
   ) {}
 
-  async create(createCountryDto: CreateCountryDto) {
-    await this.catModel.create(createCountryDto);
+  async create(createCountryDto: CreateCountryDto): Promise<Country> {
+    try {
+      const newCountry = new this.countryModel(createCountryDto);
+      const countrySaved = await newCountry.save();
+      console.log('Country created successfully');
+      return countrySaved;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
-  findAll() {
-    return `This action returns all country`;
+  async findAll(): Promise<Country[]> {
+    try {
+      const countriesFound = await this.countryModel.find();
+      console.log('Countries found successfully');
+      return countriesFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} country`;
+    throw new NotFoundException();
   }
 
   update(id: number, updateCountryDto: UpdateCountryDto) {
-    return `This action updates a #${id} country`;
+    throw new NotFoundException();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} country`;
+  async remove(id: string): Promise<void> {
+    try {
+      await this.countryModel.findByIdAndDelete({ _id: id });
+      console.log(`Country with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 }

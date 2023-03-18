@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SuperadminService } from './superadmin.service';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('superadmin')
 export class SuperadminController {
@@ -23,12 +32,15 @@ export class SuperadminController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSuperadminDto: UpdateSuperadminDto) {
-    return this.superadminService.update(+id, updateSuperadminDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateSuperadminDto: UpdateSuperadminDto,
+  ) {
+    return this.superadminService.update(id, updateSuperadminDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.superadminService.remove(+id);
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.superadminService.remove(id);
   }
 }

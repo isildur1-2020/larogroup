@@ -2,12 +2,12 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Category, CategoryDocument } from './entities/category.entity';
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { Category, CategoryDocument } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
@@ -30,7 +30,10 @@ export class CategoryService {
 
   async findAll(): Promise<Category[]> {
     try {
-      const categoriesFound = await this.categoryModel.find();
+      const categoriesFound = await this.categoryModel
+        .find()
+        .populate('sub_company')
+        .exec();
       console.log('Categories found successfully');
       return categoriesFound;
     } catch (err) {

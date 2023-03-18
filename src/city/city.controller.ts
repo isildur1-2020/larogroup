@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Controller,
+} from '@nestjs/common';
 import { CityService } from './city.service';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('city')
 export class CityController {
@@ -28,7 +37,7 @@ export class CityController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cityService.remove(+id);
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.cityService.remove(id);
   }
 }

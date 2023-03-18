@@ -1,15 +1,16 @@
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
+  Controller,
 } from '@nestjs/common';
 import { CountryService } from './country.service';
 import { CreateCountryDto } from './dto/create-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('country')
 export class CountryController {
@@ -36,7 +37,7 @@ export class CountryController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.countryService.remove(+id);
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.countryService.remove(id);
   }
 }
