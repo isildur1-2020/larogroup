@@ -21,7 +21,7 @@ export class Fingerprint {
     immutable: true,
     type: mongoose.Schema.Types.Buffer,
   })
-  public raw: Buffer;
+  public raw: string;
 
   @Prop({
     required: true,
