@@ -5,6 +5,5 @@ export class CreateFacialDto {
   public employee: string;
 
   @IsNotEmpty()
-  @IsString()
   public data: string;
 }

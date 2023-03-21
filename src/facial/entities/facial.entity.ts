@@ -20,8 +20,9 @@ export class Facial {
   @Prop({
     required: true,
     immutable: true,
+    type: mongoose.Schema.Types.Buffer,
   })
-  public data: string;
+  public data: Buffer;
 }
 
 export const FacialSchema = SchemaFactory.createForClass(Facial);
