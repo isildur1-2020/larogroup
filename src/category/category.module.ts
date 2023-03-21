@@ -17,5 +17,6 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
   ],
   controllers: [CategoryController],
   providers: [CategoryService],
+  exports: [CategoryService],
 })
 export class CategoryModule {}

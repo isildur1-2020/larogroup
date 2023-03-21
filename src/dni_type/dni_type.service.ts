@@ -39,6 +39,18 @@ export class DniTypeService {
     }
   }
 
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.dniTypeModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(`Dni type with id ${id} does not exists`);
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOne(id: number) {
     throw new NotFoundException();
   }

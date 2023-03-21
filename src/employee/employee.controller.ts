@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Controller,
+} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('employee')
 export class EmployeeController {
@@ -18,17 +27,20 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.employeeService.findOne(+id);
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.employeeService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-    return this.employeeService.update(+id, updateEmployeeDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateEmployeeDto: UpdateEmployeeDto,
+  ) {
+    return this.employeeService.update(id, updateEmployeeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(+id);
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.employeeService.remove(id);
   }
 }

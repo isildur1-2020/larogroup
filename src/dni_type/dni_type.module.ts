@@ -15,5 +15,6 @@ import { DniType, DniTypeSchema } from './entities/dni_type.entity';
   ],
   controllers: [DniTypeController],
   providers: [DniTypeService],
+  exports: [DniTypeService],
 })
 export class DniTypeModule {}
