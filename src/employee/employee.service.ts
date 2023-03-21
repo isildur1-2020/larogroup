@@ -109,6 +109,9 @@ export class EmployeeService {
         .populate('first_category')
         .populate('second_category')
         .exec();
+      if (employeeFound === null) {
+        throw new BadRequestException(`Employee with id ${id} does not exists`);
+      }
       console.log('Employee found succesfully');
       return employeeFound;
     } catch (err) {
