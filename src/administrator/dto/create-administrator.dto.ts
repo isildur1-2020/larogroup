@@ -13,9 +13,6 @@ export class CreateAdministratorDto {
   @IsBooleanString()
   public is_active: boolean;
 
-  @IsMongoId()
-  public role: string;
-
   @IsEmail()
   public email: string;
 

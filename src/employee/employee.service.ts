@@ -1,6 +1,5 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RoleService } from 'src/role/role.service';
 import { CityService } from 'src/city/city.service';
 import { CountryService } from 'src/country/country.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -16,8 +15,6 @@ export class EmployeeService {
   constructor(
     @InjectModel(Employee.name)
     private employeeModel: Model<EmployeeDocument>,
-    @Inject(RoleService)
-    private roleService: RoleService,
     @Inject(CityService)
     private cityService: CityService,
     @Inject(CountryService)
@@ -33,7 +30,6 @@ export class EmployeeService {
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
       const {
-        role,
         city,
         country,
         dni_type,
@@ -50,7 +46,6 @@ export class EmployeeService {
       if (second_category) {
         await this.categoryService.documentExists(second_category);
       }
-      await this.roleService.documentExists(role);
       await this.dniTypeService.documentExists(dni_type);
       await this.subCompanyService.documentExists(sub_company);
       await this.categoryService.documentExists(first_category);

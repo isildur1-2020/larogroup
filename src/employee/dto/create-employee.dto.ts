@@ -20,9 +20,6 @@ export class CreateEmployeeDto {
   public is_active: boolean;
 
   @IsMongoId()
-  public role: string;
-
-  @IsMongoId()
   public dni_type: string;
 
   @IsNotEmpty()

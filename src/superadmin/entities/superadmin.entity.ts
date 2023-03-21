@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
@@ -12,7 +13,8 @@ export type SuperadminDocument = mongoose.HydratedDocument<Superadmin>;
 export class Superadmin {
   @Prop({
     ref: 'Role',
-    required: true,
+    immutable: true,
+    default: roles_ids.superadmin,
     type: mongoose.Schema.Types.ObjectId,
   })
   public role: Role;

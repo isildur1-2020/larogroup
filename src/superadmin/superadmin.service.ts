@@ -1,6 +1,5 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RoleService } from 'src/role/role.service';
 import { CompanyService } from '../company/company.service';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
@@ -17,16 +16,13 @@ export class SuperadminService {
   constructor(
     @InjectModel(Superadmin.name)
     private superadminModel: Model<SuperadminDocument>,
-    @Inject(RoleService)
-    private roleService: RoleService,
     @Inject(CompanyService)
     private companyservice: CompanyService,
   ) {}
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<Superadmin> {
     try {
-      const { role, company } = createSuperadminDto;
-      await this.roleService.documentExists(role);
+      const { company } = createSuperadminDto;
       await this.companyservice.documentExists(company);
       const newSuperadmin = new this.superadminModel(createSuperadminDto);
       const superadminCreated = await newSuperadmin.save();

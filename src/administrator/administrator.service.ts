@@ -1,8 +1,10 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { CompanyService } from 'src/company/company.service';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import {
+  Inject,
   Injectable,
   BadRequestException,
   NotFoundException,
@@ -17,12 +19,16 @@ export class AdministratorService {
   constructor(
     @InjectModel(Administrator.name)
     private administratorModel: Model<AdministratorDocument>,
+    @Inject(CompanyService)
+    private companyService: CompanyService,
   ) {}
 
   async create(
     createAdministratorDto: CreateAdministratorDto,
   ): Promise<Administrator> {
     try {
+      const { company } = createAdministratorDto;
+      await this.companyService.documentExists(company);
       const newAdministrator = new this.administratorModel(
         createAdministratorDto,
       );
@@ -59,8 +65,8 @@ export class AdministratorService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.administratorModel.findByIdAndDelete({ _id: id });
-      console.log(`Administrator with id ${id} was deleter successfully`);
+      await this.administratorModel.findByIdAndDelete(id);
+      console.log(`Administrator with id ${id} was deleted successfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

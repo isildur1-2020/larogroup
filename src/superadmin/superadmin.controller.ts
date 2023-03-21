@@ -1,11 +1,11 @@
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
+  Controller,
 } from '@nestjs/common';
 import { SuperadminService } from './superadmin.service';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';

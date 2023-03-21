@@ -1,5 +1,4 @@
 import { MongooseModule } from '@nestjs/mongoose';
-import { RoleModule } from 'src/role/role.module';
 import { SuperadminService } from './superadmin.service';
 import { CompanyModule } from 'src/company/company.module';
 import { SuperadminController } from './superadmin.controller';
@@ -15,7 +14,6 @@ import { HashPasswordMiddleware } from 'src/common/middlewares/hash-password.mid
         schema: SuperadminSchema,
       },
     ]),
-    RoleModule,
     CompanyModule,
   ],
   controllers: [SuperadminController],

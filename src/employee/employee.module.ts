@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RoleModule } from 'src/role/role.module';
 import { CityModule } from 'src/city/city.module';
 import { EmployeeService } from './employee.service';
 import { EmployeeController } from './employee.controller';
@@ -18,7 +17,6 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
         schema: EmployeeSchema,
       },
     ]),
-    RoleModule,
     CityModule,
     CountryModule,
     DniTypeModule,
@@ -27,5 +25,6 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
   ],
   controllers: [EmployeeController],
   providers: [EmployeeService],
+  exports: [EmployeeService],
 })
 export class EmployeeModule {}

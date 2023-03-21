@@ -1,4 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { CompanyModule } from 'src/company/company.module';
 import { AdministratorService } from './administrator.service';
 import { AdministratorController } from './administrator.controller';
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
@@ -16,6 +17,7 @@ import {
         schema: AdministratorSchema,
       },
     ]),
+    CompanyModule,
   ],
   controllers: [AdministratorController],
   providers: [AdministratorService],

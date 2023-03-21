@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
 import { City } from 'src/city/entities/city.entity';
 import { Country } from 'src/country/entities/country.entity';
@@ -26,7 +27,8 @@ export class Employee {
 
   @Prop({
     ref: 'Role',
-    required: true,
+    immutable: true,
+    default: roles_ids.employee,
     type: mongoose.Schema.Types.ObjectId,
   })
   public role: Role;
