@@ -19,8 +19,27 @@ export class Fingerprint {
   @Prop({
     required: true,
     immutable: true,
+    type: mongoose.Schema.Types.Buffer,
   })
-  public data: string;
+  public raw: Buffer;
+
+  @Prop({
+    required: true,
+    immutable: true,
+  })
+  public width: number;
+
+  @Prop({
+    required: true,
+    immutable: true,
+  })
+  public height: number;
+
+  @Prop({
+    required: true,
+    immutable: true,
+  })
+  public dpi: number;
 }
 
 export const FingerprintSchema = SchemaFactory.createForClass(Fingerprint);
