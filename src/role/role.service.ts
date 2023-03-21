@@ -39,6 +39,18 @@ export class RoleService {
     }
   }
 
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.roleModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(`Role with id ${id} does not exists`);
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOne(id: number) {
     throw new NotFoundException();
   }
@@ -49,7 +61,7 @@ export class RoleService {
 
   async remove(id: string): Promise<boolean> {
     try {
-      await this.roleModel.findByIdAndDelete({ _id: id });
+      await this.roleModel.findByIdAndDelete(id);
       console.log(`Rol with id ${id} deleted successfully`);
       return true;
     } catch (err) {

@@ -15,5 +15,6 @@ import { Country, CountrySchema } from './entities/country.entity';
   ],
   controllers: [CountryController],
   providers: [CountryService],
+  exports: [CountryService],
 })
 export class CountryModule {}

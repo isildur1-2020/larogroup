@@ -39,6 +39,18 @@ export class CountryService {
     }
   }
 
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.countryModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(`Country with id ${id} does not exists`);
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOne(id: number) {
     throw new NotFoundException();
   }
@@ -49,7 +61,7 @@ export class CountryService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.countryModel.findByIdAndDelete({ _id: id });
+      await this.countryModel.findByIdAndDelete(id);
       console.log(`Country with id ${id} was deleted successfully`);
     } catch (err) {
       console.log(err);

@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
 import { Category, CategorySchema } from './entities/category.entity';
+import { SubCompanyModule } from 'src/sub_company/sub_company.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { Category, CategorySchema } from './entities/category.entity';
         schema: CategorySchema,
       },
     ]),
+    SubCompanyModule,
   ],
   controllers: [CategoryController],
   providers: [CategoryService],
