@@ -1,10 +1,16 @@
-import { IsMongoId, IsNotEmpty, IsNumberString } from 'class-validator';
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsNumberString,
+  IsString,
+} from 'class-validator';
 
 export class CreateFingerprintDto {
   @IsMongoId()
   public employee: string;
 
   @IsNotEmpty()
+  @IsString()
   public raw: string;
 
   @IsNotEmpty()
