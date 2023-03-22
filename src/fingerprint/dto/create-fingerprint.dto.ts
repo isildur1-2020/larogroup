@@ -10,8 +10,7 @@ export class CreateFingerprintDto {
   public employee: string;
 
   @IsNotEmpty()
-  @IsString()
-  public raw: string;
+  public raw: Buffer;
 
   @IsNotEmpty()
   @IsNumberString()
