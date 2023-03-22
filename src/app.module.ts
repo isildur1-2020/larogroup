@@ -13,6 +13,7 @@ import { EmployeeModule } from './employee/employee.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { SubCompanyModule } from './sub_company/sub_company.module';
 import { FingerprintModule } from './fingerprint/fingerprint.module';
+import { CoordinatorModule } from './coordinator/coordinator.module';
 import { AdministratorModule } from './administrator/administrator.module';
 
 const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.zo0y98k.mongodb.net/larogroup?retryWrites=true&w=majority`;
@@ -32,6 +33,7 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     SuperadminModule,
     SubCompanyModule,
     FingerprintModule,
+    CoordinatorModule,
     AdministratorModule,
     MongooseModule.forRoot(MONGO_DB_URI),
   ],
