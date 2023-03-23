@@ -13,6 +13,8 @@ import {
   Coordinator,
   CoordinatorDocument,
 } from './entities/coordinator.entity';
+import { SubCompanyService } from 'src/sub_company/sub_company.service';
+import { CampusService } from 'src/campus/campus.service';
 
 @Injectable()
 export class CoordinatorService {
@@ -21,14 +23,20 @@ export class CoordinatorService {
     private coordinatorModel: Model<CoordinatorDocument>,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
+    @Inject(SubCompanyService)
+    private subCompanyService: SubCompanyService,
+    @Inject(CampusService)
+    private campusService: CampusService,
   ) {}
 
   async create(
     createCoordinatorDto: CreateCoordinatorDto,
   ): Promise<Coordinator> {
     try {
-      const { employee } = createCoordinatorDto;
+      const { employee, sub_company, campus } = createCoordinatorDto;
       await this.employeeService.documentExists(employee);
+      await this.subCompanyService.documentExists(sub_company);
+      await this.campusService.documentExists(campus);
       const newCoordinator = new this.coordinatorModel(createCoordinatorDto);
       const coordinatorSaved = await newCoordinator.save();
       console.log('Coordinator created successfully');
@@ -45,6 +53,8 @@ export class CoordinatorService {
         .find()
         .populate('role')
         .populate('employee')
+        .populate('sub_company')
+        .populate('campus')
         .exec();
       console.log('Coordinators found successfully');
       return coordinatorsFound;

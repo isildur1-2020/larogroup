@@ -4,6 +4,7 @@ import { RoleModule } from './role/role.module';
 import { RfidModule } from './rfid/rfid.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FacialModule } from './facial/facial.module';
+import { CampusModule } from './campus/campus.module';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
 import { BarcodeModule } from './barcode/barcode.module';
@@ -24,6 +25,7 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     RoleModule,
     RfidModule,
     FacialModule,
+    CampusModule,
     CountryModule,
     DniTypeModule,
     CompanyModule,

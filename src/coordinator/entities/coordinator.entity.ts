@@ -1,8 +1,10 @@
 import * as mongoose from 'mongoose';
 import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
+import { Campus } from 'src/campus/entities/campus.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { SubCompany } from 'src/sub_company/entities/sub_company.entity';
 
 export type CoordinatorDocument = mongoose.HydratedDocument<Coordinator>;
 
@@ -40,6 +42,20 @@ export class Coordinator {
     required: true,
   })
   public password: string;
+
+  @Prop({
+    required: true,
+    ref: 'SubCompany',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public sub_company: SubCompany;
+
+  @Prop({
+    required: true,
+    ref: 'Campus',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public campus: Campus;
 }
 
 export const CoordinatorSchema = SchemaFactory.createForClass(Coordinator);

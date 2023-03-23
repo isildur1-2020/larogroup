@@ -25,4 +25,10 @@ export class CreateCoordinatorDto {
   @IsNotEmpty()
   @IsString()
   public password: string;
+
+  @IsMongoId()
+  public sub_company: string;
+
+  @IsMongoId()
+  public campus: string;
 }
