@@ -7,15 +7,15 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
 import { UpdateFingerprintDto } from './dto/update-fingerprint.dto';
 import {
-  Fingerprint,
-  FingerprintDocument,
-} from './entities/fingerprint.entity';
-import {
   Inject,
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import {
+  Fingerprint,
+  FingerprintDocument,
+} from './entities/fingerprint.entity';
 
 @Injectable()
 export class FingerprintService {
