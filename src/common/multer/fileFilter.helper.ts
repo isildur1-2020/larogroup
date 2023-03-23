@@ -10,7 +10,7 @@ export const fileFilter = (
     error = new Error('The file is required');
     return cb(error, false);
   }
-  const validExtensions = ['jpg', 'png'];
+  const validExtensions = ['jpg', 'png', 'jpeg'];
   const typeFile = file.mimetype.split('/')[1];
   const isValidExtension = validExtensions.some((ext) => ext === typeFile);
   if (!isValidExtension) {
