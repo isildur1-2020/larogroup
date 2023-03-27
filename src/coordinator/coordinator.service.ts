@@ -64,6 +64,20 @@ export class CoordinatorService {
     }
   }
 
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.coordinatorModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(
+          `Coordinator with id ${id} does not exists`,
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOne(id: number) {
     throw new NotFoundException();
   }

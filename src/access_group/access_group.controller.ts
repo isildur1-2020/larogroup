@@ -10,6 +10,7 @@ import {
 import { AccessGroupService } from './access_group.service';
 import { CreateAccessGroupDto } from './dto/create-access_group.dto';
 import { UpdateAccessGroupDto } from './dto/update-access_group.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('access-group')
 export class AccessGroupController {
@@ -39,7 +40,7 @@ export class AccessGroupController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.accessGroupService.remove(id);
   }
 }

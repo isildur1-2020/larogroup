@@ -22,6 +22,7 @@ import { HashPasswordMiddleware } from '../common/middlewares/hash-password.midd
   ],
   controllers: [CoordinatorController],
   providers: [CoordinatorService],
+  exports: [CoordinatorService],
 })
 export class CoordinatorModule {
   configure(consume: MiddlewareConsumer) {

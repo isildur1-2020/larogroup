@@ -10,6 +10,7 @@ import {
 import { AccessDeviceService } from './access_device.service';
 import { CreateAccessDeviceDto } from './dto/create-access_device.dto';
 import { UpdateAccessDeviceDto } from './dto/update-access_device.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('access-device')
 export class AccessDeviceController {
@@ -39,7 +40,7 @@ export class AccessDeviceController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.accessDeviceService.remove(id);
   }
 }

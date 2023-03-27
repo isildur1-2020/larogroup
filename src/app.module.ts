@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { FacialModule } from './facial/facial.module';
 import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
+import { ReasonModule } from './reason/reason.module';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
 import { BarcodeModule } from './barcode/barcode.module';
@@ -19,6 +20,9 @@ import { CoordinatorModule } from './coordinator/coordinator.module';
 import { AccessGroupModule } from './access_group/access_group.module';
 import { AccessDeviceModule } from './access_device/access_device.module';
 import { AdministratorModule } from './administrator/administrator.module';
+import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
+import { AccessEmployeeModule } from './access_employee/access_employee.module';
+import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
 
 const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.zo0y98k.mongodb.net/larogroup?retryWrites=true&w=majority`;
 
@@ -30,6 +34,7 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     DeviceModule,
     FacialModule,
     CampusModule,
+    ReasonModule,
     CountryModule,
     DniTypeModule,
     CompanyModule,
@@ -43,7 +48,10 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     CoordinatorModule,
     AccessDeviceModule,
     AdministratorModule,
+    AuthenticationMethodModule,
     MongooseModule.forRoot(MONGO_DB_URI),
+    AccessEmployeeModule,
+    AuthenticationRecordModule,
   ],
 })
 export class AppModule {}
