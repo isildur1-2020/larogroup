@@ -5,6 +5,7 @@ import { RfidModule } from './rfid/rfid.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FacialModule } from './facial/facial.module';
 import { CampusModule } from './campus/campus.module';
+import { DeviceModule } from './device/device.module';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
 import { BarcodeModule } from './barcode/barcode.module';
@@ -15,8 +16,9 @@ import { SuperadminModule } from './superadmin/superadmin.module';
 import { SubCompanyModule } from './sub_company/sub_company.module';
 import { FingerprintModule } from './fingerprint/fingerprint.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
+import { AccessGroupModule } from './access_group/access_group.module';
+import { AccessDeviceModule } from './access_device/access_device.module';
 import { AdministratorModule } from './administrator/administrator.module';
-import { DeviceModule } from './device/device.module';
 
 const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.zo0y98k.mongodb.net/larogroup?retryWrites=true&w=majority`;
 
@@ -25,6 +27,7 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     CityModule,
     RoleModule,
     RfidModule,
+    DeviceModule,
     FacialModule,
     CampusModule,
     CountryModule,
@@ -35,11 +38,12 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     EmployeeModule,
     SuperadminModule,
     SubCompanyModule,
+    AccessGroupModule,
     FingerprintModule,
     CoordinatorModule,
+    AccessDeviceModule,
     AdministratorModule,
     MongooseModule.forRoot(MONGO_DB_URI),
-    DeviceModule,
   ],
 })
 export class AppModule {}
