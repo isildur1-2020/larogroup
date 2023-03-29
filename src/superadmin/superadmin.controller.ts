@@ -21,9 +21,9 @@ export class SuperadminController {
     return this.superadminService.create(createSuperadminDto);
   }
 
-  @Get()
-  findAll() {
-    return this.superadminService.findAll();
+  @Get(':companyId')
+  findAll(@Param('companyId', ParseMongoIdPipe) companyId: string) {
+    return this.superadminService.findAll(companyId);
   }
 
   @Get(':id')
