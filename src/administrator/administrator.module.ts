@@ -1,9 +1,8 @@
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CompanyModule } from 'src/company/company.module';
 import { AdministratorService } from './administrator.service';
 import { AdministratorController } from './administrator.controller';
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { HashPasswordMiddleware } from '../common/middlewares/hash-password.middleware';
 import {
   Administrator,
   AdministratorSchema,
@@ -22,11 +21,4 @@ import {
   controllers: [AdministratorController],
   providers: [AdministratorService],
 })
-export class AdministratorModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(HashPasswordMiddleware).forRoutes({
-      path: 'administrator',
-      method: RequestMethod.POST,
-    });
-  }
-}
+export class AdministratorModule {}

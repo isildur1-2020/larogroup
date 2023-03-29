@@ -12,6 +12,11 @@ export type SuperadminDocument = mongoose.HydratedDocument<Superadmin>;
 })
 export class Superadmin {
   @Prop({
+    default: true,
+  })
+  public is_active: boolean;
+
+  @Prop({
     ref: 'Role',
     immutable: true,
     default: roles_ids.superadmin,

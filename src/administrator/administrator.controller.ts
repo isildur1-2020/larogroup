@@ -21,9 +21,9 @@ export class AdministratorController {
     return this.administratorService.create(createAdministratorDto);
   }
 
-  @Get()
-  findAll() {
-    return this.administratorService.findAll();
+  @Get(':companyId')
+  findAll(@Param('companyId', ParseMongoIdPipe) companyId: string) {
+    return this.administratorService.findAll(companyId);
   }
 
   @Get(':id')
@@ -33,10 +33,10 @@ export class AdministratorController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateAdministratorDto: UpdateAdministratorDto,
   ) {
-    return this.administratorService.update(+id, updateAdministratorDto);
+    return this.administratorService.update(id, updateAdministratorDto);
   }
 
   @Delete(':id')

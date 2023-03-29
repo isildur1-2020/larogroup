@@ -85,6 +85,7 @@ export class SuperadminService {
           $project: {
             password: 0,
             updatedAt: 0,
+            is_active: 0,
           },
         },
       ]);
@@ -117,6 +118,7 @@ export class SuperadminService {
   async update(id: string, updateSuperadminDto: UpdateSuperadminDto) {
     throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
+      await this.documentExists(id);
       await this.superadminModel.findByIdAndUpdate(id, updateSuperadminDto);
       console.log(`Superadmin with id ${id} was updated successfully`);
     } catch (err) {
