@@ -33,10 +33,10 @@ export class CoordinatorController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateCoordinatorDto: UpdateCoordinatorDto,
   ) {
-    return this.coordinatorService.update(+id, updateCoordinatorDto);
+    return this.coordinatorService.update(id, updateCoordinatorDto);
   }
 
   @Delete(':id')

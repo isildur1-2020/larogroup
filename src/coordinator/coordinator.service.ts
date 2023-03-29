@@ -1,26 +1,29 @@
-import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { CampusService } from 'src/campus/campus.service';
+import { employeeQuery } from 'src/common/querys/employee';
 import { EmployeeService } from 'src/employee/employee.service';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';
 import { UpdateCoordinatorDto } from './dto/update-coordinator.dto';
+import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import {
   Inject,
   Injectable,
   NotFoundException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import {
   Coordinator,
   CoordinatorDocument,
 } from './entities/coordinator.entity';
-import { SubCompanyService } from 'src/sub_company/sub_company.service';
-import { CampusService } from 'src/campus/campus.service';
 
 @Injectable()
 export class CoordinatorService {
   constructor(
     @InjectModel(Coordinator.name)
-    private coordinatorModel: Model<CoordinatorDocument>,
+    private coordinatorModel: mongoose.Model<CoordinatorDocument>,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
     @Inject(SubCompanyService)
@@ -29,18 +32,17 @@ export class CoordinatorService {
     private campusService: CampusService,
   ) {}
 
-  async create(
-    createCoordinatorDto: CreateCoordinatorDto,
-  ): Promise<Coordinator> {
+  async create(createCoordinatorDto: CreateCoordinatorDto): Promise<void> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
-      const { employee, sub_company, campus } = createCoordinatorDto;
+      const { employee, sub_company, campus, password } = createCoordinatorDto;
       await this.employeeService.documentExists(employee);
       await this.subCompanyService.documentExists(sub_company);
       await this.campusService.documentExists(campus);
       const newCoordinator = new this.coordinatorModel(createCoordinatorDto);
-      const coordinatorSaved = await newCoordinator.save();
+      newCoordinator.password = bcrypt.hashSync(password, 10);
+      await newCoordinator.save();
       console.log('Coordinator created successfully');
-      return coordinatorSaved;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -49,13 +51,90 @@ export class CoordinatorService {
 
   async findAll(): Promise<Coordinator[]> {
     try {
-      const coordinatorsFound = await this.coordinatorModel
-        .find()
-        .populate('role')
-        .populate('employee')
-        .populate('sub_company')
-        .populate('campus')
-        .exec();
+      const coordinatorsFound = await this.coordinatorModel.aggregate([
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'role',
+            foreignField: '_id',
+            as: 'role',
+            pipeline: [
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: '$role',
+        },
+        ...employeeQuery,
+        {
+          $lookup: {
+            from: 'subcompanies',
+            localField: 'sub_company',
+            foreignField: '_id',
+            as: 'sub_company',
+            pipeline: [
+              {
+                $lookup: {
+                  from: 'companies',
+                  localField: 'company',
+                  foreignField: '_id',
+                  as: 'company',
+                  pipeline: [
+                    {
+                      $project: {
+                        createdAt: 0,
+                        updatedAt: 0,
+                        city: 0,
+                        country: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+              { $unwind: '$company' },
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                  city: 0,
+                  country: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$sub_company' },
+        {
+          $lookup: {
+            from: 'campus',
+            localField: 'campus',
+            foreignField: '_id',
+            as: 'campus',
+            pipeline: [
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$campus' },
+        {
+          $project: {
+            is_active: 0,
+            password: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Coordinators found successfully');
       return coordinatorsFound;
     } catch (err) {
@@ -82,16 +161,30 @@ export class CoordinatorService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCoordinatorDto: UpdateCoordinatorDto) {
-    throw new NotFoundException();
+  async update(
+    id: string,
+    updateCoordinatorDto: UpdateCoordinatorDto,
+  ): Promise<void> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
+    try {
+      await this.documentExists(id);
+      await this.coordinatorModel.findByIdAndUpdate(id, updateCoordinatorDto);
+      console.log(`Coordinator with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
+      await this.documentExists(id);
       await this.coordinatorModel.findByIdAndDelete(id);
       console.log(`Coordinator with id ${id} was deleted successfully`);
     } catch (err) {
       console.log(err);
+      throw new BadRequestException(err.message);
     }
   }
 }
