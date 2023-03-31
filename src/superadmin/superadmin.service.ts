@@ -9,7 +9,6 @@ import { Superadmin, SuperadminDocument } from './entities/superadmin.entity';
 import {
   Inject,
   Injectable,
-  NotFoundException,
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -24,7 +23,7 @@ export class SuperadminService {
   ) {}
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<void> {
-    // throw new InternalServerErrorException('This endpoint is forbidden!');
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const { company, password } = createSuperadminDto;
       await this.companyservice.documentExists(company);

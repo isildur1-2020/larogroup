@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
 import { CountryService } from 'src/country/country.service';
@@ -14,7 +14,7 @@ import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 export class EmployeeService {
   constructor(
     @InjectModel(Employee.name)
-    private employeeModel: Model<EmployeeDocument>,
+    private employeeModel: mongoose.Model<EmployeeDocument>,
     @Inject(CityService)
     private cityService: CityService,
     @Inject(CountryService)
@@ -62,16 +62,38 @@ export class EmployeeService {
 
   async findAll(sub_company: string): Promise<Employee[]> {
     try {
-      const employeesFound = await this.employeeModel
-        .find({ sub_company })
-        .populate('role')
-        .populate('city')
-        .populate('country')
-        .populate('dni_type')
-        .populate('sub_company')
-        .populate('first_category')
-        .populate('second_category')
-        .exec();
+      const employeesFound = await this.employeeModel.aggregate([
+        {
+          $match: {
+            is_active: true,
+            sub_company: new mongoose.Types.ObjectId(sub_company),
+          },
+        },
+        {
+          $lookup: {
+            from: 'dnitypes',
+            localField: 'dni_type',
+            foreignField: '_id',
+            as: 'dni_type',
+            pipeline: [
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$dni_type' },
+        {
+          $project: {
+            is_active: 0,
+            role: 0,
+            country: 0,
+          },
+        },
+      ]);
       console.log('Employees found successfully');
       return employeesFound;
     } catch (err) {
