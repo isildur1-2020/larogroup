@@ -1,10 +1,11 @@
-import { IsMongoId, IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateAuthenticationRecordDto {
-  @IsMongoId()
-  public device: string;
+  @IsNotEmpty()
+  @IsString()
+  public sn: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   public data: string;
 

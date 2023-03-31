@@ -60,8 +60,18 @@ export class DeviceService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
+  async findOneBySN(sn: string): Promise<Device> {
+    try {
+      const deviceFound = await this.deviceModel.findOne({ sn });
+      if (deviceFound === null) {
+        throw new BadRequestException(`Device with sn ${sn} does not exists`);
+      }
+      console.log('Device found succesfully');
+      return deviceFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {

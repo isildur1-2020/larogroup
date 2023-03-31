@@ -30,12 +30,6 @@ export class DeviceController {
     return this.deviceService.findAll();
   }
 
-  @Get(':id')
-  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  findOne(@Param('id') id: string) {
-    return this.deviceService.findOne(+id);
-  }
-
   @Patch(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {

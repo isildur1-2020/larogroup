@@ -9,6 +9,8 @@ export type DeviceDocument = mongoose.HydratedDocument<Device>;
   versionKey: false,
 })
 export class Device {
+  public _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({
     unique: true,
     required: true,
@@ -16,7 +18,6 @@ export class Device {
   public name: string;
 
   @Prop({
-    unique: true,
     required: true,
   })
   public sn: string;

@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
@@ -24,7 +24,7 @@ import {
 export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
-    private authenticationRecordModel: Model<AuthenticationRecordDocument>,
+    private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
     @Inject(DeviceService)
     private deviceService: DeviceService,
     @Inject(AuthenticationMethodService)
@@ -42,9 +42,9 @@ export class AuthenticationRecordService {
   ): Promise<Employee> {
     try {
       let employee: string = null;
-      const { data, device, reason, authentication_method } =
+      const { data, sn, reason, authentication_method } =
         createAuthenticationRecordDto;
-      await this.deviceService.documentExists(device);
+      const deviceFound = await this.deviceService.findOneBySN(sn);
       await this.authenticationMethodService.documentExists(
         authentication_method,
       );
@@ -60,6 +60,7 @@ export class AuthenticationRecordService {
       const userFound = await this.employeeService.findOne(employee);
       const newAuthenticationRecord = new this.authenticationRecordModel({
         employee,
+        device: deviceFound._id.toString(),
         ...createAuthenticationRecordDto,
       });
       await newAuthenticationRecord.save();
