@@ -17,9 +17,9 @@ export class UserRoleGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const target = context.getHandler();
     const req = context.switchToHttp().getRequest();
-    const validRoles: string[] = this.reflector.get(META_ROLES, target);
-    // if(!validRoles ) return true
-    const isRoleValid = validRoles.some((el) => el === req?.user?.role?.name);
+    const ValidRoles: string[] = this.reflector.get(META_ROLES, target);
+    // if(!ValidRoles ) return true
+    const isRoleValid = ValidRoles.some((el) => el === req?.user?.role?.name);
     if (!isRoleValid) {
       throw new ForbiddenException(
         'This endpoint is forbidden for your user role',

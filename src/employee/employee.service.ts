@@ -60,10 +60,10 @@ export class EmployeeService {
     }
   }
 
-  async findAll(): Promise<Employee[]> {
+  async findAll(sub_company: string): Promise<Employee[]> {
     try {
       const employeesFound = await this.employeeModel
-        .find()
+        .find({ sub_company })
         .populate('role')
         .populate('city')
         .populate('country')

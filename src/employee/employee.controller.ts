@@ -10,6 +10,9 @@ import {
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('employee')
@@ -22,8 +25,9 @@ export class EmployeeController {
   }
 
   @Get()
-  findAll() {
-    return this.employeeService.findAll();
+  @Auth(ValidRoles.coordinator)
+  findAll(@GetUser('sub_company', ParseMongoIdPipe) sub_company) {
+    return this.employeeService.findAll(sub_company);
   }
 
   @Get(':id')

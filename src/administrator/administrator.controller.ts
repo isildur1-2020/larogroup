@@ -11,7 +11,7 @@ import { AdministratorService } from './administrator.service';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from '../auth/decorators/auth-decorator.decorator';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-import { validRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
@@ -26,7 +26,7 @@ export class AdministratorController {
   }
 
   @Get(':companyId')
-  @Auth(validRoles.superadmin)
+  @Auth(ValidRoles.superadmin)
   findAll(
     @Param('companyId', ParseMongoIdPipe) companyId: string,
     @GetUser() user: JwtPayload,
