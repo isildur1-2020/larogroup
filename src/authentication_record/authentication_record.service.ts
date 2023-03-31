@@ -2,6 +2,10 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
+import { BarcodeService } from 'src/barcode/barcode.service';
+import { EmployeeService } from 'src/employee/employee.service';
+import { Employee } from 'src/employee/entities/employee.entity';
+import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { UpdateAuthenticationRecordDto } from './dto/update-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
@@ -15,8 +19,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { BarcodeService } from 'src/barcode/barcode.service';
-import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -31,11 +33,13 @@ export class AuthenticationRecordService {
     private reasonService: ReasonService,
     @Inject(BarcodeService)
     private barcodeService: BarcodeService,
+    @Inject(EmployeeService)
+    private employeeService: EmployeeService,
   ) {}
 
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
-  ): Promise<AuthenticationRecord> {
+  ): Promise<Employee> {
     try {
       let employee: string = null;
       const { data, device, reason, authentication_method } =
@@ -58,9 +62,10 @@ export class AuthenticationRecordService {
         employee,
         ...createAuthenticationRecordDto,
       });
-      const authenticationRecordCreated = await newAuthenticationRecord.save();
+      await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
-      return authenticationRecordCreated;
+      const userFound = await this.employeeService.findOne(employee);
+      return userFound;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
