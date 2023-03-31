@@ -57,14 +57,13 @@ export class AuthenticationRecordService {
         }
         employee = userFound.employee;
       }
-
+      const userFound = await this.employeeService.findOne(employee);
       const newAuthenticationRecord = new this.authenticationRecordModel({
         employee,
         ...createAuthenticationRecordDto,
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
-      const userFound = await this.employeeService.findOne(employee);
       return userFound;
     } catch (err) {
       console.log(err);

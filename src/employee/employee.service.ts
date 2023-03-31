@@ -94,21 +94,19 @@ export class EmployeeService {
 
   async findOne(id: string): Promise<Employee> {
     try {
-      const employeeFound = await this.employeeModel
-        .findById(id)
-        .populate('role')
-        .populate('city')
-        .populate('country')
-        .populate('dni_type')
-        .populate('sub_company')
-        .populate('first_category')
-        .populate('second_category')
-        .exec();
-      if (employeeFound === null) {
+      const employeeFound = await this.employeeModel.aggregate([
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(id),
+          },
+        },
+        ...employeeQuery,
+      ]);
+      if (employeeFound.length === 0) {
         throw new BadRequestException(`Employee with id ${id} does not exists`);
       }
       console.log('Employee found succesfully');
-      return employeeFound;
+      return employeeFound[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
