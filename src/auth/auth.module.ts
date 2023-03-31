@@ -24,7 +24,7 @@ import { AdministratorModule } from '../administrator/administrator.module';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: '2h',
+          expiresIn: '24h',
         },
       }),
     }),

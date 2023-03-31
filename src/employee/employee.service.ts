@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
+import { employeeQuery } from './queries/employeeQuery';
 import { CountryService } from 'src/country/country.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -9,7 +10,6 @@ import { CategoryService } from 'src/category/category.service';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
-import { employeeQuery } from './queries/employeeQuery';
 
 @Injectable()
 export class EmployeeService {

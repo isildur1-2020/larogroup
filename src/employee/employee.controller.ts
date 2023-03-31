@@ -20,22 +20,25 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeeService.create(createEmployeeDto);
   }
 
   @Get()
-  @Auth(ValidRoles.coordinator)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
   findAll(@GetUser('sub_company', ParseMongoIdPipe) sub_company) {
     return this.employeeService.findAll(sub_company);
   }
 
   @Get(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.employeeService.findOne(id);
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
@@ -44,6 +47,7 @@ export class EmployeeController {
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.employeeService.remove(id);
   }

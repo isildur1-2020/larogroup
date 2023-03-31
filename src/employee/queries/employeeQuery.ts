@@ -1,6 +1,5 @@
 export const employeeQuery = [
   {
-    // DNI TYPE
     $lookup: {
       from: 'dnitypes',
       localField: 'dni_type',
@@ -29,6 +28,7 @@ export const employeeQuery = [
           $project: {
             createdAt: 0,
             updatedAt: 0,
+            sub_company: 0,
           },
         },
       ],

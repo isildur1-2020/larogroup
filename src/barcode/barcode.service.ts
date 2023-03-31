@@ -10,6 +10,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { employeeQuery } from 'src/employee/queries/employeeQuery';
 
 @Injectable()
 export class BarcodeService {
@@ -24,6 +25,12 @@ export class BarcodeService {
     try {
       const { employee } = createBarcodeDto;
       await this.employeeService.documentExists(employee);
+      const barcodesFound = await this.findAll(employee);
+      if (barcodesFound.length !== 0) {
+        throw new BadRequestException(
+          'This user already have a barcode register',
+        );
+      }
       const newBarcode = new this.barcodeModel(createBarcodeDto);
       const barcodeCreated = await newBarcode.save();
       console.log('Barcode created successfully');
@@ -34,11 +41,11 @@ export class BarcodeService {
     }
   }
 
-  async findAll(employeeId: string): Promise<Barcode[]> {
+  async findAll(employee: string): Promise<Barcode[]> {
     try {
       const barcodesFound = await this.barcodeModel
-        .find({ employee: employeeId })
-        .populate('employee')
+        .find({ employee })
+        .populate('employee', ['first_name', 'second_name', 'email', 'dni'])
         .exec();
       console.log('Barcodes found successfully');
       return barcodesFound;
@@ -48,8 +55,34 @@ export class BarcodeService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
+  async findByData(data: string): Promise<Barcode[]> {
+    try {
+      const barcodeFound = await this.barcodeModel.aggregate([
+        { $match: { data } },
+        {
+          $lookup: {
+            from: 'employees',
+            localField: 'employee',
+            foreignField: '_id',
+            as: 'employee',
+            pipeline: [...employeeQuery],
+          },
+        },
+        { $unwind: '$employee' },
+        {
+          $project: {
+            data: 0,
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
+      console.log('Barcode found succesfully');
+      return barcodeFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   update(id: number, updateBarcodeDto: UpdateBarcodeDto) {

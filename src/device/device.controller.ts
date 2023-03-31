@@ -10,6 +10,8 @@ import {
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { Auth } from '../auth/decorators/auth-decorator.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('device')
@@ -17,21 +19,25 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
   @Post()
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   create(@Body() createDeviceDto: CreateDeviceDto) {
     return this.deviceService.create(createDeviceDto);
   }
 
   @Get()
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findAll() {
     return this.deviceService.findAll();
   }
 
   @Get(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id') id: string) {
     return this.deviceService.findOne(+id);
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
     return this.deviceService.update(+id, updateDeviceDto);
   }

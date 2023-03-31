@@ -18,6 +18,7 @@ export class Barcode {
 
   @Prop({
     required: true,
+    unique: true,
   })
   public data: string;
 }
