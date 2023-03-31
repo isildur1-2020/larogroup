@@ -5,7 +5,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 @Injectable()
@@ -18,12 +18,13 @@ export class UserRoleGuard implements CanActivate {
     const target = context.getHandler();
     const req = context.switchToHttp().getRequest();
     const validRoles: string[] = this.reflector.get(META_ROLES, target);
-
-    const isRoleValid = validRoles.some((el) => el === req.user.role.name);
+    // if(!validRoles ) return true
+    const isRoleValid = validRoles.some((el) => el === req?.user?.role?.name);
     if (!isRoleValid) {
-      throw new UnauthorizedException('No seas veneco');
+      throw new ForbiddenException(
+        'This endpoint is forbidden for your user role',
+      );
     }
-
     return true;
   }
 }
