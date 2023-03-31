@@ -10,4 +10,9 @@ export class AuthController {
   superadminAuth(@Body() authDto: AuthDto) {
     return this.authService.superadminAuth(authDto);
   }
+
+  @Post('/coordinator')
+  coordinator(@Body() authDto: AuthDto) {
+    return this.authService.coordinatorAuth(authDto);
+  }
 }

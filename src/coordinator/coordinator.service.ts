@@ -157,8 +157,28 @@ export class CoordinatorService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
+  async findByUsername(username: string): Promise<Coordinator> {
+    try {
+      const userFound = await this.coordinatorModel
+        .findOne({ username })
+        .populate('role', 'name')
+        .populate('sub_company', 'name');
+      return userFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findById(id: string): Promise<Coordinator> {
+    try {
+      const userFound = await this.coordinatorModel.findById(id);
+      console.log('Coordinator found successfully');
+      return userFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async update(

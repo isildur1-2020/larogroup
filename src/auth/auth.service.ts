@@ -48,4 +48,29 @@ export class AuthService {
       throw new BadRequestException(err.message);
     }
   }
+
+  async coordinatorAuth(authDto: AuthDto) {
+    try {
+      const { username, password } = authDto;
+      const userFound = await this.coordinatorService.findByUsername(username);
+      if (userFound === null) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      const isValidPassword = bcrypt.compareSync(password, userFound.password);
+      if (!isValidPassword) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      const payload = {
+        _id: userFound._id,
+        role: userFound.role,
+        sub_company: userFound.sub_company,
+      };
+      return {
+        token: this.jwtService.sign(payload),
+      };
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
 }

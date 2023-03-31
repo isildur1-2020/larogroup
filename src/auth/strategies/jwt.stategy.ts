@@ -10,6 +10,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,6 +18,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     @Inject(SuperadminService)
     private readonly superadminService: SuperadminService,
+    @Inject(CoordinatorService)
+    private readonly coordinatorService: CoordinatorService,
   ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
@@ -29,6 +32,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const { _id, role } = payload;
       if (role._id === roles_ids.superadmin) {
         const userFound = await this.superadminService.findById(_id);
+        if (!userFound || !userFound?.is_active) {
+          if (!userFound) {
+            throw new BadRequestException('This user does not exists');
+          }
+          if (!userFound.is_active) {
+            throw new BadRequestException(
+              'This user does not exists or you are inactive',
+            );
+          }
+        }
+      } else if (role._id === roles_ids.coordinator) {
+        const userFound = await this.coordinatorService.findById(_id);
         if (!userFound || !userFound?.is_active) {
           if (!userFound) {
             throw new BadRequestException('This user does not exists');

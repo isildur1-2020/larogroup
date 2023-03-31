@@ -27,8 +27,8 @@ export class CoordinatorController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coordinatorService.findOne(+id);
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.coordinatorService.findById(id);
   }
 
   @Patch(':id')

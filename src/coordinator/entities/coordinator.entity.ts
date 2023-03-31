@@ -13,6 +13,8 @@ export type CoordinatorDocument = mongoose.HydratedDocument<Coordinator>;
   versionKey: false,
 })
 export class Coordinator {
+  public _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({
     default: true,
   })
