@@ -9,6 +9,7 @@ import { CategoryService } from 'src/category/category.service';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
+import { employeeQuery } from './queries/employeeQuery';
 
 @Injectable()
 export class EmployeeService {
@@ -69,85 +70,7 @@ export class EmployeeService {
             sub_company: new mongoose.Types.ObjectId(sub_company),
           },
         },
-        // DNI TYPE
-        {
-          $lookup: {
-            from: 'dnitypes',
-            localField: 'dni_type',
-            foreignField: '_id',
-            as: 'dni_type',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$dni_type' },
-        // FIRST CATEGORY
-        {
-          $lookup: {
-            from: 'categories',
-            localField: 'first_category',
-            foreignField: '_id',
-            as: 'first_category',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$first_category' },
-        // CITY
-        {
-          $lookup: {
-            from: 'cities',
-            localField: 'city',
-            foreignField: '_id',
-            as: 'city',
-            pipeline: [
-              {
-                $lookup: {
-                  from: 'countries',
-                  localField: 'country',
-                  foreignField: '_id',
-                  as: 'country',
-                  pipeline: [
-                    {
-                      $project: {
-                        createdAt: 0,
-                        updatedAt: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-              { $unwind: '$country' },
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$city' },
-        {
-          $project: {
-            is_active: 0,
-            role: 0,
-            country: 0,
-            sub_company: 0,
-          },
-        },
+        ...employeeQuery,
       ]);
       console.log('Employees found successfully');
       return employeesFound;
