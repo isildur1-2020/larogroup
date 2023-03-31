@@ -11,6 +11,8 @@ export type SuperadminDocument = mongoose.HydratedDocument<Superadmin>;
   versionKey: false,
 })
 export class Superadmin {
+  public _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({
     default: true,
   })
@@ -39,6 +41,7 @@ export class Superadmin {
   @Prop({
     required: true,
     ref: 'Company',
+    immutable: true,
     type: mongoose.Schema.Types.ObjectId,
   })
   public company: Company;

@@ -6,13 +6,15 @@ import {
   Param,
   Delete,
   Controller,
-  UseGuards,
 } from '@nestjs/common';
 import { AdministratorService } from './administrator.service';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Auth } from '../auth/decorators/auth-decorator.decorator';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { validRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('administrator')
 export class AdministratorController {
@@ -23,9 +25,13 @@ export class AdministratorController {
     return this.administratorService.create(createAdministratorDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get(':companyId')
-  findAll(@Param('companyId', ParseMongoIdPipe) companyId: string) {
+  @Auth(validRoles.superadmin)
+  findAll(
+    @Param('companyId', ParseMongoIdPipe) companyId: string,
+    @GetUser() user: JwtPayload,
+  ) {
+    console.log(user);
     return this.administratorService.findAll(companyId);
   }
 

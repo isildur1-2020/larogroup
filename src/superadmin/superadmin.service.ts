@@ -2,10 +2,10 @@ import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CompanyService } from '../company/company.service';
+import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
 import { Superadmin, SuperadminDocument } from './entities/superadmin.entity';
-import { superadminQuery } from './queries/superadmin.query';
 import {
   Inject,
   Injectable,
@@ -24,7 +24,7 @@ export class SuperadminService {
   ) {}
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
+    // throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const { company, password } = createSuperadminDto;
       await this.companyservice.documentExists(company);
@@ -83,8 +83,15 @@ export class SuperadminService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
+  async findById(id: string): Promise<Superadmin> {
+    try {
+      const userFound = await this.superadminModel.findById(id);
+      console.log('Superadmin found successfully');
+      return userFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async update(id: string, updateSuperadminDto: UpdateSuperadminDto) {

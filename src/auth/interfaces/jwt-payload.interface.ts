@@ -14,9 +14,8 @@ export type SubCompany = {
 };
 
 export interface JwtPayload {
-  _id: string;
   role: Role;
-  sub_company?: SubCompany;
-  username: string;
+  _id: string;
   company: Company;
+  sub_company?: SubCompany;
 }
