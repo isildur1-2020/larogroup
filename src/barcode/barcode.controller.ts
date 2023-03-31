@@ -31,11 +31,6 @@ export class BarcodeController {
     return this.barcodeService.findAll(employeeId);
   }
 
-  @Get()
-  findByData(@Query('data') data: string) {
-    return this.barcodeService.findByData(data);
-  }
-
   @Patch(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(@Param('id') id: string, @Body() updateBarcodeDto: UpdateBarcodeDto) {

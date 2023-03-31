@@ -23,17 +23,15 @@ export class AuthenticationRecord {
 
   @Prop({
     required: true,
-    ref: 'Coordinator',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public coordinator: Coordinator;
-
-  @Prop({
-    required: true,
     ref: 'Device',
     type: mongoose.Schema.Types.ObjectId,
   })
   public device: Device;
+
+  @Prop({
+    default: null,
+  })
+  public data: string;
 
   @Prop({
     required: true,

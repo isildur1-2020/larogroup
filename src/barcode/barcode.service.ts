@@ -10,7 +10,6 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { employeeQuery } from 'src/employee/queries/employeeQuery';
 
 @Injectable()
 export class BarcodeService {
@@ -55,28 +54,9 @@ export class BarcodeService {
     }
   }
 
-  async findByData(data: string): Promise<Barcode[]> {
+  async findByData(data: string): Promise<Barcode> {
     try {
-      const barcodeFound = await this.barcodeModel.aggregate([
-        { $match: { data } },
-        {
-          $lookup: {
-            from: 'employees',
-            localField: 'employee',
-            foreignField: '_id',
-            as: 'employee',
-            pipeline: [...employeeQuery],
-          },
-        },
-        { $unwind: '$employee' },
-        {
-          $project: {
-            data: 0,
-            createdAt: 0,
-            updatedAt: 0,
-          },
-        },
-      ]);
+      const barcodeFound = await this.barcodeModel.findOne({ data });
       console.log('Barcode found succesfully');
       return barcodeFound;
     } catch (err) {

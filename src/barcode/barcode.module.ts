@@ -17,5 +17,6 @@ import { Barcode, BarcodeSchema } from './entities/barcode.entity';
   ],
   controllers: [BarcodeController],
   providers: [BarcodeService],
+  exports: [BarcodeService],
 })
 export class BarcodeModule {}

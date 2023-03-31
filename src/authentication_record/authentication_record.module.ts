@@ -11,6 +11,7 @@ import {
   AuthenticationRecord,
   AuthenticationRecordSchema,
 } from './entities/authentication_record.entity';
+import { BarcodeModule } from 'src/barcode/barcode.module';
 
 @Module({
   imports: [
@@ -22,8 +23,7 @@ import {
     ]),
     DeviceModule,
     ReasonModule,
-    EmployeeModule,
-    CoordinatorModule,
+    BarcodeModule,
     AuthenticationMethodModule,
   ],
   controllers: [AuthenticationRecordController],

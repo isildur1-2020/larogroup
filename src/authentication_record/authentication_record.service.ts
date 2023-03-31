@@ -2,55 +2,62 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
-import { EmployeeService } from 'src/employee/employee.service';
-import { CoordinatorService } from 'src/coordinator/coordinator.service';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { UpdateAuthenticationRecordDto } from './dto/update-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
   Inject,
   Injectable,
-  BadRequestException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { BarcodeService } from 'src/barcode/barcode.service';
+import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 
 @Injectable()
 export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: Model<AuthenticationRecordDocument>,
-    @Inject(EmployeeService)
-    private employeeService: EmployeeService,
-    @Inject(CoordinatorService)
-    private coordinatorService: CoordinatorService,
     @Inject(DeviceService)
     private deviceService: DeviceService,
     @Inject(AuthenticationMethodService)
     private authenticationMethodService: AuthenticationMethodService,
     @Inject(ReasonService)
     private reasonService: ReasonService,
+    @Inject(BarcodeService)
+    private barcodeService: BarcodeService,
   ) {}
 
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<AuthenticationRecord> {
     try {
-      const { employee, coordinator, device, authentication_method, reason } =
+      let employee: string = null;
+      const { data, device, reason, authentication_method } =
         createAuthenticationRecordDto;
-      await this.employeeService.documentExists(employee);
-      await this.coordinatorService.documentExists(coordinator);
       await this.deviceService.documentExists(device);
       await this.authenticationMethodService.documentExists(
         authentication_method,
       );
       await this.reasonService.documentExists(reason);
-      const newAuthenticationRecord = new this.authenticationRecordModel(
-        createAuthenticationRecordDto,
-      );
+
+      if (authentication_method === AuthMethods.barcode) {
+        const userFound = await this.barcodeService.findByData(data);
+        if (userFound === null) {
+          throw new BadRequestException('Not user existent with this barcode');
+        }
+        employee = userFound.employee;
+      }
+
+      const newAuthenticationRecord = new this.authenticationRecordModel({
+        employee,
+        ...createAuthenticationRecordDto,
+      });
       const authenticationRecordCreated = await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
       return authenticationRecordCreated;
@@ -65,7 +72,6 @@ export class AuthenticationRecordService {
       const authenticationRecordsFound = await this.authenticationRecordModel
         .find()
         .populate('employee')
-        .populate('coordinator')
         .populate('device')
         .populate('authentication_method')
         .populate('reason')
