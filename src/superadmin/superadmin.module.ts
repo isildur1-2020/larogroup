@@ -17,5 +17,6 @@ import { Superadmin, SuperadminSchema } from './entities/superadmin.entity';
   ],
   controllers: [SuperadminController],
   providers: [SuperadminService],
+  exports: [SuperadminService],
 })
 export class SuperadminModule {}

@@ -5,6 +5,7 @@ import { CompanyService } from '../company/company.service';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
 import { Superadmin, SuperadminDocument } from './entities/superadmin.entity';
+import { superadminQuery } from './queries/superadmin.query';
 import {
   Inject,
   Injectable,
@@ -45,49 +46,7 @@ export class SuperadminService {
             company: new mongoose.Types.ObjectId(companyId),
           },
         },
-        {
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$role' },
-        {
-          $lookup: {
-            from: 'companies',
-            localField: 'company',
-            foreignField: '_id',
-            as: 'company',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                  city: 0,
-                  country: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$company' },
-        {
-          $project: {
-            password: 0,
-            updatedAt: 0,
-            is_active: 0,
-          },
-        },
+        ...superadminQuery,
       ]);
       console.log('Superadmins found successfully');
       return superadminsFound;
@@ -105,6 +64,19 @@ export class SuperadminService {
           `Superadmin with id ${id} does not exists`,
         );
       }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findByUsername(username: string): Promise<Superadmin> {
+    try {
+      const userFound = await this.superadminModel
+        .findOne({ username })
+        .populate('role', 'name')
+        .populate('company', 'name');
+      return userFound;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

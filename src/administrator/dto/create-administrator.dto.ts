@@ -5,7 +5,6 @@ import {
   IsMongoId,
   MaxLength,
   MinLength,
-  IsNotEmpty,
   IsOptional,
   IsBooleanString,
 } from 'class-validator';
@@ -19,11 +18,11 @@ export class CreateAdministratorDto {
   public email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(20)
   public username: string;
 
   @IsString()
-  @MinLength(8)
   @MaxLength(30)
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,

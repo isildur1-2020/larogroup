@@ -35,6 +35,7 @@ export class Coordinator {
   @Prop({
     unique: true,
     required: true,
+    index: true,
   })
   public username: string;
 

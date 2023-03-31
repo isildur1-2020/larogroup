@@ -20,5 +20,6 @@ import {
   ],
   controllers: [AdministratorController],
   providers: [AdministratorService],
+  exports: [AdministratorService],
 })
 export class AdministratorModule {}

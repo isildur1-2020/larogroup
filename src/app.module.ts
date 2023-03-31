@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { CityModule } from './city/city.module';
 import { RoleModule } from './role/role.module';
 import { RfidModule } from './rfid/rfid.module';
@@ -8,12 +9,14 @@ import { FacialModule } from './facial/facial.module';
 import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
 import { ReasonModule } from './reason/reason.module';
+import { EnvConfiguration } from './config/app.config';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
 import { BarcodeModule } from './barcode/barcode.module';
 import { DniTypeModule } from './dni_type/dni_type.module';
 import { CategoryModule } from './category/category.module';
 import { EmployeeModule } from './employee/employee.module';
+import { joiValidationSchema } from './config/joi.validation';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { SubCompanyModule } from './sub_company/sub_company.module';
 import { FingerprintModule } from './fingerprint/fingerprint.module';
@@ -25,10 +28,12 @@ import { AccessEmployeeModule } from './access_employee/access_employee.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
 
-const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.zo0y98k.mongodb.net/larogroup?retryWrites=true&w=majority`;
-
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [EnvConfiguration],
+      validationSchema: joiValidationSchema,
+    }),
     CityModule,
     RoleModule,
     RfidModule,
@@ -53,7 +58,7 @@ const MONGO_DB_URI = `mongodb+srv://larosoft:d2DTZoc5EhPH2pwF@larogroupcluster.z
     AccessEmployeeModule,
     AuthenticationMethodModule,
     AuthenticationRecordModule,
-    MongooseModule.forRoot(MONGO_DB_URI),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
   ],
 })
 export class AppModule {}

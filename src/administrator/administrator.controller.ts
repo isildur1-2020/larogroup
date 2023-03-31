@@ -6,11 +6,13 @@ import {
   Param,
   Delete,
   Controller,
+  UseGuards,
 } from '@nestjs/common';
 import { AdministratorService } from './administrator.service';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('administrator')
 export class AdministratorController {
@@ -21,6 +23,7 @@ export class AdministratorController {
     return this.administratorService.create(createAdministratorDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':companyId')
   findAll(@Param('companyId', ParseMongoIdPipe) companyId: string) {
     return this.administratorService.findAll(companyId);

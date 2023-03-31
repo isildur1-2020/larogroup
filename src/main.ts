@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const PORT = process.env.PORT || 8080;
   const PREFIX = '/v1.0/api';
   const app = await NestFactory.create(AppModule);
   app.enableCors();
@@ -14,6 +13,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  await app.listen(PORT);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
