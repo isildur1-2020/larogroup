@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { EmployeeService } from 'src/employee/employee.service';
+import { employeeQuery } from 'src/employee/queries/employeeQuery';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
 import { UpdateFingerprintDto } from './dto/update-fingerprint.dto';
 import {
@@ -16,15 +17,17 @@ import {
   Fingerprint,
   FingerprintDocument,
 } from './entities/fingerprint.entity';
-import { employeeQuery } from 'src/employee/queries/employeeQuery';
+import { DeviceService } from 'src/device/device.service';
 
 @Injectable()
 export class FingerprintService {
   constructor(
     @InjectModel(Fingerprint.name)
-    private fingerprinModel: Model<FingerprintDocument>,
+    private fingerprintModel: Model<FingerprintDocument>,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
+    @Inject(DeviceService)
+    private deviceService: DeviceService,
   ) {}
 
   async create(
@@ -38,7 +41,7 @@ export class FingerprintService {
       const { employee } = createFingerprintDto;
       await this.findOneToVerificate(employee);
       await this.employeeService.documentExists(employee);
-      const newFingerprint = new this.fingerprinModel({
+      const newFingerprint = new this.fingerprintModel({
         employee,
         fingerprint: file.filename,
       });
@@ -51,10 +54,10 @@ export class FingerprintService {
     }
   }
 
-  async findAllBySubCompany(sub_company: string) {
+  async findAllBySnDevice(sn: string) {
     try {
-      console.log(sub_company);
-      const fingerprintsFound = await this.fingerprinModel.aggregate([
+      const deviceFound = await this.deviceService.findOneBySN(sn);
+      const fingerprintsFound = await this.fingerprintModel.aggregate([
         {
           $lookup: {
             from: 'employees',
@@ -67,9 +70,7 @@ export class FingerprintService {
         { $unwind: '$employee' },
         {
           $match: {
-            'employee.sub_company._id': new mongoose.Types.ObjectId(
-              sub_company,
-            ),
+            'employee.campus._id': deviceFound.campus,
           },
         },
         {
@@ -89,7 +90,7 @@ export class FingerprintService {
 
   async findOneToVerificate(id: string): Promise<void> {
     try {
-      const isExists = await this.fingerprinModel.exists({ _id: id });
+      const isExists = await this.fingerprintModel.exists({ _id: id });
       if (isExists !== null) {
         throw new BadRequestException('Fingerprint is already exists');
       }
@@ -122,7 +123,7 @@ export class FingerprintService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.fingerprinModel.findByIdAndDelete(id);
+      await this.fingerprintModel.findByIdAndDelete(id);
       console.log(`Fingerprint with id ${id} was deleted successfully`);
     } catch (err) {
       console.log(err);

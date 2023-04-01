@@ -9,6 +9,7 @@ import {
   Controller,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
@@ -46,10 +47,8 @@ export class FingerprintController {
 
   @Get()
   @Auth(ValidRoles.coordinator)
-  findAllBySubCompany(
-    @GetUser('sub_company', ParseMongoIdPipe) sub_company: string,
-  ) {
-    return this.fingerprintService.findAllBySubCompany(sub_company);
+  findAllBySnDevice(@Query('sn') sn: string) {
+    return this.fingerprintService.findAllBySnDevice(sn);
   }
 
   @Get(':fingerprintId')
