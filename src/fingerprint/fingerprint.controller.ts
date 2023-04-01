@@ -46,7 +46,6 @@ export class FingerprintController {
   }
 
   @Get()
-  @Auth(ValidRoles.coordinator)
   findAllBySnDevice(@Query('sn') sn: string) {
     return this.fingerprintService.findAllBySnDevice(sn);
   }
