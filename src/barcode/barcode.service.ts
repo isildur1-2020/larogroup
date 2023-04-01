@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateBarcodeDto } from './dto/create-barcode.dto';
 import { UpdateBarcodeDto } from './dto/update-barcode.dto';
 import { EmployeeService } from 'src/employee/employee.service';
+import { Employee } from 'src/employee/entities/employee.entity';
+import { employeeQuery } from 'src/employee/queries/employeeQuery';
 import { Barcode, BarcodeDocument } from './entities/barcode.entity';
 import {
   Inject,
@@ -54,11 +56,32 @@ export class BarcodeService {
     }
   }
 
-  async findByData(data: string): Promise<Barcode> {
+  async findOneByData(data: string): Promise<Employee> {
     try {
-      const barcodeFound = await this.barcodeModel.findOne({ data });
+      const barcodeFound = await this.barcodeModel.aggregate([
+        { $match: { data } },
+        {
+          $lookup: {
+            from: 'employees',
+            foreignField: '_id',
+            localField: 'employee',
+            as: 'employee',
+            pipeline: [...employeeQuery],
+          },
+        },
+        { $unwind: '$employee' },
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
+      if (barcodeFound.length === 0) {
+        throw new BadRequestException('Not user existent with this barcode');
+      }
       console.log('Barcode found succesfully');
-      return barcodeFound;
+      return barcodeFound?.[0]?.employee;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

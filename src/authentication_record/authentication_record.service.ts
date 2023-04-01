@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
 import { BarcodeService } from 'src/barcode/barcode.service';
-import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -19,6 +18,7 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { RfidService } from 'src/rfid/rfid.service';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -33,15 +33,15 @@ export class AuthenticationRecordService {
     private reasonService: ReasonService,
     @Inject(BarcodeService)
     private barcodeService: BarcodeService,
-    @Inject(EmployeeService)
-    private employeeService: EmployeeService,
+    @Inject(RfidService)
+    private rfidService: RfidService,
   ) {}
 
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<Employee> {
     try {
-      let employee: string = null;
+      let userFound: Employee = null;
       const { data, sn, reason, authentication_method } =
         createAuthenticationRecordDto;
       const deviceFound = await this.deviceService.findOneBySN(sn);
@@ -50,16 +50,15 @@ export class AuthenticationRecordService {
       );
       await this.reasonService.documentExists(reason);
 
-      if (authentication_method === AuthMethods.barcode) {
-        const userFound = await this.barcodeService.findByData(data);
-        if (userFound === null) {
-          throw new BadRequestException('Not user existent with this barcode');
-        }
-        employee = userFound.employee;
+      switch (authentication_method) {
+        case AuthMethods.barcode:
+          userFound = await this.barcodeService.findOneByData(data);
+        case AuthMethods.nfc:
+          userFound = await this.rfidService.findOneByData(data);
       }
-      const userFound = await this.employeeService.findOne(employee);
+
       const newAuthenticationRecord = new this.authenticationRecordModel({
-        employee,
+        employee: userFound._id.toString(),
         device: deviceFound._id.toString(),
         ...createAuthenticationRecordDto,
       });

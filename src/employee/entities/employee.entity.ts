@@ -17,6 +17,8 @@ export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
   versionKey: false,
 })
 export class Employee {
+  public _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({
     unique: true,
     default: null,

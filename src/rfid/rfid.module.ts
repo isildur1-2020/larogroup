@@ -17,5 +17,6 @@ import { EmployeeModule } from 'src/employee/employee.module';
   ],
   controllers: [RfidController],
   providers: [RfidService],
+  exports: [RfidService],
 })
 export class RfidModule {}

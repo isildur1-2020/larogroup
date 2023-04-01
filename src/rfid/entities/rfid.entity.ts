@@ -18,7 +18,9 @@ export class Rfid {
   public employee: Employee;
 
   @Prop({
+    unique: true,
     required: true,
+    immutable: true,
   })
   public data: string;
 }
