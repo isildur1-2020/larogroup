@@ -70,12 +70,71 @@ export const employeeQuery = [
     },
   },
   { $unwind: '$city' },
+  // SUB COMPANY
+  {
+    $lookup: {
+      from: 'subcompanies',
+      localField: 'sub_company',
+      foreignField: '_id',
+      as: 'sub_company',
+      pipeline: [
+        {
+          $project: {
+            city: 0,
+            country: 0,
+            createdAt: 0,
+            updatedAt: 0,
+            company: 0,
+          },
+        },
+      ],
+    },
+  },
+  { $unwind: '$sub_company' },
+  // COMPANY
+  {
+    $lookup: {
+      from: 'companies',
+      localField: 'company',
+      foreignField: '_id',
+      as: 'company',
+      pipeline: [
+        {
+          $project: {
+            city: 0,
+            country: 0,
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  { $unwind: '$company' },
+  // CAMPUS
+  {
+    $lookup: {
+      from: 'campus',
+      localField: 'campus',
+      foreignField: '_id',
+      as: 'campus',
+      pipeline: [
+        {
+          $project: {
+            sub_company: 0,
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  { $unwind: '$campus' },
   {
     $project: {
       is_active: 0,
       role: 0,
       country: 0,
-      sub_company: 0,
     },
   },
 ];

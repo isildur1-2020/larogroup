@@ -11,6 +11,8 @@ export type AdministratorDocument = mongoose.HydratedDocument<Administrator>;
   versionKey: false,
 })
 export class Administrator {
+  public _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({
     default: true,
   })

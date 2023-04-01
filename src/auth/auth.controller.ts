@@ -12,7 +12,12 @@ export class AuthController {
   }
 
   @Post('/coordinator')
-  coordinator(@Body() authDto: AuthDto) {
+  coordinatorAuth(@Body() authDto: AuthDto) {
     return this.authService.coordinatorAuth(authDto);
+  }
+
+  @Post('/administrator')
+  administratorAuth(@Body() authDto: AuthDto) {
+    return this.authService.administratorAuth(authDto);
   }
 }

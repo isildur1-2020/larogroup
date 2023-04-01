@@ -1,9 +1,9 @@
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import {
   ExecutionContext,
   createParamDecorator,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest();
@@ -14,8 +14,8 @@ export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
   if (!data) return userPayload;
   if (!userPayload?.[data]) {
     throw new InternalServerErrorException(
-      `Attribute ${data} does not exists in user payload`,
+      `Prop ${data} does not exists in payload`,
     );
   }
-  return userPayload[data]._id;
+  return userPayload?.[data]?._id;
 });

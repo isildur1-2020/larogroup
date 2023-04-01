@@ -4,13 +4,17 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
+import { Superadmin } from 'src/superadmin/entities/superadmin.entity';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
+import { Coordinator } from 'src/coordinator/entities/coordinator.entity';
+import { AdministratorService } from 'src/administrator/administrator.service';
+import { Administrator } from 'src/administrator/entities/administrator.entity';
 import {
   Inject,
   Injectable,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CoordinatorService } from 'src/coordinator/coordinator.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,6 +24,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly superadminService: SuperadminService,
     @Inject(CoordinatorService)
     private readonly coordinatorService: CoordinatorService,
+    @Inject(AdministratorService)
+    private administratorService: AdministratorService,
   ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
@@ -30,31 +36,29 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     try {
       const { _id, role } = payload;
-      if (role._id === roles_ids.superadmin) {
-        const userFound = await this.superadminService.findById(_id);
-        if (!userFound || !userFound?.is_active) {
-          if (!userFound) {
-            throw new BadRequestException('This user does not exists');
-          }
-          if (!userFound.is_active) {
-            throw new BadRequestException(
-              'This user does not exists or you are inactive',
-            );
-          }
-        }
-      } else if (role._id === roles_ids.coordinator) {
-        const userFound = await this.coordinatorService.findById(_id);
-        if (!userFound || !userFound?.is_active) {
-          if (!userFound) {
-            throw new BadRequestException('This user does not exists');
-          }
-          if (!userFound.is_active) {
-            throw new BadRequestException(
-              'This user does not exists or you are inactive',
-            );
-          }
-        }
+      let userFound: Superadmin | Coordinator | Administrator = null;
+
+      switch (role._id) {
+        case roles_ids.administrator:
+          userFound = await this.administratorService.findById(_id);
+          break;
+        case roles_ids.coordinator:
+          userFound = await this.coordinatorService.findById(_id);
+          break;
+        case roles_ids.superadmin:
+          userFound = await this.superadminService.findById(_id);
+          break;
       }
+
+      if (userFound === null) {
+        throw new BadRequestException('This user does not exists');
+      }
+      if (!userFound.is_active) {
+        throw new BadRequestException(
+          'You are inactive in the system, please contact an admin',
+        );
+      }
+
       return payload;
     } catch (err) {
       console.log(err);

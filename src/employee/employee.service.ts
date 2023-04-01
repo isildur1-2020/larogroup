@@ -1,12 +1,16 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { roles_ids } from 'src/utils/role_ids';
 import { CityService } from 'src/city/city.service';
 import { employeeQuery } from './queries/employeeQuery';
+import { CampusService } from 'src/campus/campus.service';
 import { CountryService } from 'src/country/country.service';
+import { CompanyService } from 'src/company/company.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
 import { CategoryService } from 'src/category/category.service';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
@@ -26,12 +30,18 @@ export class EmployeeService {
     private subCompanyService: SubCompanyService,
     @Inject(CategoryService)
     private categoryService: CategoryService,
+    @Inject(CompanyService)
+    private companyService: CompanyService,
+    @Inject(CampusService)
+    private campusService: CampusService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
       const {
         city,
+        campus,
+        company,
         country,
         dni_type,
         sub_company,
@@ -47,6 +57,8 @@ export class EmployeeService {
       if (second_category) {
         await this.categoryService.documentExists(second_category);
       }
+      await this.campusService.documentExists(campus);
+      await this.companyService.documentExists(company);
       await this.dniTypeService.documentExists(dni_type);
       await this.subCompanyService.documentExists(sub_company);
       await this.categoryService.documentExists(first_category);
@@ -61,13 +73,24 @@ export class EmployeeService {
     }
   }
 
-  async findAll(sub_company: string): Promise<Employee[]> {
+  async findAll(payload: JwtPayload): Promise<Employee[]> {
     try {
+      const { sub_company, company } = payload;
+      const adminMatch = {
+        company: new mongoose.Types.ObjectId(company?._id),
+      };
+      const coordinatorMatch = {
+        sub_company: new mongoose.Types.ObjectId(sub_company?._id),
+      };
+      const matchQuery =
+        payload.role._id === roles_ids.administrator
+          ? adminMatch
+          : coordinatorMatch;
       const employeesFound = await this.employeeModel.aggregate([
         {
           $match: {
             is_active: true,
-            sub_company: new mongoose.Types.ObjectId(sub_company),
+            ...matchQuery,
           },
         },
         ...employeeQuery,

@@ -1,4 +1,5 @@
 import {
+  Res,
   Get,
   Post,
   Body,
@@ -8,16 +9,17 @@ import {
   Controller,
   UploadedFile,
   UseInterceptors,
-  Res,
-  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { fileFilter, fileNamer } from '../common/multer';
 import { FingerprintService } from './fingerprint.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
 import { UpdateFingerprintDto } from './dto/update-fingerprint.dto';
+import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('fingerprint')
@@ -25,6 +27,7 @@ export class FingerprintController {
   constructor(private readonly fingerprintService: FingerprintService) {}
 
   @Post()
+  @Auth(ValidRoles.coordinator)
   @UseInterceptors(
     FileInterceptor('fingerprint', {
       fileFilter,
@@ -42,16 +45,21 @@ export class FingerprintController {
   }
 
   @Get()
-  findAll(@Query('employeeId', ParseMongoIdPipe) employeeId: string) {
-    return this.fingerprintService.findAll(employeeId);
+  @Auth(ValidRoles.coordinator)
+  findAllBySubCompany(
+    @GetUser('sub_company', ParseMongoIdPipe) sub_company: string,
+  ) {
+    return this.fingerprintService.findAllBySubCompany(sub_company);
   }
 
   @Get(':fingerprintId')
+  @Auth(ValidRoles.coordinator)
   findOne(@Param('fingerprintId') id: string, @Res() res: Response) {
-    return this.fingerprintService.findOne(id, res);
+    return this.fingerprintService.findOneByName(id, res);
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.coordinator)
   update(
     @Param('id') id: string,
     @Body() updateFingerprintDto: UpdateFingerprintDto,
@@ -60,6 +68,7 @@ export class FingerprintController {
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.coordinator)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.fingerprintService.remove(id);
   }

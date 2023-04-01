@@ -21,6 +21,7 @@ export class AdministratorController {
   constructor(private readonly administratorService: AdministratorService) {}
 
   @Post()
+  @Auth(ValidRoles.superadmin)
   create(@Body() createAdministratorDto: CreateAdministratorDto) {
     return this.administratorService.create(createAdministratorDto);
   }
@@ -36,11 +37,13 @@ export class AdministratorController {
   }
 
   @Get(':id')
+  @Auth(ValidRoles.superadmin)
   findOne(@Param('id') id: string) {
     return this.administratorService.findOne(+id);
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.superadmin)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateAdministratorDto: UpdateAdministratorDto,
@@ -49,6 +52,7 @@ export class AdministratorController {
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.superadmin)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.administratorService.remove(id);
   }

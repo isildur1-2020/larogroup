@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { join } from 'path';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { EmployeeService } from 'src/employee/employee.service';
@@ -16,6 +16,7 @@ import {
   Fingerprint,
   FingerprintDocument,
 } from './entities/fingerprint.entity';
+import { employeeQuery } from 'src/employee/queries/employeeQuery';
 
 @Injectable()
 export class FingerprintService {
@@ -35,11 +36,7 @@ export class FingerprintService {
         throw new BadRequestException('The fingerprint file is required');
       }
       const { employee } = createFingerprintDto;
-      const fingerprintsFound = await this.findAll(employee);
-      console.log(fingerprintsFound, typeof fingerprintsFound);
-      if (fingerprintsFound.length !== 0) {
-        throw new BadRequestException('Fingerprint is already exists');
-      }
+      await this.findOneToVerificate(employee);
       await this.employeeService.documentExists(employee);
       const newFingerprint = new this.fingerprinModel({
         employee,
@@ -54,12 +51,34 @@ export class FingerprintService {
     }
   }
 
-  async findAll(employeeId: string) {
+  async findAllBySubCompany(sub_company: string) {
     try {
-      const fingerprintsFound = await this.fingerprinModel
-        .find({ employee: employeeId })
-        .populate('employee')
-        .exec();
+      console.log(sub_company);
+      const fingerprintsFound = await this.fingerprinModel.aggregate([
+        {
+          $lookup: {
+            from: 'employees',
+            localField: 'employee',
+            foreignField: '_id',
+            as: 'employee',
+            pipeline: [...employeeQuery],
+          },
+        },
+        { $unwind: '$employee' },
+        {
+          $match: {
+            'employee.sub_company._id': new mongoose.Types.ObjectId(
+              sub_company,
+            ),
+          },
+        },
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Fingerprints found successfully');
       return fingerprintsFound;
     } catch (err) {
@@ -68,7 +87,19 @@ export class FingerprintService {
     }
   }
 
-  findOne(fingerprintImage: string, res: Response) {
+  async findOneToVerificate(id: string): Promise<void> {
+    try {
+      const isExists = await this.fingerprinModel.exists({ _id: id });
+      if (isExists !== null) {
+        throw new BadRequestException('Fingerprint is already exists');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  findOneByName(fingerprintImage: string, res: Response) {
     try {
       const fingerprintImagePath = join(
         __dirname,

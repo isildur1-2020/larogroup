@@ -14,6 +14,7 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Controller('employee')
 export class EmployeeController {
@@ -27,8 +28,8 @@ export class EmployeeController {
 
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
-  findAll(@GetUser('sub_company', ParseMongoIdPipe) sub_company) {
-    return this.employeeService.findAll(sub_company);
+  findAll(@GetUser() payload: JwtPayload) {
+    return this.employeeService.findAll(payload);
   }
 
   @Get(':id')

@@ -62,6 +62,12 @@ export class CreateEmployeeDto {
   @IsMongoId()
   public sub_company: string;
 
+  @IsMongoId()
+  public company: string;
+
+  @IsMongoId()
+  public campus: string;
+
   @IsOptional()
   @IsDateString()
   public contract_start_date: string;

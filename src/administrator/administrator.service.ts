@@ -9,7 +9,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import {
   Administrator,
@@ -26,7 +25,6 @@ export class AdministratorService {
   ) {}
 
   async create(createAdministratorDto: CreateAdministratorDto): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden');
     try {
       const { company, password } = createAdministratorDto;
       await this.companyService.documentExists(company);
@@ -102,6 +100,30 @@ export class AdministratorService {
     }
   }
 
+  async findByUsername(username: string): Promise<Administrator> {
+    try {
+      const userFound = await this.administratorModel
+        .findOne({ username })
+        .populate('role', 'name')
+        .populate('company', 'name');
+      return userFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findById(id: string): Promise<Administrator> {
+    try {
+      const userFound = await this.administratorModel.findById(id);
+      console.log('Administrator found successfully');
+      return userFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async documentExists(id: string): Promise<void> {
     try {
       const isExists = await this.administratorModel.exists({ _id: id });
@@ -124,7 +146,6 @@ export class AdministratorService {
     id: string,
     updateAdministratorDto: UpdateAdministratorDto,
   ): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden');
     try {
       await this.documentExists(id);
       await this.administratorModel.findByIdAndUpdate(
@@ -139,7 +160,6 @@ export class AdministratorService {
   }
 
   async remove(id: string): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden');
     try {
       await this.documentExists(id);
       await this.administratorModel.findByIdAndDelete(id);

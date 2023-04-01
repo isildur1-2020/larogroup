@@ -2,7 +2,9 @@ import * as mongoose from 'mongoose';
 import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
 import { City } from 'src/city/entities/city.entity';
+import { Campus } from 'src/campus/entities/campus.entity';
 import { Country } from 'src/country/entities/country.entity';
+import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
 import { Category } from 'src/category/entities/category.entity';
@@ -17,6 +19,7 @@ export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
 export class Employee {
   @Prop({
     unique: true,
+    default: null,
   })
   public employee_id: string;
 
@@ -88,6 +91,20 @@ export class Employee {
     type: mongoose.Schema.Types.ObjectId,
   })
   public sub_company: SubCompany;
+
+  @Prop({
+    required: true,
+    ref: 'Campus',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public campus: Campus;
+
+  @Prop({
+    required: true,
+    ref: 'Company',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public company: Company;
 
   @Prop({
     type: mongoose.Schema.Types.Date,
