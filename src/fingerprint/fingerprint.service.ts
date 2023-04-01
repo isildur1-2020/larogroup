@@ -88,9 +88,9 @@ export class FingerprintService {
     }
   }
 
-  async findOneToVerificate(id: string): Promise<void> {
+  async findOneToVerificate(employee: string): Promise<void> {
     try {
-      const isExists = await this.fingerprintModel.exists({ _id: id });
+      const isExists = await this.fingerprintModel.findOne({ employee });
       if (isExists !== null) {
         throw new BadRequestException('Fingerprint is already exists');
       }

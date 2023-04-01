@@ -1,3 +1,4 @@
+import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReasonService } from 'src/reason/reason.service';
@@ -53,10 +54,15 @@ export class AuthenticationRecordService {
       switch (authentication_method) {
         case AuthMethods.barcode:
           userFound = await this.barcodeService.findOneByData(data);
+          break;
         case AuthMethods.nfc:
-          userFound = await this.rfidService.findOneByData(data);
+          const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
+          const decimalData = hex2dec.hexToDec(hexReversed);
+          userFound = await this.rfidService.findOneByData(decimalData);
+          break;
+        case AuthMethods.fingerprint:
+          break;
       }
-
       const newAuthenticationRecord = new this.authenticationRecordModel({
         employee: userFound._id.toString(),
         device: deviceFound._id.toString(),
