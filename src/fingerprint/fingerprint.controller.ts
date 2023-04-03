@@ -51,13 +51,12 @@ export class FingerprintController {
   }
 
   @Get(':fingerprintId')
-  @Auth(ValidRoles.coordinator)
   findOne(@Param('fingerprintId') id: string, @Res() res: Response) {
     return this.fingerprintService.findOneByName(id, res);
   }
 
   @Patch(':id')
-  @Auth(ValidRoles.coordinator)
+  @Auth(ValidRoles.administrator)
   update(
     @Param('id') id: string,
     @Body() updateFingerprintDto: UpdateFingerprintDto,
@@ -66,7 +65,7 @@ export class FingerprintController {
   }
 
   @Delete(':id')
-  @Auth(ValidRoles.coordinator)
+  @Auth(ValidRoles.administrator)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.fingerprintService.remove(id);
   }
