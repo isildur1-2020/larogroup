@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { join } from 'path';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { EmployeeService } from 'src/employee/employee.service';
@@ -39,7 +39,7 @@ export class FingerprintService {
         throw new BadRequestException('The fingerprint file is required');
       }
       const { employee } = createFingerprintDto;
-      await this.findOneToVerificate(employee);
+      await this.findTwoToVerificate(employee);
       await this.employeeService.documentExists(employee);
       const newFingerprint = new this.fingerprintModel({
         employee,
@@ -88,11 +88,13 @@ export class FingerprintService {
     }
   }
 
-  async findOneToVerificate(employee: string): Promise<void> {
+  async findTwoToVerificate(employee: string): Promise<void> {
     try {
-      const isExists = await this.fingerprintModel.findOne({ employee });
-      if (isExists !== null) {
-        throw new BadRequestException('Fingerprint is already exists');
+      const isExists = await this.fingerprintModel.find({ employee });
+      if (isExists.length >= 2) {
+        throw new BadRequestException(
+          'Two fingerprints enrolled, contact an admin',
+        );
       }
     } catch (err) {
       console.log(err);
