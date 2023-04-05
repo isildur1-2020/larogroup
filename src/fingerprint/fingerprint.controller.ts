@@ -28,7 +28,7 @@ export class FingerprintController {
   constructor(private readonly fingerprintService: FingerprintService) {}
 
   @Post()
-  @Auth(ValidRoles.coordinator)
+  @Auth(ValidRoles.administrator, ValidRoles.coordinator)
   @UseInterceptors(
     FileInterceptor('fingerprint', {
       fileFilter,

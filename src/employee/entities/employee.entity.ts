@@ -21,7 +21,6 @@ export class Employee {
 
   @Prop({
     unique: true,
-    default: null,
   })
   public employee_id: string;
 
@@ -47,6 +46,7 @@ export class Employee {
 
   @Prop({
     required: true,
+    unique: true,
   })
   public dni: string;
 
