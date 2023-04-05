@@ -1,9 +1,11 @@
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { RfidService } from 'src/rfid/rfid.service';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
 import { BarcodeService } from 'src/barcode/barcode.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -19,7 +21,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { RfidService } from 'src/rfid/rfid.service';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -36,6 +37,8 @@ export class AuthenticationRecordService {
     private barcodeService: BarcodeService,
     @Inject(RfidService)
     private rfidService: RfidService,
+    @Inject(EmployeeService)
+    private employeeService: EmployeeService,
   ) {}
 
   async create(
@@ -43,7 +46,7 @@ export class AuthenticationRecordService {
   ): Promise<Employee> {
     try {
       let userFound: Employee = null;
-      const { data, sn, reason, authentication_method } =
+      const { data, sn, reason, authentication_method, employee } =
         createAuthenticationRecordDto;
       const deviceFound = await this.deviceService.findOneBySN(sn);
       await this.authenticationMethodService.documentExists(
@@ -61,6 +64,7 @@ export class AuthenticationRecordService {
           userFound = await this.rfidService.findOneByData(decimalData);
           break;
         case AuthMethods.fingerprint:
+          userFound = await this.employeeService.findOne(employee);
           break;
       }
       const newAuthenticationRecord = new this.authenticationRecordModel({
