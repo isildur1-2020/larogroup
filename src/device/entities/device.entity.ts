@@ -28,6 +28,11 @@ export class Device {
     type: mongoose.Schema.Types.ObjectId,
   })
   public campus: Campus;
+
+  @Prop({
+    default: false,
+  })
+  public is_online: boolean;
 }
 
 export const DeviceSchema = SchemaFactory.createForClass(Device);

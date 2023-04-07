@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Controller,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -32,8 +33,19 @@ export class DeviceController {
 
   @Patch(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateDeviceDto: UpdateDeviceDto,
+  ) {
     return this.deviceService.update(+id, updateDeviceDto);
+  }
+
+  @Patch(':id/change-status/:status')
+  changeStatus(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Param('status', ParseBoolPipe) status: boolean,
+  ) {
+    return this.deviceService.changeStatus(id, status);
   }
 
   @Delete(':id')

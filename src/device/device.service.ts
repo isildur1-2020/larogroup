@@ -87,4 +87,13 @@ export class DeviceService {
       throw new BadRequestException(err.message);
     }
   }
+
+  async changeStatus(id: string, status: boolean): Promise<void> {
+    try {
+      await this.deviceModel.findByIdAndUpdate(id, { is_online: status });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
 }
