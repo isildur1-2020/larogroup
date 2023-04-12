@@ -1,11 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { CompanyService } from '../company/company.service';
 import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
 import { Superadmin, SuperadminDocument } from './entities/superadmin.entity';
+import { AdministratorService } from 'src/administrator/administrator.service';
 import {
   Inject,
   Injectable,
@@ -20,12 +23,32 @@ export class SuperadminService {
     private superadminModel: mongoose.Model<SuperadminDocument>,
     @Inject(CompanyService)
     private companyservice: CompanyService,
+    @Inject(ConfigService)
+    private configService: ConfigService,
+    @Inject(AdministratorService)
+    private administratorService: AdministratorService,
+    @Inject(CoordinatorService)
+    private coordinatorService: CoordinatorService,
   ) {}
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<void> {
     throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
-      const { company, password } = createSuperadminDto;
+      const { company, password, username } = createSuperadminDto;
+      // VALIDATE IF AN ADMIN EXISTS WITH THIS USERNAME
+      const adminFound = await this.administratorService.findByUsername(
+        username,
+      );
+      if (adminFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
+      // VALIDATE IF AN COORDINATOR EXISTS WITH THIS USERNAME
+      const coordinatorFound = await this.coordinatorService.findByUsername(
+        username,
+      );
+      if (coordinatorFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
       await this.companyservice.documentExists(company);
       const newSuperadmin = new this.superadminModel(createSuperadminDto);
       newSuperadmin.password = bcrypt.hashSync(password, 10);
@@ -38,6 +61,7 @@ export class SuperadminService {
   }
 
   async findAll(companyId: string): Promise<Superadmin[]> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const superadminsFound = await this.superadminModel.aggregate([
         {
@@ -56,6 +80,7 @@ export class SuperadminService {
   }
 
   async documentExists(id: string): Promise<void> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const isExists = await this.superadminModel.exists({ _id: id });
       if (isExists === null) {
@@ -70,6 +95,7 @@ export class SuperadminService {
   }
 
   async findByUsername(username: string): Promise<Superadmin> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const userFound = await this.superadminModel
         .findOne({ username })
@@ -83,6 +109,7 @@ export class SuperadminService {
   }
 
   async findById(id: string): Promise<Superadmin> {
+    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const userFound = await this.superadminModel.findById(id);
       console.log('Superadmin found successfully');

@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsDateString,
-  IsBooleanString,
   IsNumberString,
 } from 'class-validator';
 
@@ -14,10 +13,6 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsString()
   public employee_id: string;
-
-  @IsOptional()
-  @IsBooleanString()
-  public is_active: boolean;
 
   @IsMongoId()
   public dni_type: string;

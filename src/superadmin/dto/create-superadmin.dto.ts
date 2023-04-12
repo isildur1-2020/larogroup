@@ -4,15 +4,9 @@ import {
   IsMongoId,
   MaxLength,
   MinLength,
-  IsOptional,
-  IsBooleanString,
 } from 'class-validator';
 
 export class CreateSuperadminDto {
-  @IsOptional()
-  @IsBooleanString()
-  public readonly is_active: boolean;
-
   @IsString()
   @MinLength(4)
   @MaxLength(20)

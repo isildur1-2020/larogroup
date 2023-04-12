@@ -51,12 +51,13 @@ export class DniTypeService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
-  }
-
-  update(id: number, updateDniTypeDto: UpdateDniTypeDto) {
-    throw new NotFoundException();
+  async update(id: string, updateDniTypeDto: UpdateDniTypeDto): Promise<void> {
+    try {
+      await this.dniTypeModel.findByIdAndUpdate(id, updateDniTypeDto);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
