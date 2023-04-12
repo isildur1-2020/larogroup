@@ -21,6 +21,7 @@ export class Employee {
 
   @Prop({
     unique: true,
+    required: true,
   })
   public employee_id: string;
 
@@ -117,12 +118,6 @@ export class Employee {
     type: mongoose.Schema.Types.Date,
   })
   public contract_end_date: string;
-
-  @Prop({
-    ref: 'Country',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public country: Country;
 
   @Prop({
     ref: 'City',

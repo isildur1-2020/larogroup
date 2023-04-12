@@ -3,11 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DniType } from './entities/dni_type.entity';
 import { CreateDniTypeDto } from './dto/create-dni_type.dto';
 import { UpdateDniTypeDto } from './dto/update-dni_type.dto';
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class DniTypeService {
@@ -53,7 +49,9 @@ export class DniTypeService {
 
   async update(id: string, updateDniTypeDto: UpdateDniTypeDto): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.dniTypeModel.findByIdAndUpdate(id, updateDniTypeDto);
+      console.log(`Dni type with id ${id} was updated successfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

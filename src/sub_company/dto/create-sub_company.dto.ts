@@ -9,8 +9,5 @@ export class CreateSubCompanyDto {
   public city: string;
 
   @IsMongoId()
-  public country: string;
-
-  @IsMongoId()
   public company: string;
 }

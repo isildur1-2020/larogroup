@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import { City } from 'src/city/entities/city.entity';
-import { Country } from 'src/country/entities/country.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
@@ -21,13 +20,6 @@ export class SubCompany {
     type: mongoose.Schema.Types.ObjectId,
   })
   public city: City;
-
-  @Prop({
-    ref: 'Country',
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public country: Country;
 
   @Prop({
     required: true,

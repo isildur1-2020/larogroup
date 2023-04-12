@@ -70,6 +70,7 @@ export class CampusService {
 
   async update(id: string, updateCampusDto: UpdateCampusDto): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.campusModel.findByIdAndUpdate(id, updateCampusDto);
       console.log(`Campus with id ${id} was updated successfully`);
     } catch (err) {

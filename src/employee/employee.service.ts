@@ -4,7 +4,6 @@ import { roles_ids } from 'src/utils/role_ids';
 import { CityService } from 'src/city/city.service';
 import { employeeQuery } from './queries/employeeQuery';
 import { CampusService } from 'src/campus/campus.service';
-import { CountryService } from 'src/country/country.service';
 import { CompanyService } from 'src/company/company.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -22,8 +21,6 @@ export class EmployeeService {
     private employeeModel: mongoose.Model<EmployeeDocument>,
     @Inject(CityService)
     private cityService: CityService,
-    @Inject(CountryService)
-    private countryService: CountryService,
     @Inject(DniTypeService)
     private dniTypeService: DniTypeService,
     @Inject(SubCompanyService)
@@ -42,7 +39,6 @@ export class EmployeeService {
         city,
         campus,
         company,
-        country,
         dni_type,
         sub_company,
         first_category,
@@ -50,9 +46,6 @@ export class EmployeeService {
       } = createEmployeeDto;
       if (city) {
         await this.cityService.documentExists(city);
-      }
-      if (country) {
-        await this.countryService.documentExists(country);
       }
       if (second_category) {
         await this.categoryService.documentExists(second_category);

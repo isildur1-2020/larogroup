@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CampusService } from 'src/campus/campus.service';
-import { employeeQuery } from 'src/common/querys/employee';
+import { employeeQuery } from 'src/common/queries/employee';
 import { coordinatorQuery } from './queries/coordinatorQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';

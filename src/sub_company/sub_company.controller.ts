@@ -39,10 +39,10 @@ export class SubCompanyController {
   @Patch(':id')
   @Auth(ValidRoles.superadmin)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateSubCompanyDto: UpdateSubCompanyDto,
   ) {
-    return this.subCompanyService.update(+id, updateSubCompanyDto);
+    return this.subCompanyService.update(id, updateSubCompanyDto);
   }
 
   @Delete(':id')

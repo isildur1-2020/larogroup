@@ -134,7 +134,6 @@ export const employeeQuery = [
     $project: {
       is_active: 0,
       role: 0,
-      country: 0,
     },
   },
 ];

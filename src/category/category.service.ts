@@ -73,6 +73,7 @@ export class CategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.categoryModel.findByIdAndUpdate(id, updateCategoryDto);
       console.log(`Category with id ${id} was updated successfully`);
     } catch (err) {

@@ -1,7 +1,6 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
-import { CountryService } from 'src/country/country.service';
 import { CompanyService } from 'src/company/company.service';
 import { CreateSubCompanyDto } from './dto/create-sub_company.dto';
 import { UpdateSubCompanyDto } from './dto/update-sub_company.dto';
@@ -12,6 +11,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { cityQuery } from 'src/common/queries/cityQuery';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 
 @Injectable()
 export class SubCompanyService {
@@ -20,17 +21,14 @@ export class SubCompanyService {
     private subCompanyModel: Model<SubCompanyDocument>,
     @Inject(CityService)
     private cityService: CityService,
-    @Inject(CountryService)
-    private countryService: CountryService,
     @Inject(CompanyService)
     private companyService: CompanyService,
   ) {}
 
   async create(createSubCompanyDto: CreateSubCompanyDto): Promise<SubCompany> {
     try {
-      const { city, country, company } = createSubCompanyDto;
+      const { city, company } = createSubCompanyDto;
       await this.cityService.documentExists(city);
-      await this.countryService.documentExists(country);
       await this.companyService.documentExists(company);
       const newSubCompany = new this.subCompanyModel(createSubCompanyDto);
       const subCompanySaved = await newSubCompany.save();
@@ -44,12 +42,10 @@ export class SubCompanyService {
 
   async findAll(): Promise<SubCompany[]> {
     try {
-      const subCompaniesFound = await this.subCompanyModel
-        .find()
-        .populate('city')
-        .populate('country')
-        .populate('company')
-        .exec();
+      const subCompaniesFound = await this.subCompanyModel.aggregate([
+        ...cityQuery,
+        ...subcompanyQuery,
+      ]);
       return subCompaniesFound;
     } catch (err) {
       console.log(err);
@@ -75,8 +71,18 @@ export class SubCompanyService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateSubCompanyDto: UpdateSubCompanyDto) {
-    throw new NotFoundException();
+  async update(
+    id: string,
+    updateSubCompanyDto: UpdateSubCompanyDto,
+  ): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.subCompanyModel.findByIdAndUpdate(id, updateSubCompanyDto);
+      console.log(`Subcompany with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {

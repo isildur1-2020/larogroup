@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateEmployeeDto {
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
   public employee_id: string;
@@ -70,10 +69,6 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsDateString()
   public contract_end_date: string;
-
-  @IsOptional()
-  @IsMongoId()
-  public country: string;
 
   @IsOptional()
   @IsMongoId()
