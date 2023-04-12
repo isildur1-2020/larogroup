@@ -1,10 +1,8 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
-import { City } from 'src//city/entities/city.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { Country } from 'src/country/entities/country.entity';
 import { Company, CompanyDocument } from './entities/company.entity';
 import {
   Inject,
@@ -38,10 +36,7 @@ export class CompanyService {
 
   async findAll(): Promise<Company[]> {
     try {
-      const companiesFound = await this.companyModel
-        .find()
-        .populate('country', null, Country.name)
-        .exec();
+      const companiesFound = await this.companyModel.find();
       console.log('Companies found successfully');
       return companiesFound;
     } catch (err) {
@@ -79,6 +74,7 @@ export class CompanyService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.companyModel.findByIdAndDelete({ _id: id });
       console.log(`Company with id ${id} was deleted successfully`);
     } catch (err) {
