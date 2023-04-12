@@ -2,10 +2,14 @@ import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CompanyService } from 'src/company/company.service';
+import { administratorQuery } from './queries/administratorQuery';
+import { SuperadminService } from 'src/superadmin/superadmin.service';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
 import {
   Inject,
+  forwardRef,
   Injectable,
   NotFoundException,
   BadRequestException,
@@ -22,11 +26,29 @@ export class AdministratorService {
     private administratorModel: mongoose.Model<AdministratorDocument>,
     @Inject(CompanyService)
     private companyService: CompanyService,
+    @Inject(forwardRef(() => CoordinatorService))
+    private coordinatorService: CoordinatorService,
+    @Inject(forwardRef(() => SuperadminService))
+    private superadminService: SuperadminService,
   ) {}
 
   async create(createAdministratorDto: CreateAdministratorDto): Promise<void> {
     try {
-      const { company, password } = createAdministratorDto;
+      const { company, password, username } = createAdministratorDto;
+      // VALIDATE IF A COORDINATOR EXISTS WITH THIS USERNAME
+      const coordinatorFound = await this.coordinatorService.findByUsername(
+        username,
+      );
+      if (coordinatorFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
+      // VALIDATE IF A SUPERADMIN EXISTS WITH THIS USERNAME
+      const superadminFound = await this.superadminService.findByUsername(
+        username,
+      );
+      if (superadminFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
       await this.companyService.documentExists(company);
       const newAdministrator = new this.administratorModel(
         createAdministratorDto,
@@ -48,49 +70,7 @@ export class AdministratorService {
             company: new mongoose.Types.ObjectId(companyId),
           },
         },
-        {
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$role' },
-        {
-          $lookup: {
-            from: 'companies',
-            localField: 'company',
-            foreignField: '_id',
-            as: 'company',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                  city: 0,
-                  country: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$company' },
-        {
-          $project: {
-            is_active: 0,
-            password: 0,
-            updatedAt: 0,
-          },
-        },
+        ...administratorQuery,
       ]);
       console.log('Administrator found successfully');
       return administratorsFound;

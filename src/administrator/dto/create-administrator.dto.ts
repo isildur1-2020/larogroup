@@ -5,15 +5,9 @@ import {
   IsMongoId,
   MaxLength,
   MinLength,
-  IsOptional,
-  IsBooleanString,
 } from 'class-validator';
 
 export class CreateAdministratorDto {
-  @IsOptional()
-  @IsBooleanString()
-  public is_active: boolean;
-
   @IsEmail()
   public email: string;
 

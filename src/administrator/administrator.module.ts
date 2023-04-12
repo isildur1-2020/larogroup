@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { CompanyModule } from 'src/company/company.module';
 import { AdministratorService } from './administrator.service';
+import { SuperadminModule } from 'src/superadmin/superadmin.module';
 import { AdministratorController } from './administrator.controller';
+import { CoordinatorModule } from 'src/coordinator/coordinator.module';
 import {
   Administrator,
   AdministratorSchema,
@@ -17,6 +19,8 @@ import {
       },
     ]),
     CompanyModule,
+    forwardRef(() => CoordinatorModule),
+    forwardRef(() => SuperadminModule),
   ],
   controllers: [AdministratorController],
   providers: [AdministratorService],
