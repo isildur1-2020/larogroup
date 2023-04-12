@@ -36,10 +36,14 @@ export class CategoryService {
 
   async findAll(): Promise<Category[]> {
     try {
-      const categoriesFound = await this.categoryModel
-        .find()
-        .populate('sub_company')
-        .exec();
+      const categoriesFound = await this.categoryModel.aggregate([
+        {
+          $project: {
+            sub_company: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Categories found successfully');
       return categoriesFound;
     } catch (err) {
@@ -64,8 +68,16 @@ export class CategoryService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    throw new NotFoundException();
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<void> {
+    try {
+      await this.categoryModel.findByIdAndUpdate(id, updateCategoryDto);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
