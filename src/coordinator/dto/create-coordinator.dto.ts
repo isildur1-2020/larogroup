@@ -5,14 +5,9 @@ import {
   MinLength,
   MaxLength,
   IsOptional,
-  IsBooleanString,
 } from 'class-validator';
 
 export class CreateCoordinatorDto {
-  @IsOptional()
-  @IsBooleanString()
-  public is_active: boolean;
-
   @IsOptional()
   @IsMongoId()
   public role: string;

@@ -3,16 +3,18 @@ import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CampusService } from 'src/campus/campus.service';
 import { employeeQuery } from 'src/common/querys/employee';
+import { coordinatorQuery } from './queries/coordinatorQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';
 import { UpdateCoordinatorDto } from './dto/update-coordinator.dto';
+import { SuperadminService } from 'src/superadmin/superadmin.service';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
+import { AdministratorService } from 'src/administrator/administrator.service';
 import {
   Inject,
   Injectable,
-  NotFoundException,
   BadRequestException,
-  InternalServerErrorException,
+  forwardRef,
 } from '@nestjs/common';
 import {
   Coordinator,
@@ -30,12 +32,30 @@ export class CoordinatorService {
     private subCompanyService: SubCompanyService,
     @Inject(CampusService)
     private campusService: CampusService,
+    @Inject(forwardRef(() => AdministratorService))
+    private administratorService: AdministratorService,
+    @Inject(forwardRef(() => SuperadminService))
+    private superadminService: SuperadminService,
   ) {}
 
   async create(createCoordinatorDto: CreateCoordinatorDto): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
-      const { employee, sub_company, campus, password } = createCoordinatorDto;
+      const { employee, sub_company, campus, password, username } =
+        createCoordinatorDto;
+      // VALIDATE IF AN ADMINISTRATOR EXISTS WITH THIS USERNAME
+      const adminFound = await this.administratorService.findByUsername(
+        username,
+      );
+      if (adminFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
+      // VALIDATE IF A SUPERADMIN EXISTS WITH THIS USERNAME
+      const superadminFound = await this.superadminService.findByUsername(
+        username,
+      );
+      if (superadminFound !== null) {
+        throw new BadRequestException('You cannot use this username');
+      }
       await this.employeeService.documentExists(employee);
       await this.subCompanyService.documentExists(sub_company);
       await this.campusService.documentExists(campus);
@@ -52,88 +72,8 @@ export class CoordinatorService {
   async findAll(): Promise<Coordinator[]> {
     try {
       const coordinatorsFound = await this.coordinatorModel.aggregate([
-        {
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: '$role',
-        },
         ...employeeQuery,
-        {
-          $lookup: {
-            from: 'subcompanies',
-            localField: 'sub_company',
-            foreignField: '_id',
-            as: 'sub_company',
-            pipeline: [
-              {
-                $lookup: {
-                  from: 'companies',
-                  localField: 'company',
-                  foreignField: '_id',
-                  as: 'company',
-                  pipeline: [
-                    {
-                      $project: {
-                        createdAt: 0,
-                        updatedAt: 0,
-                        city: 0,
-                        country: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-              { $unwind: '$company' },
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                  city: 0,
-                  country: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$sub_company' },
-        {
-          $lookup: {
-            from: 'campus',
-            localField: 'campus',
-            foreignField: '_id',
-            as: 'campus',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$campus' },
-        {
-          $project: {
-            is_active: 0,
-            password: 0,
-            updatedAt: 0,
-          },
-        },
+        ...coordinatorQuery,
       ]);
       console.log('Coordinators found successfully');
       return coordinatorsFound;
@@ -185,7 +125,6 @@ export class CoordinatorService {
     id: string,
     updateCoordinatorDto: UpdateCoordinatorDto,
   ): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       await this.documentExists(id);
       await this.coordinatorModel.findByIdAndUpdate(id, updateCoordinatorDto);
@@ -197,7 +136,6 @@ export class CoordinatorService {
   }
 
   async remove(id: string): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       await this.documentExists(id);
       await this.coordinatorModel.findByIdAndDelete(id);

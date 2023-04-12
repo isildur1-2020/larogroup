@@ -1,6 +1,5 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { SuperadminService } from './superadmin.service';
 import { CompanyModule } from 'src/company/company.module';
 import { SuperadminController } from './superadmin.controller';
@@ -16,10 +15,9 @@ import { AdministratorModule } from 'src/administrator/administrator.module';
         schema: SuperadminSchema,
       },
     ]),
-    ConfigModule,
     CompanyModule,
-    CoordinatorModule,
-    AdministratorModule,
+    forwardRef(() => CoordinatorModule),
+    forwardRef(() => AdministratorModule),
   ],
   controllers: [SuperadminController],
   providers: [SuperadminService],

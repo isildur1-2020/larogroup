@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ConfigService } from '@nestjs/config';
 import { CompanyService } from '../company/company.service';
 import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
@@ -12,6 +11,7 @@ import { AdministratorService } from 'src/administrator/administrator.service';
 import {
   Inject,
   Injectable,
+  forwardRef,
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -23,11 +23,9 @@ export class SuperadminService {
     private superadminModel: mongoose.Model<SuperadminDocument>,
     @Inject(CompanyService)
     private companyservice: CompanyService,
-    @Inject(ConfigService)
-    private configService: ConfigService,
-    @Inject(AdministratorService)
+    @Inject(forwardRef(() => AdministratorService))
     private administratorService: AdministratorService,
-    @Inject(CoordinatorService)
+    @Inject(forwardRef(() => CoordinatorService))
     private coordinatorService: CoordinatorService,
   ) {}
 
@@ -61,7 +59,7 @@ export class SuperadminService {
   }
 
   async findAll(companyId: string): Promise<Superadmin[]> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
+    // throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const superadminsFound = await this.superadminModel.aggregate([
         {
@@ -80,7 +78,6 @@ export class SuperadminService {
   }
 
   async documentExists(id: string): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const isExists = await this.superadminModel.exists({ _id: id });
       if (isExists === null) {
@@ -95,7 +92,6 @@ export class SuperadminService {
   }
 
   async findByUsername(username: string): Promise<Superadmin> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const userFound = await this.superadminModel
         .findOne({ username })
@@ -109,7 +105,7 @@ export class SuperadminService {
   }
 
   async findById(id: string): Promise<Superadmin> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
+    // throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const userFound = await this.superadminModel.findById(id);
       console.log('Superadmin found successfully');
