@@ -7,7 +7,4 @@ export class CreateCompanyDto {
 
   @IsMongoId()
   public city: string;
-
-  @IsMongoId()
-  public country: string;
 }

@@ -4,7 +4,6 @@ import { CityService } from 'src/city/city.service';
 import { City } from 'src//city/entities/city.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { CountryService } from 'src/country/country.service';
 import { Country } from 'src/country/entities/country.entity';
 import { Company, CompanyDocument } from './entities/company.entity';
 import {
@@ -21,15 +20,12 @@ export class CompanyService {
     private companyModel: Model<CompanyDocument>,
     @Inject(CityService)
     private cityService: CityService,
-    @Inject(CountryService)
-    private countryService: CountryService,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     try {
-      const { city, country } = createCompanyDto;
+      const { city } = createCompanyDto;
       await this.cityService.documentExists(city);
-      await this.countryService.documentExists(country);
       const newCompany = new this.companyModel(createCompanyDto);
       const companySaved = await newCompany.save();
       console.log('Company saved successfully');
@@ -45,7 +41,6 @@ export class CompanyService {
       const companiesFound = await this.companyModel
         .find()
         .populate('country', null, Country.name)
-        .populate('city', null, City.name)
         .exec();
       console.log('Companies found successfully');
       return companiesFound;
@@ -71,8 +66,15 @@ export class CompanyService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    throw new NotFoundException();
+  async update(id: string, updateCompanyDto: UpdateCompanyDto) {
+    try {
+      await this.documentExists(id);
+      await this.companyModel.findByIdAndUpdate(id, updateCompanyDto);
+      console.log(`Company with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
