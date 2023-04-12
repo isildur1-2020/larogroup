@@ -36,10 +36,14 @@ export class CampusService {
 
   async findAll(): Promise<Campus[]> {
     try {
-      const campusFound = await this.campusModel
-        .find()
-        .populate('sub_company')
-        .exec();
+      const campusFound = await this.campusModel.aggregate([
+        {
+          $project: {
+            sub_company: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Headquarters found successfully');
       return campusFound;
     } catch (err) {
@@ -64,8 +68,14 @@ export class CampusService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCampusDto: UpdateCampusDto) {
-    throw new NotFoundException();
+  async update(id: string, updateCampusDto: UpdateCampusDto): Promise<void> {
+    try {
+      await this.campusModel.findByIdAndUpdate(id, updateCampusDto);
+      console.log(`Campus with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {

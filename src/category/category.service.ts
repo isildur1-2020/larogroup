@@ -74,6 +74,7 @@ export class CategoryService {
   ): Promise<void> {
     try {
       await this.categoryModel.findByIdAndUpdate(id, updateCategoryDto);
+      console.log(`Category with id ${id} was updated successfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

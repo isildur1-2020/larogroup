@@ -32,8 +32,11 @@ export class CampusController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCampusDto: UpdateCampusDto) {
-    return this.campusService.update(+id, updateCampusDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateCampusDto: UpdateCampusDto,
+  ) {
+    return this.campusService.update(id, updateCampusDto);
   }
 
   @Delete(':id')
