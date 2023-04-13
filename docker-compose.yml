@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  laroaccess:
+    depends_on:
+      - laroaccess_db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laroaccess_image
+    container_name: laroaccess
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      MONGODB_URI: ${MONGODB_URI}
+
+
+  laroaccess_db:
+    image: mongo:5
+    restart: always
+    container_name: laroaccess_db
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_DATABASE: laroaccess
