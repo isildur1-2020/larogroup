@@ -4,9 +4,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 @Injectable()
@@ -51,16 +51,37 @@ export class RoleService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    throw new NotFoundException();
+  async findOneByName(name: string): Promise<Role> {
+    try {
+      const roleFound = await this.roleModel.findOne({ name });
+      if (roleFound === null) {
+        throw new BadRequestException('This role does not exists');
+      }
+      return roleFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async update(id: string, updateRoleDto: UpdateRoleDto): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.roleModel.findByIdAndUpdate(id, updateRoleDto);
+      console.log(`Rol with id ${id} updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<boolean> {
     try {
+      await this.documentExists(id);
       await this.roleModel.findByIdAndDelete(id);
       console.log(`Rol with id ${id} deleted successfully`);
       return true;

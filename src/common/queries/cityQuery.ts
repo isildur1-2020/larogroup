@@ -1,3 +1,5 @@
+import { countryQuery } from './countryQuery';
+
 export const cityQuery = [
   {
     $lookup: {
@@ -5,29 +7,7 @@ export const cityQuery = [
       localField: 'city',
       foreignField: '_id',
       as: 'city',
-      pipeline: [
-        {
-          $lookup: {
-            from: 'countries',
-            localField: 'country',
-            foreignField: '_id',
-            as: 'country',
-            pipeline: [
-              {
-                $project: {
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$country' },
-        {
-          $project: {
-            updatedAt: 0,
-          },
-        },
-      ],
+      pipeline: [...countryQuery],
     },
   },
   { $unwind: '$city' },

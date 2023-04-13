@@ -2,6 +2,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
+import { RoleModule } from 'src/role/role.module';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.stategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -11,6 +12,7 @@ import { AdministratorModule } from '../administrator/administrator.module';
 
 @Module({
   imports: [
+    RoleModule,
     ConfigModule,
     SuperadminModule,
     CoordinatorModule,

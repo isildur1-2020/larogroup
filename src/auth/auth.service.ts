@@ -1,6 +1,9 @@
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { AuthDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { VerifyTokenDto } from './dto/verifyTokenDto.dto';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
 import { CoordinatorService } from '../coordinator/coordinator.service';
 import { AdministratorService } from '../administrator/administrator.service';
@@ -22,78 +25,87 @@ export class AuthService {
     private administratorService: AdministratorService,
     @Inject(CoordinatorService)
     private coordinatorService: CoordinatorService,
+    @Inject(ConfigService)
+    private configService: ConfigService,
   ) {}
 
-  async superadminAuth(authDto: AuthDto) {
-    try {
-      const { username, password } = authDto;
-      const userFound = await this.superadminService.findByUsername(username);
-      if (userFound === null) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const isValidPassword = bcrypt.compareSync(password, userFound.password);
-      if (!isValidPassword) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const payload = {
-        _id: userFound._id,
-        role: userFound.role,
-        company: userFound.company,
-      };
-      return {
-        token: this.jwtService.sign(payload),
-      };
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
+  comparePassword(password: string, hash: string): void {
+    const isValidPassword = bcrypt.compareSync(password, hash);
+    if (!isValidPassword) {
+      throw new UnauthorizedException('Invalid credentials, please try again');
     }
   }
 
-  async coordinatorAuth(authDto: AuthDto) {
+  async login(authDto: AuthDto) {
     try {
+      let payload: any = {};
       const { username, password } = authDto;
-      const userFound = await this.coordinatorService.findByUsername(username);
-      if (userFound === null) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const isValidPassword = bcrypt.compareSync(password, userFound.password);
-      if (!isValidPassword) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const payload = {
-        _id: userFound._id,
-        role: userFound.role,
-        sub_company: userFound.sub_company,
-      };
-      return {
-        token: this.jwtService.sign(payload),
-      };
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async administratorAuth(authDto: AuthDto) {
-    try {
-      const { username, password } = authDto;
-      const userFound = await this.administratorService.findByUsername(
+      // VALIDATING IF THE USER IS AN ADMINISTRATOR
+      const adminFound = await this.administratorService.findByUsername(
         username,
       );
-      if (userFound === null) {
-        throw new UnauthorizedException('Invalid credentials');
+      if (adminFound !== null) {
+        this.comparePassword(password, adminFound.password);
+        payload = {
+          _id: adminFound._id,
+          role: adminFound.role,
+          company: adminFound.company,
+          username: adminFound.username,
+        };
+        return {
+          ...payload,
+          token: this.jwtService.sign(payload),
+        };
       }
-      const isValidPassword = bcrypt.compareSync(password, userFound.password);
-      if (!isValidPassword) {
-        throw new UnauthorizedException('Invalid credentials');
+      // VALIDATING IF THE USER IS A COORDINATOR
+      const coordinatorFound = await this.coordinatorService.findByUsername(
+        username,
+      );
+      if (coordinatorFound !== null) {
+        this.comparePassword(password, coordinatorFound.password);
+        payload = {
+          _id: coordinatorFound._id,
+          role: coordinatorFound.role,
+          company: coordinatorFound.company,
+          username: coordinatorFound.username,
+          sub_company: coordinatorFound.sub_company,
+        };
+        return {
+          ...payload,
+          token: this.jwtService.sign(payload),
+        };
       }
-      const payload = {
-        _id: userFound._id,
-        role: userFound.role,
-        company: userFound.company,
-      };
+      // VALIDATING IF THE USER IS A SUPERADMIN
+      const superadminFound = await this.superadminService.findByUsername(
+        username,
+      );
+      if (superadminFound !== null) {
+        this.comparePassword(password, superadminFound.password);
+        payload = {
+          _id: superadminFound._id,
+          role: superadminFound.role,
+          company: superadminFound.company,
+          username: superadminFound.username,
+        };
+        return {
+          ...payload,
+          token: this.jwtService.sign(payload),
+        };
+      }
+      throw new UnauthorizedException('Invalid credentials, please try again');
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  verifyToken(verifyTokenDto: VerifyTokenDto) {
+    try {
+      jwt.verify(verifyTokenDto.token, this.configService.get('JWT_SECRET'));
       return {
-        token: this.jwtService.sign(payload),
+        err: false,
+        message: 'Token valid',
+        token: verifyTokenDto.token,
       };
     } catch (err) {
       console.log(err);

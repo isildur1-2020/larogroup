@@ -10,6 +10,8 @@ import {
 import { CityService } from './city.service';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
+import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('city')
@@ -17,26 +19,34 @@ export class CityController {
   constructor(private readonly cityService: CityService) {}
 
   @Post()
+  @Auth(ValidRoles.superadmin)
   create(@Body() createCityDto: CreateCityDto) {
     return this.cityService.create(createCityDto);
   }
 
   @Get()
+  @Auth(ValidRoles.superadmin)
   findAll() {
     return this.cityService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cityService.findOne(+id);
+  @Auth(ValidRoles.superadmin)
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.cityService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCityDto: UpdateCityDto) {
-    return this.cityService.update(+id, updateCityDto);
+  @Auth(ValidRoles.superadmin)
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateCityDto: UpdateCityDto,
+  ) {
+    return this.cityService.update(id, updateCityDto);
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.superadmin)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.cityService.remove(id);
   }

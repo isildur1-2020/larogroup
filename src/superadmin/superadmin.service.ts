@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
+import { RoleService } from 'src/role/role.service';
 import { CompanyService } from '../company/company.service';
 import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
@@ -12,9 +14,10 @@ import {
   Inject,
   Injectable,
   forwardRef,
+  ForbiddenException,
   BadRequestException,
-  InternalServerErrorException,
 } from '@nestjs/common';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class SuperadminService {
@@ -27,12 +30,19 @@ export class SuperadminService {
     private administratorService: AdministratorService,
     @Inject(forwardRef(() => CoordinatorService))
     private coordinatorService: CoordinatorService,
+    @Inject(ConfigService)
+    private configService: ConfigService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {}
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
-      const { company, password, username } = createSuperadminDto;
+      const { company, password, username, root_password } =
+        createSuperadminDto;
+      if (root_password !== this.configService.get('ROOT_PASSWORD')) {
+        throw new ForbiddenException('You need a unique credential');
+      }
       // VALIDATE IF AN ADMIN EXISTS WITH THIS USERNAME
       const adminFound = await this.administratorService.findByUsername(
         username,
@@ -48,7 +58,13 @@ export class SuperadminService {
         throw new BadRequestException('You cannot use this username');
       }
       await this.companyservice.documentExists(company);
-      const newSuperadmin = new this.superadminModel(createSuperadminDto);
+      const roleFound = await this.roleService.findOneByName(
+        ValidRoles.superadmin,
+      );
+      const newSuperadmin = new this.superadminModel({
+        ...createSuperadminDto,
+        role: roleFound._id,
+      });
       newSuperadmin.password = bcrypt.hashSync(password, 10);
       await newSuperadmin.save();
       console.log('Superadmin created successfully');
@@ -59,7 +75,7 @@ export class SuperadminService {
   }
 
   async findAll(companyId: string): Promise<Superadmin[]> {
-    // throw new InternalServerErrorException('This endpoint is forbidden!');
+    throw new ForbiddenException('This endpoint is forbidden');
     try {
       const superadminsFound = await this.superadminModel.aggregate([
         {
@@ -105,7 +121,6 @@ export class SuperadminService {
   }
 
   async findById(id: string): Promise<Superadmin> {
-    // throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       const userFound = await this.superadminModel.findById(id);
       console.log('Superadmin found successfully');
@@ -117,8 +132,8 @@ export class SuperadminService {
   }
 
   async update(id: string, updateSuperadminDto: UpdateSuperadminDto) {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
+      throw new ForbiddenException('This endpoint is forbidden');
       await this.documentExists(id);
       await this.superadminModel.findByIdAndUpdate(id, updateSuperadminDto);
       console.log(`Superadmin with id ${id} was updated successfully`);
@@ -129,7 +144,6 @@ export class SuperadminService {
   }
 
   async remove(id: string): Promise<void> {
-    throw new InternalServerErrorException('This endpoint is forbidden!');
     try {
       await this.documentExists(id);
       await this.superadminModel.findByIdAndRemove(id);

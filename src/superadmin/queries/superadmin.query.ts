@@ -16,6 +16,7 @@ export const superadminQuery = [
     },
   },
   { $unwind: '$role' },
+  // COMPANY
   {
     $lookup: {
       from: 'companies',

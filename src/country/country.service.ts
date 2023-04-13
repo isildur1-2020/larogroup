@@ -30,7 +30,13 @@ export class CountryService {
 
   async findAll(): Promise<Country[]> {
     try {
-      const countriesFound = await this.countryModel.find();
+      const countriesFound = await this.countryModel.aggregate([
+        {
+          $project: {
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Countries found successfully');
       return countriesFound;
     } catch (err) {
@@ -51,16 +57,24 @@ export class CountryService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCountryDto: UpdateCountryDto) {
-    throw new NotFoundException();
+  async update(id: string, updateCountryDto: UpdateCountryDto): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.countryModel.findByIdAndUpdate(id, updateCountryDto);
+      console.log(`Country with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.countryModel.findByIdAndDelete(id);
       console.log(`Country with id ${id} was deleted successfully`);
     } catch (err) {

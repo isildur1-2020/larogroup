@@ -35,5 +35,8 @@ export class CreateCoordinatorDto {
   public sub_company: string;
 
   @IsMongoId()
+  public company: string;
+
+  @IsMongoId()
   public campus: string;
 }

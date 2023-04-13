@@ -10,6 +10,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { cityQuery } from 'src/common/queries/cityQuery';
 
 @Injectable()
 export class CompanyService {
@@ -36,7 +37,14 @@ export class CompanyService {
 
   async findAll(): Promise<Company[]> {
     try {
-      const companiesFound = await this.companyModel.find();
+      const companiesFound = await this.companyModel.aggregate([
+        ...cityQuery,
+        {
+          $project: {
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Companies found successfully');
       return companiesFound;
     } catch (err) {
@@ -57,7 +65,7 @@ export class CompanyService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 

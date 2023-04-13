@@ -26,10 +26,10 @@ export class SuperadminController {
     return this.superadminService.findAll(companyId);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.superadminService.findById(id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id', ParseMongoIdPipe) id: string) {
+  //   return this.superadminService.findById(id);
+  // }
 
   @Patch(':id')
   update(

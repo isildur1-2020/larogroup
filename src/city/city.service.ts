@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
 import { City, CityDocument } from './entities/city.entity';
-import { Country } from '../country/entities/country.entity';
 import { CountryService } from 'src/country/country.service';
 import {
   Inject,
@@ -12,6 +11,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { countryQuery } from 'src/common/queries/countryQuery';
 
 @Injectable()
 export class CityService {
@@ -22,14 +22,27 @@ export class CityService {
     private countryService: CountryService,
   ) {}
 
-  async create(createCityDto: CreateCityDto): Promise<City> {
+  async create(createCityDto: CreateCityDto): Promise<void> {
     try {
       const { country } = createCityDto;
       await this.countryService.documentExists(country);
-      const newCity = new this.cityModel(createCityDto);
-      const citySaved = await newCity.save();
-      console.log('City created succesfully');
-      return citySaved;
+      await this.cityModel.deleteMany();
+      const createCity = async (cityName: string) => {
+        try {
+          const cityData = {
+            country,
+            name: cityName,
+          };
+          const newCity = new this.cityModel(cityData);
+          await newCity.save();
+          console.log(`City ${cityName} was created successfully`);
+        } catch (err) {
+          console.log(err);
+          throw new BadRequestException(err.message);
+        }
+      };
+      colCities.map((cityName) => createCity(cityName));
+      console.log('Cities of Colombia created succesfully');
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -38,10 +51,7 @@ export class CityService {
 
   async findAll(): Promise<City[]> {
     try {
-      const citiesFound = await this.cityModel
-        .find()
-        .populate('country', null, Country.name)
-        .exec();
+      const citiesFound = await this.cityModel.aggregate([...countryQuery]);
       console.log('Cities found successfully');
       return citiesFound;
     } catch (err) {
@@ -62,16 +72,24 @@ export class CityService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
-  update(id: number, updateCityDto: UpdateCityDto) {
-    throw new NotFoundException();
+  async update(id: string, updateCityDto: UpdateCityDto): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.cityModel.findByIdAndUpdate(id, updateCityDto);
+      console.log(`City with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.cityModel.findByIdAndDelete(id);
       console.log(`City with id ${id} was deleted successfully`);
     } catch (err) {

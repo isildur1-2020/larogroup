@@ -1,14 +1,6 @@
-import { IsString, IsEnum } from 'class-validator';
-
-export enum NameEnum {
-  superadmin = 'superadmin',
-  administrator = 'administrator',
-  coordinator = 'coordinator',
-  employee = 'employee',
-}
+import { IsString } from 'class-validator';
 
 export class CreateRoleDto {
   @IsString()
-  @IsEnum(NameEnum)
   name: string;
 }

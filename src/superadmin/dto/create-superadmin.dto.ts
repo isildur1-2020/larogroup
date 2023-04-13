@@ -25,4 +25,14 @@ export class CreateSuperadminDto {
 
   @IsMongoId()
   public company: string;
+
+  @IsString()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
+      message:
+        'The password must have minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.',
+    },
+  )
+  public root_password: string;
 }

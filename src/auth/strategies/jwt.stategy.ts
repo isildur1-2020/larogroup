@@ -1,8 +1,9 @@
 import { ConfigService } from '@nestjs/config';
-import { roles_ids } from '../../utils/role_ids';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
+import { RoleService } from 'src/role/role.service';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { ValidRoles } from '../interfaces/valid-roles.interface';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
 import { Superadmin } from 'src/superadmin/entities/superadmin.entity';
 import { CoordinatorService } from 'src/coordinator/coordinator.service';
@@ -26,6 +27,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly coordinatorService: CoordinatorService,
     @Inject(AdministratorService)
     private administratorService: AdministratorService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
@@ -38,14 +41,24 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const { _id, role } = payload;
       let userFound: Superadmin | Coordinator | Administrator = null;
 
+      const adminRole = await this.roleService.findOneByName(
+        ValidRoles.administrator,
+      );
+      const coordinatorRole = await this.roleService.findOneByName(
+        ValidRoles.coordinator,
+      );
+      const superadminRole = await this.roleService.findOneByName(
+        ValidRoles.superadmin,
+      );
+
       switch (role._id) {
-        case roles_ids.administrator:
+        case adminRole._id.toString():
           userFound = await this.administratorService.findById(_id);
           break;
-        case roles_ids.coordinator:
+        case coordinatorRole._id.toString():
           userFound = await this.coordinatorService.findById(_id);
           break;
-        case roles_ids.superadmin:
+        case superadminRole._id.toString():
           userFound = await this.superadminService.findById(_id);
           break;
       }
