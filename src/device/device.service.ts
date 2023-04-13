@@ -4,6 +4,7 @@ import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { ReasonService } from 'src/reason/reason.service';
 import { deviceQuery } from 'src/common/queries/deviceQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
@@ -15,12 +16,15 @@ export class DeviceService {
     private deviceModel: Model<DeviceDocument>,
     @Inject(CampusService)
     private campusService: CampusService,
+    @Inject(ReasonService)
+    private reasonService: ReasonService,
   ) {}
 
   async create(createDeviceDto: CreateDeviceDto): Promise<Device> {
     try {
-      const { campus } = createDeviceDto;
+      const { campus, direction } = createDeviceDto;
       await this.campusService.documentExists(campus);
+      await this.reasonService.documentExists(direction);
       const newDevice = new this.deviceModel(createDeviceDto);
       const deviceSaved = newDevice.save();
       console.log('Device created successfully');

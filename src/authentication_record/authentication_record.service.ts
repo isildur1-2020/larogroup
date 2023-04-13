@@ -1,10 +1,8 @@
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RfidService } from 'src/rfid/rfid.service';
 import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
-import { BarcodeService } from 'src/barcode/barcode.service';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
@@ -15,6 +13,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   AuthenticationRecord,
@@ -32,10 +31,6 @@ export class AuthenticationRecordService {
     private authenticationMethodService: AuthenticationMethodService,
     @Inject(ReasonService)
     private reasonService: ReasonService,
-    @Inject(BarcodeService)
-    private barcodeService: BarcodeService,
-    @Inject(RfidService)
-    private rfidService: RfidService,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
   ) {}
@@ -44,32 +39,36 @@ export class AuthenticationRecordService {
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<Employee> {
     try {
+      let query = {};
       let userFound: Employee = null;
-      const { data, sn, reason, authentication_method, employee } =
+      const { data, sn, reason, auth_method_name, employee } =
         createAuthenticationRecordDto;
-      const deviceFound = await this.deviceService.findOneBySN(sn);
-      await this.authenticationMethodService.documentExists(
-        authentication_method,
-      );
-      await this.reasonService.documentExists(reason);
 
-      switch (authentication_method) {
+      const deviceFound = await this.deviceService.findOneBySN(sn);
+      await this.reasonService.documentExists(reason);
+      const authMethodFound =
+        await this.authenticationMethodService.findOneByName(auth_method_name);
+
+      switch (auth_method_name) {
         case AuthMethods.barcode:
-          userFound = await this.barcodeService.findOneByData(data);
+          query = { barcode: data };
+          userFound = await this.employeeService.findOneByData(query);
           break;
         case AuthMethods.nfc:
           const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
           const decimalData = hex2dec.hexToDec(hexReversed);
-          userFound = await this.rfidService.findOneByData(decimalData);
+          query = { nfc: decimalData };
+          userFound = await this.employeeService.findOneByData(query);
           break;
         case AuthMethods.fingerprint:
           userFound = await this.employeeService.findOne(employee);
           break;
       }
       const newAuthenticationRecord = new this.authenticationRecordModel({
+        ...createAuthenticationRecordDto,
         employee: userFound._id.toString(),
         device: deviceFound._id.toString(),
-        ...createAuthenticationRecordDto,
+        authentication_method: authMethodFound._id.toString(),
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
@@ -102,6 +101,7 @@ export class AuthenticationRecordService {
   }
 
   async remove(id: string): Promise<void> {
+    throw new UnauthorizedException('This endpoint is forbidden');
     try {
       await this.authenticationRecordModel.findByIdAndDelete(id);
       console.log(

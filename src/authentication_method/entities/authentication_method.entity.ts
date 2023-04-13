@@ -9,6 +9,8 @@ export type AuthenticationMethodDocument =
   versionKey: false,
 })
 export class AuthenticationMethod {
+  public _id: string;
+
   @Prop({
     required: true,
   })

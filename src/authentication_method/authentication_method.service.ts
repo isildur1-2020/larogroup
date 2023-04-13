@@ -72,6 +72,21 @@ export class AuthenticationMethodService {
     throw new NotFoundException();
   }
 
+  async findOneByName(name: string): Promise<AuthenticationMethod> {
+    try {
+      const authMethodFound = await this.authenticationMethodModel.findOne({
+        name,
+      });
+      if (authMethodFound === null) {
+        throw new BadRequestException('Auth method does not exists');
+      }
+      return authMethodFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async update(
     id: string,
     updateAuthenticationMethodDto: UpdateAuthenticationMethodDto,

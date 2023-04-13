@@ -152,4 +152,19 @@ export class EmployeeService {
       throw new BadRequestException(err.message);
     }
   }
+
+  async findOneByData(data: object): Promise<Employee> {
+    try {
+      const employeeFound = await this.employeeModel.findOne(data);
+      if (employeeFound === null) {
+        throw new BadRequestException(
+          'Not employee found with this data parameters',
+        );
+      }
+      return employeeFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
 }

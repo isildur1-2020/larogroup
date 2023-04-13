@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CityModule } from './city/city.module';
 import { RoleModule } from './role/role.module';
-import { RfidModule } from './rfid/rfid.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CampusModule } from './campus/campus.module';
@@ -11,7 +10,6 @@ import { ReasonModule } from './reason/reason.module';
 import { EnvConfiguration } from './config/app.config';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
-import { BarcodeModule } from './barcode/barcode.module';
 import { DniTypeModule } from './dni_type/dni_type.module';
 import { CategoryModule } from './category/category.module';
 import { EmployeeModule } from './employee/employee.module';
@@ -35,7 +33,6 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     }),
     CityModule,
     RoleModule,
-    RfidModule,
     AuthModule,
     DeviceModule,
     CampusModule,
@@ -43,7 +40,6 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     CountryModule,
     DniTypeModule,
     CompanyModule,
-    BarcodeModule,
     CategoryModule,
     EmployeeModule,
     SuperadminModule,
