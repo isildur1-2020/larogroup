@@ -1,16 +1,16 @@
-import { subcompanyQuery } from './subcompanyQuery';
+import { campusQuery } from './campusQuery';
 
 export const deviceQuery = [
   {
     $lookup: {
-      from: 'campus',
-      localField: 'campus',
+      from: 'devices',
+      localField: 'device',
       foreignField: '_id',
-      as: 'campus',
-      pipeline: [...subcompanyQuery],
+      as: 'device',
+      pipeline: [...campusQuery],
     },
   },
-  { $unwind: '$campus' },
+  { $unwind: '$device' },
   {
     $project: {
       updatedAt: 0,

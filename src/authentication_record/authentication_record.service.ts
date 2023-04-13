@@ -5,6 +5,7 @@ import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
@@ -81,13 +82,8 @@ export class AuthenticationRecordService {
 
   async findAll(): Promise<AuthenticationRecord[]> {
     try {
-      const authenticationRecordsFound = await this.authenticationRecordModel
-        .find()
-        .populate('employee')
-        .populate('device')
-        .populate('authentication_method')
-        .populate('reason')
-        .exec();
+      const authenticationRecordsFound =
+        await this.authenticationRecordModel.aggregate([...authRecordQuery]);
       console.log('Authentication records found successfully');
       return authenticationRecordsFound;
     } catch (err) {

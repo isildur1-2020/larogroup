@@ -5,7 +5,7 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { ReasonService } from 'src/reason/reason.service';
-import { deviceQuery } from 'src/common/queries/deviceQuery';
+import { campusQuery } from 'src/common/queries/campusQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 
@@ -37,7 +37,7 @@ export class DeviceService {
 
   async findAll(): Promise<Device[]> {
     try {
-      const devicesFound = await this.deviceModel.aggregate([...deviceQuery]);
+      const devicesFound = await this.deviceModel.aggregate([...campusQuery]);
       console.log('Devices found successfully');
       return devicesFound;
     } catch (err) {
