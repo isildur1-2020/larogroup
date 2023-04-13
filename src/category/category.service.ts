@@ -64,7 +64,7 @@ export class CategoryService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
@@ -84,6 +84,7 @@ export class CategoryService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.categoryModel.findByIdAndDelete(id);
       console.log(`Category with id ${id} was deleted succesfully`);
     } catch (err) {

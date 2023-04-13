@@ -24,16 +24,19 @@ export class RfidController {
     return this.rfidService.create(createRfidDto);
   }
 
-  @Get(':employee')
+  @Get(':employee_id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  findAll(@Param('employee', ParseMongoIdPipe) employee: string) {
-    return this.rfidService.findAll(employee);
+  findAll(@Param('employee_id', ParseMongoIdPipe) employee_id: string) {
+    return this.rfidService.findAll(employee_id);
   }
 
   @Patch(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  update(@Param('id') id: string, @Body() updateRfidDto: UpdateRfidDto) {
-    return this.rfidService.update(+id, updateRfidDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateRfidDto: UpdateRfidDto,
+  ) {
+    return this.rfidService.update(id, updateRfidDto);
   }
 
   @Delete(':id')

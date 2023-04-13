@@ -73,4 +73,14 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsMongoId()
   public city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  public barcode: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  public rfid: string;
 }

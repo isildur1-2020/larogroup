@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -21,7 +20,7 @@ export class Administrator {
   @Prop({
     ref: 'Role',
     immutable: true,
-    default: roles_ids.administrator,
+    required: true,
     type: mongoose.Schema.Types.ObjectId,
   })
   public role: Role;

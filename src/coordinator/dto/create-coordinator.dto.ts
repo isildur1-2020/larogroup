@@ -8,10 +8,6 @@ import {
 } from 'class-validator';
 
 export class CreateCoordinatorDto {
-  @IsOptional()
-  @IsMongoId()
-  public role: string;
-
   @IsMongoId()
   public employee: string;
 

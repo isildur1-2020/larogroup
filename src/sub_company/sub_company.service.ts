@@ -1,9 +1,11 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
+import { cityQuery } from 'src/common/queries/cityQuery';
 import { CompanyService } from 'src/company/company.service';
 import { CreateSubCompanyDto } from './dto/create-sub_company.dto';
 import { UpdateSubCompanyDto } from './dto/update-sub_company.dto';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import { SubCompany, SubCompanyDocument } from './entities/sub_company.entity';
 import {
   Inject,
@@ -11,8 +13,6 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { cityQuery } from 'src/common/queries/cityQuery';
-import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 
 @Injectable()
 export class SubCompanyService {
@@ -87,6 +87,7 @@ export class SubCompanyService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.subCompanyModel.findByIdAndDelete({ _id: id });
       console.log(`Sub company with id ${id} was deleted successfully`);
     } catch (err) {

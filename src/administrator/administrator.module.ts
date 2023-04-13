@@ -1,4 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { RoleModule } from 'src/role/role.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { CompanyModule } from 'src/company/company.module';
 import { AdministratorService } from './administrator.service';
@@ -18,6 +19,7 @@ import {
         schema: AdministratorSchema,
       },
     ]),
+    RoleModule,
     CompanyModule,
     forwardRef(() => CoordinatorModule),
     forwardRef(() => SuperadminModule),

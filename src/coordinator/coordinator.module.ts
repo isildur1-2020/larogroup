@@ -1,4 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { RoleModule } from 'src/role/role.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { CampusModule } from 'src/campus/campus.module';
 import { CoordinatorService } from './coordinator.service';
@@ -17,6 +18,7 @@ import { Coordinator, CoordinatorSchema } from './entities/coordinator.entity';
         schema: CoordinatorSchema,
       },
     ]),
+    RoleModule,
     CampusModule,
     EmployeeModule,
     SubCompanyModule,

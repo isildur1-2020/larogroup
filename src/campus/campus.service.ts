@@ -81,6 +81,7 @@ export class CampusService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.campusModel.findByIdAndDelete(id);
       console.log(`Campus with id ${id} was deleted successfully`);
     } catch (err) {

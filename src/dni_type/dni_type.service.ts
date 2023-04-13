@@ -26,7 +26,13 @@ export class DniTypeService {
 
   async findAll(): Promise<DniType[]> {
     try {
-      const dniTypesFound = await this.dniTypeModel.find();
+      const dniTypesFound = await this.dniTypeModel.aggregate([
+        {
+          $project: {
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Dni types found successfully');
       return dniTypesFound;
     } catch (err) {
@@ -60,6 +66,7 @@ export class DniTypeService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.dniTypeModel.findOneAndDelete({ _id: id });
       console.log(`Dni type with id ${id} was deleted successfully`);
     } catch (err) {

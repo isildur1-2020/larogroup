@@ -1,24 +1,25 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRfidDto } from './dto/create-rfid.dto';
 import { UpdateRfidDto } from './dto/update-rfid.dto';
 import { Rfid, RfidDocument } from './entities/rfid.entity';
+import { employeeQuery } from 'src/common/queries/employee';
 import { EmployeeService } from 'src/employee/employee.service';
-import { employeeQuery } from 'src/employee/queries/employeeQuery';
+import { Employee } from 'src/employee/entities/employee.entity';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { Employee } from 'src/employee/entities/employee.entity';
 
 @Injectable()
 export class RfidService {
   constructor(
     @InjectModel(Rfid.name)
-    private rfidModel: Model<RfidDocument>,
-    @Inject(EmployeeService)
+    private rfidModel: mongoose.Model<RfidDocument>,
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
   ) {}
 
@@ -40,14 +41,36 @@ export class RfidService {
     }
   }
 
-  async findAll(employee: string): Promise<Rfid[]> {
+  async findAll(employee_id: string): Promise<Rfid[]> {
     try {
-      const rfidsFound = await this.rfidModel
-        .find({ employee })
-        .populate('employee')
-        .exec();
+      const rfidsFound = await this.rfidModel.aggregate([
+        {
+          $match: {
+            employee: new mongoose.Types.ObjectId(employee_id),
+          },
+        },
+        ...employeeQuery,
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Rfids found successfully');
       return rfidsFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.rfidModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(`Rfid with id ${id} does not exists`);
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -58,16 +81,7 @@ export class RfidService {
     try {
       const rfidFound = await this.rfidModel.aggregate([
         { $match: { data } },
-        {
-          $lookup: {
-            from: 'employees',
-            foreignField: '_id',
-            localField: 'employee',
-            as: 'employee',
-            pipeline: [...employeeQuery],
-          },
-        },
-        { $unwind: '$employee' },
+        ...employeeQuery,
         {
           $project: {
             createdAt: 0,
@@ -88,14 +102,27 @@ export class RfidService {
     }
   }
 
-  update(id: number, updateRfidDto: UpdateRfidDto) {
+  update(id: string, updateRfidDto: UpdateRfidDto) {
     throw new NotFoundException();
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.rfidModel.findByIdAndDelete(id);
       console.log(`Rfid with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async deleteByEmployeeId(employee_id: string) {
+    try {
+      await this.rfidModel.findOneAndDelete({ employee: employee_id });
+      console.log(
+        `Rfid with employee_id ${employee_id} was deleted succesfully`,
+      );
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

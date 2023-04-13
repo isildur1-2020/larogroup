@@ -1,14 +1,15 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateBarcodeDto } from './dto/create-barcode.dto';
 import { UpdateBarcodeDto } from './dto/update-barcode.dto';
+import { employeeQuery } from 'src/common/queries/employee';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
-import { employeeQuery } from 'src/employee/queries/employeeQuery';
 import { Barcode, BarcodeDocument } from './entities/barcode.entity';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -17,8 +18,8 @@ import {
 export class BarcodeService {
   constructor(
     @InjectModel(Barcode.name)
-    private barcodeModel: Model<BarcodeDocument>,
-    @Inject(EmployeeService)
+    private barcodeModel: mongoose.Model<BarcodeDocument>,
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
   ) {}
 
@@ -42,12 +43,22 @@ export class BarcodeService {
     }
   }
 
-  async findAll(employee: string): Promise<Barcode[]> {
+  async findAll(employee_id: string): Promise<Barcode[]> {
     try {
-      const barcodesFound = await this.barcodeModel
-        .find({ employee })
-        .populate('employee', ['first_name', 'second_name', 'email', 'dni'])
-        .exec();
+      const barcodesFound = await this.barcodeModel.aggregate([
+        {
+          $match: {
+            employee: new mongoose.Types.ObjectId(employee_id),
+          },
+        },
+        ...employeeQuery,
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Barcodes found successfully');
       return barcodesFound;
     } catch (err) {
@@ -60,16 +71,7 @@ export class BarcodeService {
     try {
       const barcodeFound = await this.barcodeModel.aggregate([
         { $match: { data } },
-        {
-          $lookup: {
-            from: 'employees',
-            foreignField: '_id',
-            localField: 'employee',
-            as: 'employee',
-            pipeline: [...employeeQuery],
-          },
-        },
-        { $unwind: '$employee' },
+        ...employeeQuery,
         {
           $project: {
             createdAt: 0,
@@ -88,7 +90,7 @@ export class BarcodeService {
     }
   }
 
-  update(id: number, updateBarcodeDto: UpdateBarcodeDto) {
+  update(id: string, updateBarcodeDto: UpdateBarcodeDto) {
     throw new NotFoundException();
   }
 
@@ -96,6 +98,18 @@ export class BarcodeService {
     try {
       await this.barcodeModel.findByIdAndDelete(id);
       console.log(`Barcode with id ${id} was deleted succesfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async deleteByEmployeeId(employee_id: string) {
+    try {
+      await this.barcodeModel.findOneAndDelete({ employee: employee_id });
+      console.log(
+        `Barcode with employee_id ${employee_id} was deleted succesfully`,
+      );
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

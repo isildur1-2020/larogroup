@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Controller,
-  Query,
 } from '@nestjs/common';
 import { BarcodeService } from './barcode.service';
 import { CreateBarcodeDto } from './dto/create-barcode.dto';
@@ -25,16 +24,19 @@ export class BarcodeController {
     return this.barcodeService.create(createBarcodeDto);
   }
 
-  @Get(':employeeId')
+  @Get(':employee_id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  findAll(@Param('employeeId', ParseMongoIdPipe) employeeId: string) {
-    return this.barcodeService.findAll(employeeId);
+  findAll(@Param('employee_id', ParseMongoIdPipe) employee_id: string) {
+    return this.barcodeService.findAll(employee_id);
   }
 
   @Patch(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  update(@Param('id') id: string, @Body() updateBarcodeDto: UpdateBarcodeDto) {
-    return this.barcodeService.update(+id, updateBarcodeDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateBarcodeDto: UpdateBarcodeDto,
+  ) {
+    return this.barcodeService.update(id, updateBarcodeDto);
   }
 
   @Delete(':id')

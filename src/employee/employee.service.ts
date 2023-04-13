@@ -1,18 +1,25 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { roles_ids } from 'src/utils/role_ids';
 import { CityService } from 'src/city/city.service';
 import { employeeQuery } from './queries/employeeQuery';
 import { CampusService } from 'src/campus/campus.service';
 import { CompanyService } from 'src/company/company.service';
+import { BarcodeService } from 'src/barcode/barcode.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
 import { CategoryService } from 'src/category/category.service';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
-import { Injectable, BadRequestException, Inject } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
+import { RfidService } from 'src/rfid/rfid.service';
 
 @Injectable()
 export class EmployeeService {
@@ -31,14 +38,20 @@ export class EmployeeService {
     private companyService: CompanyService,
     @Inject(CampusService)
     private campusService: CampusService,
+    @Inject(forwardRef(() => BarcodeService))
+    private barcodeService: BarcodeService,
+    @Inject(forwardRef(() => RfidService))
+    private rfidService: RfidService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
       const {
         city,
+        rfid,
         campus,
         company,
+        barcode,
         dni_type,
         sub_company,
         first_category,
@@ -55,9 +68,18 @@ export class EmployeeService {
       await this.dniTypeService.documentExists(dni_type);
       await this.subCompanyService.documentExists(sub_company);
       await this.categoryService.documentExists(first_category);
-
       const newEmployee = new this.employeeModel(createEmployeeDto);
-      const employeeCreated = await newEmployee.save();
+      const employeeCreated: Employee = await newEmployee.save();
+      // CREATE A BARCODE
+      const barcodeSaved = await this.barcodeService.create({
+        employee: employeeCreated._id.toString(),
+        data: barcode,
+      });
+      // CREATE A NFC
+      const rfidSaved = await this.rfidService.create({
+        employee: employeeCreated._id.toString(),
+        data: rfid,
+      });
       console.log('Employee created succesfully');
       return employeeCreated;
     } catch (err) {
@@ -76,7 +98,7 @@ export class EmployeeService {
         sub_company: new mongoose.Types.ObjectId(sub_company?._id),
       };
       const matchQuery =
-        payload.role._id === roles_ids.administrator
+        payload.role.name === ValidRoles.administrator
           ? adminMatch
           : coordinatorMatch;
       const employeesFound = await this.employeeModel.aggregate([
@@ -134,6 +156,7 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
       console.log(`Employee with id ${id} was updated succesfully`);
     } catch (err) {
@@ -144,6 +167,9 @@ export class EmployeeService {
 
   async remove(id: string) {
     try {
+      await this.documentExists(id);
+      await this.barcodeService.deleteByEmployeeId(id);
+      await this.rfidService.deleteByEmployeeId(id);
       await this.employeeModel.findByIdAndDelete(id);
       console.log(`Employee with id ${id} was deleted succesfully`);
     } catch (err) {

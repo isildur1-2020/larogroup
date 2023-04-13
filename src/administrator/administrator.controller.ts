@@ -10,7 +10,6 @@ import {
 import { AdministratorService } from './administrator.service';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Auth } from '../auth/decorators/auth-decorator.decorator';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
@@ -26,14 +25,10 @@ export class AdministratorController {
     return this.administratorService.create(createAdministratorDto);
   }
 
-  @Get(':companyId')
+  @Get()
   @Auth(ValidRoles.superadmin)
-  findAll(
-    @Param('companyId', ParseMongoIdPipe) companyId: string,
-    @GetUser() user: JwtPayload,
-  ) {
-    console.log(user);
-    return this.administratorService.findAll(companyId);
+  findAll(@GetUser('company', ParseMongoIdPipe) company_id: string) {
+    return this.administratorService.findAll(company_id);
   }
 
   @Get(':id')

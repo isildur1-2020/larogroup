@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { RoleService } from 'src/role/role.service';
 import { CampusService } from 'src/campus/campus.service';
 import { employeeQuery } from 'src/common/queries/employee';
 import { coordinatorQuery } from './queries/coordinatorQuery';
@@ -8,6 +9,7 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';
 import { UpdateCoordinatorDto } from './dto/update-coordinator.dto';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { AdministratorService } from 'src/administrator/administrator.service';
 import {
@@ -36,6 +38,8 @@ export class CoordinatorService {
     private administratorService: AdministratorService,
     @Inject(forwardRef(() => SuperadminService))
     private superadminService: SuperadminService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {}
 
   async create(createCoordinatorDto: CreateCoordinatorDto): Promise<void> {
@@ -59,7 +63,13 @@ export class CoordinatorService {
       await this.employeeService.documentExists(employee);
       await this.subCompanyService.documentExists(sub_company);
       await this.campusService.documentExists(campus);
-      const newCoordinator = new this.coordinatorModel(createCoordinatorDto);
+      const roleFound = await this.roleService.findOneByName(
+        ValidRoles.coordinator,
+      );
+      const newCoordinator = new this.coordinatorModel({
+        ...createCoordinatorDto,
+        role: roleFound._id,
+      });
       newCoordinator.password = bcrypt.hashSync(password, 10);
       await newCoordinator.save();
       console.log('Coordinator created successfully');

@@ -8,23 +8,6 @@ export const employeeQuery = [
       pipeline: [
         {
           $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$role' },
-        {
-          $lookup: {
             from: 'dnitypes',
             localField: 'dni_type',
             foreignField: '_id',
@@ -40,6 +23,7 @@ export const employeeQuery = [
           },
         },
         { $unwind: '$dni_type' },
+        // CATEGORY
         {
           $lookup: {
             from: 'categories',
@@ -58,13 +42,52 @@ export const employeeQuery = [
           },
         },
         { $unwind: '$first_category' },
+        // CAMPUS
         {
           $lookup: {
-            from: 'countries',
-            localField: 'country',
+            from: 'campus',
+            localField: 'campus',
             foreignField: '_id',
-            as: 'country',
+            as: 'campus',
             pipeline: [
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                  sub_company: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$campus' },
+        // SUBCOMPANY
+        {
+          $lookup: {
+            from: 'subcompanies',
+            localField: 'sub_company',
+            foreignField: '_id',
+            as: 'sub_company',
+            pipeline: [
+              // COMPANY
+              {
+                $lookup: {
+                  from: 'companies',
+                  localField: 'company',
+                  foreignField: '_id',
+                  as: 'company',
+                  pipeline: [
+                    {
+                      $project: {
+                        createdAt: 0,
+                        updatedAt: 0,
+                        city: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+              { $unwind: '$company' },
               {
                 $project: {
                   createdAt: 0,
@@ -74,7 +97,8 @@ export const employeeQuery = [
             ],
           },
         },
-        { $unwind: '$country' },
+        { $unwind: '$sub_company' },
+        // CITY
         {
           $lookup: {
             from: 'cities',
@@ -93,12 +117,13 @@ export const employeeQuery = [
           },
         },
         { $unwind: '$city' },
+        // GLOBAL PROJECT
         {
           $project: {
             is_active: 0,
-            sub_company: 0,
             contract_start_date: 0,
             contract_end_date: 0,
+            company: 0,
           },
         },
       ],

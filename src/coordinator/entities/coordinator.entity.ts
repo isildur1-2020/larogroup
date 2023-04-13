@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { roles_ids } from '../../utils/role_ids';
 import { Role } from 'src/role/entities/role.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
 import { Company } from 'src/company/entities/company.entity';
@@ -23,7 +22,7 @@ export class Coordinator {
 
   @Prop({
     ref: 'Role',
-    default: roles_ids.coordinator,
+    required: true,
     type: mongoose.Schema.Types.ObjectId,
   })
   public role: Role;

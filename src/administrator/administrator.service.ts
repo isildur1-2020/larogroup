@@ -1,9 +1,11 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { RoleService } from 'src/role/role.service';
 import { CompanyService } from 'src/company/company.service';
 import { administratorQuery } from './queries/administratorQuery';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { CoordinatorService } from 'src/coordinator/coordinator.service';
@@ -30,6 +32,8 @@ export class AdministratorService {
     private coordinatorService: CoordinatorService,
     @Inject(forwardRef(() => SuperadminService))
     private superadminService: SuperadminService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {}
 
   async create(createAdministratorDto: CreateAdministratorDto): Promise<void> {
@@ -50,9 +54,13 @@ export class AdministratorService {
         throw new BadRequestException('You cannot use this username');
       }
       await this.companyService.documentExists(company);
-      const newAdministrator = new this.administratorModel(
-        createAdministratorDto,
+      const roleFound = await this.roleService.findOneByName(
+        ValidRoles.administrator,
       );
+      const newAdministrator = new this.administratorModel({
+        ...createAdministratorDto,
+        role: roleFound._id,
+      });
       newAdministrator.password = bcrypt.hashSync(password, 10);
       await newAdministrator.save();
       console.log('Administrator created succesfully');
@@ -62,12 +70,13 @@ export class AdministratorService {
     }
   }
 
-  async findAll(companyId: string): Promise<Administrator[]> {
+  async findAll(company_id: string): Promise<Administrator[]> {
     try {
+      console.log(company_id);
       const administratorsFound = await this.administratorModel.aggregate([
         {
           $match: {
-            company: new mongoose.Types.ObjectId(companyId),
+            company: new mongoose.Types.ObjectId(company_id),
           },
         },
         ...administratorQuery,

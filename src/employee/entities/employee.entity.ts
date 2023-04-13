@@ -1,9 +1,6 @@
 import * as mongoose from 'mongoose';
-import { roles_ids } from '../../utils/role_ids';
-import { Role } from 'src/role/entities/role.entity';
 import { City } from 'src/city/entities/city.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
-import { Country } from 'src/country/entities/country.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
@@ -29,14 +26,6 @@ export class Employee {
     default: true,
   })
   public is_active: boolean;
-
-  @Prop({
-    ref: 'Role',
-    immutable: true,
-    default: roles_ids.employee,
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public role: Role;
 
   @Prop({
     ref: 'DniType',

@@ -5,7 +5,6 @@ import { RoleModule } from './role/role.module';
 import { RfidModule } from './rfid/rfid.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { FacialModule } from './facial/facial.module';
 import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
 import { ReasonModule } from './reason/reason.module';
@@ -39,7 +38,6 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     RfidModule,
     AuthModule,
     DeviceModule,
-    FacialModule,
     CampusModule,
     ReasonModule,
     CountryModule,
