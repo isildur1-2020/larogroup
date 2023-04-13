@@ -1,5 +1,5 @@
 export enum AuthMethods {
-  nfc = 'nfc',
+  rfid = 'rfid',
   barcode = 'barcode',
   fingerprint = 'fingerprint',
 }

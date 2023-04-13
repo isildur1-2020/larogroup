@@ -54,10 +54,10 @@ export class AuthenticationRecordService {
           query = { barcode: data };
           userFound = await this.employeeService.findOneByData(query);
           break;
-        case AuthMethods.nfc:
+        case AuthMethods.rfid:
           const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
           const decimalData = hex2dec.hexToDec(hexReversed);
-          query = { nfc: decimalData };
+          query = { rfid: decimalData };
           userFound = await this.employeeService.findOneByData(query);
           break;
         case AuthMethods.fingerprint:
