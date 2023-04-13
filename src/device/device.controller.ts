@@ -6,11 +6,11 @@ import {
   Param,
   Delete,
   Controller,
-  ParseBoolPipe,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 import { Auth } from '../auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
@@ -37,15 +37,15 @@ export class DeviceController {
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
   ) {
-    return this.deviceService.update(+id, updateDeviceDto);
+    return this.deviceService.update(id, updateDeviceDto);
   }
 
-  @Patch(':id/change-status/:status')
+  @Patch(':id/change-status')
   changeStatus(
     @Param('id', ParseMongoIdPipe) id: string,
-    @Param('status', ParseBoolPipe) status: boolean,
+    @Body() changeStatusDto: ChangeStatusDto,
   ) {
-    return this.deviceService.changeStatus(id, status);
+    return this.deviceService.changeStatus(id, changeStatusDto);
   }
 
   @Delete(':id')

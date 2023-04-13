@@ -30,7 +30,14 @@ export class ReasonService {
 
   async findAll(): Promise<Reason[]> {
     try {
-      const reasonsFound = await this.reasonModel.find();
+      const reasonsFound = await this.reasonModel.aggregate([
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Reasons found successfully');
       return reasonsFound;
     } catch (err) {
@@ -51,17 +58,26 @@ export class ReasonService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
-  update(id: number, updateReasonDto: UpdateReasonDto) {
-    throw new NotFoundException();
+  async update(id: string, updateReasonDto: UpdateReasonDto): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.reasonModel.findByIdAndUpdate(id, updateReasonDto);
+      console.log(`Reason with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.reasonModel.findByIdAndDelete(id);
+      console.log(`Reason with id ${id} was deleted successfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

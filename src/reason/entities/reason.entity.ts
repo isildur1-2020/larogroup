@@ -10,7 +10,7 @@ export type ReasonDocument = HydratedDocument<Reason>;
 export class Reason {
   @Prop({
     required: true,
-    immutable: true,
+    unique: true,
   })
   public name: string;
 }

@@ -1,23 +1,16 @@
+import { companyQuery } from './companyQuery';
+
 export const subcompanyQuery = [
   {
     $lookup: {
-      from: 'companies',
-      localField: 'company',
+      from: 'subcompanies',
+      localField: 'sub_company',
       foreignField: '_id',
-      as: 'company',
-      pipeline: [
-        {
-          $project: {
-            city: 0,
-            country: 0,
-            updatedAt: 0,
-          },
-        },
-      ],
+      as: 'sub_company',
+      pipeline: [...companyQuery],
     },
   },
-  { $unwind: '$company' },
-  // GLOBAL PROJECT
+  { $unwind: '$sub_company' },
   {
     $project: {
       updatedAt: 0,

@@ -11,7 +11,6 @@ export type AuthenticationMethodDocument =
 export class AuthenticationMethod {
   @Prop({
     required: true,
-    immutable: true,
   })
   public name: string;
 }

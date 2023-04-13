@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { Campus } from 'src/campus/entities/campus.entity';
+import { Reason } from 'src/reason/entities/reason.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
 export type DeviceDocument = mongoose.HydratedDocument<Device>;
@@ -33,6 +34,18 @@ export class Device {
     default: false,
   })
   public is_online: boolean;
+
+  @Prop({
+    ref: 'Reason',
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public direction: Reason;
+
+  @Prop({
+    required: true,
+  })
+  public zone: string;
 }
 
 export const DeviceSchema = SchemaFactory.createForClass(Device);

@@ -3,13 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
+import { ChangeStatusDto } from './dto/change-status.dto';
+import { deviceQuery } from 'src/common/queries/deviceQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class DeviceService {
@@ -36,10 +33,7 @@ export class DeviceService {
 
   async findAll(): Promise<Device[]> {
     try {
-      const devicesFound = await this.deviceModel
-        .find()
-        .populate('campus')
-        .exec();
+      const devicesFound = await this.deviceModel.aggregate([...deviceQuery]);
       console.log('Devices found successfully');
       return devicesFound;
     } catch (err) {
@@ -74,12 +68,20 @@ export class DeviceService {
     }
   }
 
-  update(id: number, updateDeviceDto: UpdateDeviceDto) {
-    throw new NotFoundException();
+  async update(id: string, updateDeviceDto: UpdateDeviceDto): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.deviceModel.findByIdAndUpdate(id, updateDeviceDto);
+      console.log(`Device with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.deviceModel.findByIdAndDelete(id);
       console.log(`Device with id ${id} was deleted successfully`);
     } catch (err) {
@@ -88,9 +90,14 @@ export class DeviceService {
     }
   }
 
-  async changeStatus(id: string, status: boolean): Promise<void> {
+  async changeStatus(
+    id: string,
+    changeStatusDto: ChangeStatusDto,
+  ): Promise<void> {
     try {
-      await this.deviceModel.findByIdAndUpdate(id, { is_online: status });
+      await this.documentExists(id);
+      const { is_online } = changeStatusDto;
+      await this.deviceModel.findByIdAndUpdate(id, { is_online });
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

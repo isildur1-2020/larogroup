@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateAuthenticationMethodDto } from './dto/create-authentication_method.dto';
 import { UpdateAuthenticationMethodDto } from './dto/update-authentication_method.dto';
 import {
@@ -6,7 +7,6 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   AuthenticationMethod,
   AuthenticationMethodDocument,
@@ -38,7 +38,14 @@ export class AuthenticationMethodService {
   async findAll(): Promise<AuthenticationMethod[]> {
     try {
       const authenticationMethodsFound =
-        await this.authenticationMethodModel.find();
+        await this.authenticationMethodModel.aggregate([
+          {
+            $project: {
+              createdAt: 0,
+              updatedAt: 0,
+            },
+          },
+        ]);
       console.log('Authentication methods found successfully');
       return authenticationMethodsFound;
     } catch (err) {
@@ -61,19 +68,32 @@ export class AuthenticationMethodService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
-  update(
-    id: number,
+  async update(
+    id: string,
     updateAuthenticationMethodDto: UpdateAuthenticationMethodDto,
-  ) {
-    throw new NotFoundException();
+  ): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.authenticationMethodModel.findByIdAndUpdate(
+        id,
+        updateAuthenticationMethodDto,
+      );
+      console.log(
+        `Authentication method with id ${id} was updated successfully`,
+      );
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.authenticationMethodModel.findByIdAndDelete(id);
       console.log(
         `Authentication method with id ${id} was deleted successfully`,

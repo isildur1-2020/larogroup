@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateDeviceDto {
   @IsNotEmpty()
@@ -11,4 +11,11 @@ export class CreateDeviceDto {
 
   @IsMongoId()
   public campus: string;
+
+  @IsMongoId()
+  public direction: string;
+
+  @IsString()
+  @MinLength(4)
+  public zone: string;
 }

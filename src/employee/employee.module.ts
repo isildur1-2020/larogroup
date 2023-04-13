@@ -26,8 +26,6 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
     CompanyModule,
     CategoryModule,
     SubCompanyModule,
-    forwardRef(() => RfidModule),
-    forwardRef(() => BarcodeModule),
   ],
   controllers: [EmployeeController],
   providers: [EmployeeService],

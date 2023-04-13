@@ -1,7 +1,7 @@
+import { Module } from '@nestjs/common';
 import { RfidService } from './rfid.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RfidController } from './rfid.controller';
-import { Module, forwardRef } from '@nestjs/common';
 import { Rfid, RfidSchema } from './entities/rfid.entity';
 import { EmployeeModule } from 'src/employee/employee.module';
 
@@ -13,7 +13,7 @@ import { EmployeeModule } from 'src/employee/employee.module';
         schema: RfidSchema,
       },
     ]),
-    forwardRef(() => EmployeeModule),
+    EmployeeModule,
   ],
   controllers: [RfidController],
   providers: [RfidService],

@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
 import { cityQuery } from 'src/common/queries/cityQuery';
 import { CompanyService } from 'src/company/company.service';
+import { companyQuery } from 'src/common/queries/companyQuery';
 import { CreateSubCompanyDto } from './dto/create-sub_company.dto';
 import { UpdateSubCompanyDto } from './dto/update-sub_company.dto';
-import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import { SubCompany, SubCompanyDocument } from './entities/sub_company.entity';
 import {
   Inject,
@@ -44,7 +44,7 @@ export class SubCompanyService {
     try {
       const subCompaniesFound = await this.subCompanyModel.aggregate([
         ...cityQuery,
-        ...subcompanyQuery,
+        ...companyQuery,
       ]);
       return subCompaniesFound;
     } catch (err) {

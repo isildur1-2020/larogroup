@@ -9,7 +9,6 @@ import { Barcode, BarcodeDocument } from './entities/barcode.entity';
 import {
   Inject,
   Injectable,
-  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -19,7 +18,7 @@ export class BarcodeService {
   constructor(
     @InjectModel(Barcode.name)
     private barcodeModel: mongoose.Model<BarcodeDocument>,
-    @Inject(forwardRef(() => EmployeeService))
+    @Inject(EmployeeService)
     private employeeService: EmployeeService,
   ) {}
 

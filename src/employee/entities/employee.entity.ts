@@ -113,6 +113,12 @@ export class Employee {
     type: mongoose.Schema.Types.ObjectId,
   })
   public city: City;
+
+  @Prop()
+  public barcode: string;
+
+  @Prop()
+  public rfid: string;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

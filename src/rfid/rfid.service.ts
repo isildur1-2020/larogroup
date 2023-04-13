@@ -9,7 +9,6 @@ import { Employee } from 'src/employee/entities/employee.entity';
 import {
   Inject,
   Injectable,
-  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -19,7 +18,7 @@ export class RfidService {
   constructor(
     @InjectModel(Rfid.name)
     private rfidModel: mongoose.Model<RfidDocument>,
-    @Inject(forwardRef(() => EmployeeService))
+    @Inject(EmployeeService)
     private employeeService: EmployeeService,
   ) {}
 

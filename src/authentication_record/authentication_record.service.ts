@@ -9,7 +9,6 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
-import { UpdateAuthenticationRecordDto } from './dto/update-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
   Inject,
@@ -98,14 +97,7 @@ export class AuthenticationRecordService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
-  }
-
-  update(
-    id: number,
-    updateAuthenticationRecordDto: UpdateAuthenticationRecordDto,
-  ) {
+  findOne(id: string) {
     throw new NotFoundException();
   }
 
