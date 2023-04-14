@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RoleService } from 'src/role/role.service';
 import { CampusService } from 'src/campus/campus.service';
-import { employeeQuery } from 'src/common/queries/employee';
+import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { coordinatorQuery } from './queries/coordinatorQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';

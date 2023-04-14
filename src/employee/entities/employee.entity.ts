@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { City } from 'src/city/entities/city.entity';
+import { Role } from 'src/role/entities/role.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -15,6 +16,12 @@ export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
 })
 export class Employee {
   public _id: mongoose.Schema.Types.ObjectId;
+
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public role: Role;
 
   @Prop({
     unique: true,

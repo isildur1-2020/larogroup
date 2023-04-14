@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CityModule } from 'src/city/city.module';
+import { RoleModule } from 'src/role/role.module';
 import { EmployeeService } from './employee.service';
 import { CampusModule } from 'src/campus/campus.module';
 import { EmployeeController } from './employee.controller';
@@ -19,6 +20,7 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
       },
     ]),
     CityModule,
+    RoleModule,
     CampusModule,
     DniTypeModule,
     CompanyModule,

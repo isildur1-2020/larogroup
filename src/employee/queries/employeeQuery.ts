@@ -16,6 +16,24 @@ export const employeeQuery = [
     },
   },
   { $unwind: '$dni_type' },
+  // ROLE
+  {
+    $lookup: {
+      from: 'roles',
+      localField: 'role',
+      foreignField: '_id',
+      as: 'role',
+      pipeline: [
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  { $unwind: '$role' },
   // FIRST CATEGORY
   {
     $lookup: {
@@ -133,7 +151,6 @@ export const employeeQuery = [
   {
     $project: {
       is_active: 0,
-      role: 0,
     },
   },
 ];

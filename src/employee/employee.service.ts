@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
+import { RoleService } from 'src/role/role.service';
 import { employeeQuery } from './queries/employeeQuery';
 import { CampusService } from 'src/campus/campus.service';
 import { CompanyService } from 'src/company/company.service';
@@ -31,6 +32,8 @@ export class EmployeeService {
     private companyService: CompanyService,
     @Inject(CampusService)
     private campusService: CampusService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
@@ -55,7 +58,13 @@ export class EmployeeService {
       await this.dniTypeService.documentExists(dni_type);
       await this.subCompanyService.documentExists(sub_company);
       await this.categoryService.documentExists(first_category);
-      const newEmployee = new this.employeeModel(createEmployeeDto);
+      const roleFound = await this.roleService.findOneByName(
+        ValidRoles.employee,
+      );
+      const newEmployee = new this.employeeModel({
+        ...createEmployeeDto,
+        role: roleFound._id.toString(),
+      });
       const employeeCreated: Employee = await newEmployee.save();
       console.log('Employee created succesfully');
       return employeeCreated;
@@ -68,23 +77,8 @@ export class EmployeeService {
   async findAll(payload: JwtPayload): Promise<Employee[]> {
     try {
       const { sub_company, company } = payload;
-      const adminMatch = {
-        company: new mongoose.Types.ObjectId(company?._id),
-      };
-      const coordinatorMatch = {
-        sub_company: new mongoose.Types.ObjectId(sub_company?._id),
-      };
-      const matchQuery =
-        payload.role.name === ValidRoles.administrator
-          ? adminMatch
-          : coordinatorMatch;
+      console.log({ sub_company, company });
       const employeesFound = await this.employeeModel.aggregate([
-        {
-          $match: {
-            is_active: true,
-            ...matchQuery,
-          },
-        },
         ...employeeQuery,
       ]);
       console.log('Employees found successfully');

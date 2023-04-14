@@ -1,4 +1,4 @@
-import { employeeQuery } from './employee';
+import { employeeQuery } from './employeeQuery';
 import { deviceQuery } from './deviceQuery';
 import { reasonQuery } from './reasonQuery';
 import { authMethodQuery } from './authMethodQuery';
