@@ -4,14 +4,11 @@ import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
 import { employeeQuery } from './queries/employeeQuery';
 import { CampusService } from 'src/campus/campus.service';
-import { CompanyService } from 'src/company/company.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
-import { CategoryService } from 'src/category/category.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 
@@ -24,12 +21,6 @@ export class EmployeeService {
     private cityService: CityService,
     @Inject(DniTypeService)
     private dniTypeService: DniTypeService,
-    @Inject(SubCompanyService)
-    private subCompanyService: SubCompanyService,
-    @Inject(CategoryService)
-    private categoryService: CategoryService,
-    @Inject(CompanyService)
-    private companyService: CompanyService,
     @Inject(CampusService)
     private campusService: CampusService,
     @Inject(RoleService)
@@ -38,31 +29,16 @@ export class EmployeeService {
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      const {
-        city,
-        campus,
-        company,
-        dni_type,
-        sub_company,
-        first_category,
-        second_category,
-      } = createEmployeeDto;
-      if (city) {
-        await this.cityService.documentExists(city);
-      }
-      if (second_category) {
-        await this.categoryService.documentExists(second_category);
-      }
+      const { city, campus, dni_type, categories, email } = createEmployeeDto;
+      await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
-      await this.companyService.documentExists(company);
       await this.dniTypeService.documentExists(dni_type);
-      await this.subCompanyService.documentExists(sub_company);
-      await this.categoryService.documentExists(first_category);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.employee,
       );
       const newEmployee = new this.employeeModel({
         ...createEmployeeDto,
+        email: email.toLowerCase(),
         role: roleFound._id.toString(),
       });
       const employeeCreated: Employee = await newEmployee.save();

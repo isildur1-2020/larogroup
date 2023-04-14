@@ -2,10 +2,12 @@ import {
   IsEmail,
   IsString,
   IsMongoId,
+  MinLength,
   IsNotEmpty,
   IsOptional,
   IsDateString,
   IsNumberString,
+  IsArray,
 } from 'class-validator';
 
 export class CreateEmployeeDto {
@@ -18,10 +20,12 @@ export class CreateEmployeeDto {
 
   @IsNotEmpty()
   @IsString()
+  @MinLength(6)
   public dni: string;
 
   @IsNotEmpty()
   @IsString()
+  @MinLength(4)
   public first_name: string;
 
   @IsOptional()
@@ -31,6 +35,7 @@ export class CreateEmployeeDto {
 
   @IsNotEmpty()
   @IsString()
+  @MinLength(4)
   public first_lastname: string;
 
   @IsOptional()
@@ -38,7 +43,6 @@ export class CreateEmployeeDto {
   @IsString()
   public second_lastname: string;
 
-  @IsOptional()
   @IsEmail()
   public email: string;
 
@@ -46,18 +50,9 @@ export class CreateEmployeeDto {
   @IsNumberString()
   public phone: string;
 
-  @IsMongoId()
-  public first_category: string;
-
-  @IsOptional()
-  @IsMongoId()
-  public second_category: string;
-
-  @IsMongoId()
-  public sub_company: string;
-
-  @IsMongoId()
-  public company: string;
+  @IsNotEmpty()
+  @IsString()
+  public categories: string;
 
   @IsMongoId()
   public campus: string;
@@ -74,13 +69,13 @@ export class CreateEmployeeDto {
   @IsMongoId()
   public city: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   public barcode: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   public rfid: string;
 }

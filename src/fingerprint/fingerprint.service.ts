@@ -119,7 +119,7 @@ export class FingerprintService {
     }
   }
 
-  update(id: number, updateFingerprintDto: UpdateFingerprintDto) {
+  update(id: string, updateFingerprintDto: UpdateFingerprintDto) {
     throw new NotFoundException();
   }
 

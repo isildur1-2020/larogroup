@@ -2,11 +2,9 @@ import * as mongoose from 'mongoose';
 import { City } from 'src/city/entities/city.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
-import { Company } from 'src/company/entities/company.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
 import { Category } from 'src/category/entities/category.entity';
-import { SubCompany } from 'src/sub_company/entities/sub_company.entity';
 
 export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
 
@@ -64,6 +62,7 @@ export class Employee {
   public second_lastname: string;
 
   @Prop({
+    required: true,
     unique: true,
   })
   public email: string;
@@ -71,25 +70,8 @@ export class Employee {
   @Prop()
   public phone: string;
 
-  @Prop({
-    required: true,
-    ref: 'Category',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public first_category: Category;
-
-  @Prop({
-    ref: 'Category',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public second_category: Category;
-
-  @Prop({
-    required: true,
-    ref: 'SubCompany',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public sub_company: SubCompany;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }] })
+  public categories: Category[];
 
   @Prop({
     required: true,
@@ -97,13 +79,6 @@ export class Employee {
     type: mongoose.Schema.Types.ObjectId,
   })
   public campus: Campus;
-
-  @Prop({
-    required: true,
-    ref: 'Company',
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public company: Company;
 
   @Prop({
     type: mongoose.Schema.Types.Date,
@@ -117,6 +92,7 @@ export class Employee {
 
   @Prop({
     ref: 'City',
+    required: true,
     type: mongoose.Schema.Types.ObjectId,
   })
   public city: City;
