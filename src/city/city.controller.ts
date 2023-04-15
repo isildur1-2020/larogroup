@@ -25,13 +25,13 @@ export class CityController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findAll() {
     return this.cityService.findAll();
   }
 
   @Get(':id')
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.cityService.findOne(id);
   }

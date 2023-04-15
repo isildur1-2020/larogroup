@@ -11,7 +11,6 @@ import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
-import { filePath } from 'src/utils/filePath';
 
 @Injectable()
 export class EmployeeService {
