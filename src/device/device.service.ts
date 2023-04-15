@@ -37,7 +37,27 @@ export class DeviceService {
 
   async findAll(): Promise<Device[]> {
     try {
-      const devicesFound = await this.deviceModel.aggregate([...campusQuery]);
+      const devicesFound = await this.deviceModel.aggregate([
+        // REASON
+        {
+          $lookup: {
+            from: 'reasons',
+            localField: 'direction',
+            foreignField: '_id',
+            as: 'direction',
+            pipeline: [
+              {
+                $project: {
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$direction' },
+        ...campusQuery,
+      ]);
       console.log('Devices found successfully');
       return devicesFound;
     } catch (err) {
