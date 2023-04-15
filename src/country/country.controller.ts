@@ -25,13 +25,13 @@ export class CountryController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findAll() {
     return this.countryService.findAll();
   }
 
   @Get(':id')
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.countryService.findOne(id);
   }
