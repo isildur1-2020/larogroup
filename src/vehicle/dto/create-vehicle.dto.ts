@@ -30,4 +30,9 @@ export class CreateVehicleDto {
   @IsNotEmpty()
   @IsString()
   barcode: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  profile_picture: string;
 }

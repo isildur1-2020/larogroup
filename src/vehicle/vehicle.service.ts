@@ -12,6 +12,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { profilePictureQuery } from 'src/common/queries/profilePictureQuery';
 
 @Injectable()
 export class VehicleService {
@@ -44,6 +45,7 @@ export class VehicleService {
     try {
       const vehiclesFound = await this.vehicleModel.aggregate([
         ...roleQuery,
+        ...profilePictureQuery,
         {
           $project: {
             is_active: 0,

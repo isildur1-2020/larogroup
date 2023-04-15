@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { Role } from 'src/role/entities/role.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
 
 export type VehicleDocument = mongoose.HydratedDocument<Vehicle>;
 
@@ -53,6 +54,13 @@ export class Vehicle {
 
   @Prop()
   barcode: string;
+
+  @Prop({
+    default: null,
+    ref: 'ProfilePicture',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  profile_picture: ProfilePicture;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);
