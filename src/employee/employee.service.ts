@@ -11,6 +11,7 @@ import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { filePath } from 'src/utils/filePath';
 
 @Injectable()
 export class EmployeeService {
@@ -106,6 +107,23 @@ export class EmployeeService {
       await this.documentExists(id);
       await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
       console.log(`Employee with id ${id} was updated succesfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async uploadProfilePicture(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<void> {
+    try {
+      if (!file) {
+        throw new BadRequestException('The fingerprint file is required');
+      }
+      const profile_picture = file.filename;
+      await this.employeeModel.findByIdAndUpdate(id, { profile_picture });
+      console.log('Profile picture upload succesfully');
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

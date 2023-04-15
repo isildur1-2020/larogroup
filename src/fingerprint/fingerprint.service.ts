@@ -3,6 +3,7 @@ import { join } from 'path';
 import { Model } from 'mongoose';
 import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeviceService } from 'src/device/device.service';
 import { EmployeeService } from 'src/employee/employee.service';
 import { employeeQuery } from 'src/employee/queries/employeeQuery';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
@@ -17,7 +18,6 @@ import {
   Fingerprint,
   FingerprintDocument,
 } from './entities/fingerprint.entity';
-import { DeviceService } from 'src/device/device.service';
 
 @Injectable()
 export class FingerprintService {

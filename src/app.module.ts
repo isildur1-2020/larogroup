@@ -1,4 +1,6 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
+import { filePath } from './utils/filePath';
 import { ConfigModule } from '@nestjs/config';
 import { CityModule } from './city/city.module';
 import { RoleModule } from './role/role.module';
@@ -8,6 +10,7 @@ import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
 import { ReasonModule } from './reason/reason.module';
 import { EnvConfiguration } from './config/app.config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
 import { DniTypeModule } from './dni_type/dni_type.module';
@@ -30,6 +33,9 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     ConfigModule.forRoot({
       load: [EnvConfiguration],
       validationSchema: joiValidationSchema,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', filePath.profilePictures),
     }),
     CityModule,
     RoleModule,

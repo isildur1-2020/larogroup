@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /static/fingerprints/*
-/static/facials/*
+/static/profile/*
 # Logs
 logs
 *.log

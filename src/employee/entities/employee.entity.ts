@@ -102,6 +102,11 @@ export class Employee {
 
   @Prop()
   public rfid: string;
+
+  @Prop({
+    default: null,
+  })
+  public profile_picture: string;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
