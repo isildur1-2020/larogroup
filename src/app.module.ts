@@ -13,6 +13,7 @@ import { EnvConfiguration } from './config/app.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CountryModule } from './country/country.module';
 import { CompanyModule } from './company/company.module';
+import { VehicleModule } from './vehicle/vehicle.module';
 import { DniTypeModule } from './dni_type/dni_type.module';
 import { CategoryModule } from './category/category.module';
 import { EmployeeModule } from './employee/employee.module';
@@ -61,6 +62,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     AuthenticationMethodModule,
     AuthenticationRecordModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    VehicleModule,
   ],
 })
 export class AppModule {}

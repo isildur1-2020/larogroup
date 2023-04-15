@@ -6,8 +6,8 @@ import {
   Param,
   Delete,
   Controller,
-  UseInterceptors,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { filePath } from 'src/utils/filePath';

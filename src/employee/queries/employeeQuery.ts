@@ -1,3 +1,5 @@
+import { roleQuery } from 'src/common/queries/roleQuery';
+
 export const employeeQuery = [
   // DNI TYPE
   {
@@ -45,29 +47,7 @@ export const employeeQuery = [
       preserveNullAndEmptyArrays: true,
     },
   },
-  // ROLE
-  {
-    $lookup: {
-      from: 'roles',
-      localField: 'role',
-      foreignField: '_id',
-      as: 'role',
-      pipeline: [
-        {
-          $project: {
-            createdAt: 0,
-            updatedAt: 0,
-          },
-        },
-      ],
-    },
-  },
-  {
-    $unwind: {
-      path: '$role',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
+  ...roleQuery,
   // CATEGORIES
   {
     $lookup: {
