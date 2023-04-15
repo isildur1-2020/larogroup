@@ -5,6 +5,7 @@ import { Campus } from 'src/campus/entities/campus.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
 import { Category } from 'src/category/entities/category.entity';
+import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
 
 export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
 
@@ -105,8 +106,10 @@ export class Employee {
 
   @Prop({
     default: null,
+    ref: 'ProfilePicture',
+    type: mongoose.Schema.Types.ObjectId,
   })
-  public profile_picture: string;
+  public profile_picture: ProfilePicture;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

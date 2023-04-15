@@ -1,4 +1,5 @@
 export const employeeQuery = [
+  // DNI TYPE
   {
     $lookup: {
       from: 'dnitypes',
@@ -15,7 +16,35 @@ export const employeeQuery = [
       ],
     },
   },
-  { $unwind: '$dni_type' },
+  {
+    $unwind: {
+      path: '$dni_type',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  // PROFILE PICTURE
+  {
+    $lookup: {
+      from: 'profilepictures',
+      localField: 'profile_picture',
+      foreignField: '_id',
+      as: 'profile_picture',
+      pipeline: [
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$profile_picture',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // ROLE
   {
     $lookup: {
@@ -33,7 +62,12 @@ export const employeeQuery = [
       ],
     },
   },
-  { $unwind: '$role' },
+  {
+    $unwind: {
+      path: '$role',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // CATEGORIES
   {
     $lookup: {
@@ -52,7 +86,12 @@ export const employeeQuery = [
       ],
     },
   },
-  // { $unwind: '$first_category' },
+  {
+    $unwind: {
+      path: '$categories',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // CITY
   {
     $lookup: {
@@ -77,7 +116,12 @@ export const employeeQuery = [
             ],
           },
         },
-        { $unwind: '$country' },
+        {
+          $unwind: {
+            path: '$country',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $project: {
             createdAt: 0,
@@ -87,7 +131,12 @@ export const employeeQuery = [
       ],
     },
   },
-  { $unwind: '$city' },
+  {
+    $unwind: {
+      path: '$city',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // CAMPUS
   {
     $lookup: {
@@ -123,7 +172,12 @@ export const employeeQuery = [
                   ],
                 },
               },
-              { $unwind: '$company' },
+              {
+                $unwind: {
+                  path: '$company',
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
               {
                 $project: {
                   city: 0,
@@ -135,7 +189,12 @@ export const employeeQuery = [
             ],
           },
         },
-        { $unwind: '$sub_company' },
+        {
+          $unwind: {
+            path: '$sub_company',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $project: {
             createdAt: 0,
@@ -145,7 +204,12 @@ export const employeeQuery = [
       ],
     },
   },
-  { $unwind: '$campus' },
+  {
+    $unwind: {
+      path: '$campus',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   {
     $project: {
       is_active: 0,

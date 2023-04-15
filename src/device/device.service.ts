@@ -7,6 +7,7 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import { ReasonService } from 'src/reason/reason.service';
 import { campusQuery } from 'src/common/queries/campusQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
+import { directionQuery } from 'src/common/queries/directionQuery';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
@@ -38,24 +39,7 @@ export class DeviceService {
   async findAll(): Promise<Device[]> {
     try {
       const devicesFound = await this.deviceModel.aggregate([
-        // REASON
-        {
-          $lookup: {
-            from: 'reasons',
-            localField: 'direction',
-            foreignField: '_id',
-            as: 'direction',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$direction' },
+        ...directionQuery,
         ...campusQuery,
       ]);
       console.log('Devices found successfully');

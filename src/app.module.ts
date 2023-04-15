@@ -25,6 +25,7 @@ import { AccessGroupModule } from './access_group/access_group.module';
 import { AccessDeviceModule } from './access_device/access_device.module';
 import { AdministratorModule } from './administrator/administrator.module';
 import { AccessEmployeeModule } from './access_employee/access_employee.module';
+import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
 
@@ -35,7 +36,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
       validationSchema: joiValidationSchema,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', filePath.profilePictures),
+      rootPath: join(__dirname, '..', filePath.root),
     }),
     CityModule,
     RoleModule,
@@ -56,6 +57,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     AccessDeviceModule,
     AdministratorModule,
     AccessEmployeeModule,
+    ProfilePictureModule,
     AuthenticationMethodModule,
     AuthenticationRecordModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),

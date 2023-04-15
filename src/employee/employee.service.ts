@@ -29,7 +29,7 @@ export class EmployeeService {
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      const { city, campus, dni_type, categories, email } = createEmployeeDto;
+      const { city, campus, dni_type, email } = createEmployeeDto;
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
       await this.dniTypeService.documentExists(dni_type);
@@ -106,23 +106,6 @@ export class EmployeeService {
       await this.documentExists(id);
       await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
       console.log(`Employee with id ${id} was updated succesfully`);
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async uploadProfilePicture(
-    id: string,
-    file: Express.Multer.File,
-  ): Promise<void> {
-    try {
-      if (!file) {
-        throw new BadRequestException('The fingerprint file is required');
-      }
-      const profile_picture = file.filename;
-      await this.employeeModel.findByIdAndUpdate(id, { profile_picture });
-      console.log('Profile picture upload succesfully');
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

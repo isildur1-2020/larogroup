@@ -1,4 +1,6 @@
 export const filePath = {
-  profilePictures: '/static/profile',
-  fingerprints: '/static/fingerprints',
+  root: '/static',
+  profilePictures: '/profile',
+  fingerprints: '/fingerprints',
+  temporal: '/tmp',
 };

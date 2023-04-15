@@ -79,6 +79,7 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   public rfid: string;
 
+  @IsOptional()
   @IsString()
   public profile_picture: string;
 }
