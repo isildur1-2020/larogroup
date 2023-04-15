@@ -14,6 +14,8 @@ import { filePath } from 'src/utils/filePath';
 import { fileFilter, fileNamer } from 'src/common/multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfilePictureService } from './profile_picture.service';
+import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { UpdateProfilePictureDto } from './dto/update-profile_picture.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
@@ -22,6 +24,7 @@ export class ProfilePictureController {
   constructor(private readonly profilePictureService: ProfilePictureService) {}
 
   @Post()
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   @UseInterceptors(
     FileInterceptor('picture', {
       fileFilter,
@@ -36,16 +39,19 @@ export class ProfilePictureController {
   }
 
   @Get()
+  @Auth(ValidRoles.superadmin)
   findAll() {
     return this.profilePictureService.findAll();
   }
 
   @Get(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.profilePictureService.findOne(id);
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateProfilePictureDto: UpdateProfilePictureDto,
@@ -54,6 +60,7 @@ export class ProfilePictureController {
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.profilePictureService.remove(id);
   }
