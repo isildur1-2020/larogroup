@@ -10,7 +10,12 @@ export const campusQuery = [
       pipeline: [...subcompanyQuery],
     },
   },
-  { $unwind: '$campus' },
+  {
+    $unwind: {
+      path: '$campus',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   {
     $project: {
       updatedAt: 0,

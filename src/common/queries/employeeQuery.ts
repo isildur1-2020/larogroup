@@ -42,24 +42,24 @@ export const employeeQuery = [
         },
         { $unwind: '$role' },
         // CATEGORY
-        {
-          $lookup: {
-            from: 'categories',
-            localField: 'first_category',
-            foreignField: '_id',
-            as: 'first_category',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                  sub_company: 0,
-                },
-              },
-            ],
-          },
-        },
-        { $unwind: '$first_category' },
+        // {
+        //   $lookup: {
+        //     from: 'categories',
+        //     localField: 'first_category',
+        //     foreignField: '_id',
+        //     as: 'first_category',
+        //     pipeline: [
+        //       {
+        //         $project: {
+        //           createdAt: 0,
+        //           updatedAt: 0,
+        //           sub_company: 0,
+        //         },
+        //       },
+        //     ],
+        //   },
+        // },
+        // { $unwind: '$first_category' },
         // CAMPUS
         {
           $lookup: {
