@@ -33,6 +33,7 @@ export class DirectionService {
       const directionsFound = await this.directionModel.aggregate([
         {
           $project: {
+            key: 0,
             createdAt: 0,
             updatedAt: 0,
           },

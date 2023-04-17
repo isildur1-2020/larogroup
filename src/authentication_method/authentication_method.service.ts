@@ -41,6 +41,7 @@ export class AuthenticationMethodService {
         await this.authenticationMethodModel.aggregate([
           {
             $project: {
+              key: 0,
               createdAt: 0,
               updatedAt: 0,
             },

@@ -12,6 +12,12 @@ export class Direction {
     required: true,
     unique: true,
   })
+  public key: string;
+
+  @Prop({
+    required: true,
+    unique: true,
+  })
   public name: string;
 }
 

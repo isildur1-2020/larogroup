@@ -12,6 +12,14 @@ export class AuthenticationMethod {
   public _id: string;
 
   @Prop({
+    index: true,
+    unique: true,
+    required: true,
+  })
+  public key: string;
+
+  @Prop({
+    unique: true,
     required: true,
   })
   public name: string;
