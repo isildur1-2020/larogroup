@@ -37,6 +37,7 @@ export class ParseAccessGroupPipe implements PipeTransform {
 
   async transform(value: CreateEmployeeDto, metadata: ArgumentMetadata) {
     const { access_group } = value;
+    if (!access_group) return value;
     let newAccesGroup = [];
     const areMoreThanOne = access_group.includes(',');
     if (areMoreThanOne) {

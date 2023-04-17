@@ -1,6 +1,8 @@
 import * as mongoose from 'mongoose';
 import { Device } from 'src/device/entities/device.entity';
+import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Employee } from 'src/employee/entities/employee.entity';
 import { AuthenticationMethod } from '../../authentication_method/entities/authentication_method.entity';
 
 export type AuthenticationRecordDocument =
@@ -19,10 +21,16 @@ export class AuthenticationRecord {
   public device: Device;
 
   @Prop({
-    required: true,
+    ref: 'Vehicle',
     type: mongoose.Schema.Types.ObjectId,
   })
-  public entity: string;
+  public vehicle: Vehicle;
+
+  @Prop({
+    ref: 'Employee',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public employee: Employee;
 
   @Prop({
     default: null,

@@ -35,6 +35,7 @@ export class ParseCategoriesPipe implements PipeTransform {
 
   async transform(value: CreateEmployeeDto, metadata: ArgumentMetadata) {
     const { categories } = value;
+    if (!categories) return value;
     let newCategories = [];
     const areMoreThanOne = categories.includes(',');
     if (areMoreThanOne) {

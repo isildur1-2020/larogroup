@@ -41,10 +41,12 @@ export class AuthenticationRecordService {
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
     message: string;
-    entity: Employee | Vehicle;
+    vehicle: Vehicle | null;
+    employee: Employee | null;
   }> {
     try {
-      let entityFound: Employee | Vehicle = null;
+      let vehicleFound: Vehicle = null;
+      let employeeFound: Employee = null;
       const { data, sn, auth_method } = createAuthenticationRecordDto;
 
       const deviceFound = await this.deviceService.findOneBySN(sn);
@@ -53,23 +55,23 @@ export class AuthenticationRecordService {
 
       switch (auth_method) {
         case AuthMethods.barcode:
-          entityFound = await this.vehicleService.findOneByBarcode(data);
-          if (entityFound !== null) break;
-          entityFound = await this.employeeService.findOneByBarcode(data);
-          if (entityFound === null) {
+          vehicleFound = await this.vehicleService.findOneByBarcode(data);
+          if (vehicleFound !== undefined) break;
+          employeeFound = await this.employeeService.findOneByBarcode(data);
+          if (!employeeFound) {
             throw new BadRequestException('CODIGO QR INEXISTENTE');
           }
           break;
         case AuthMethods.rfid:
           const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
           const decimalData = hex2dec.hexToDec(hexReversed);
-          entityFound = await this.employeeService.findOneByRfid(decimalData);
-          if (entityFound === null) {
+          employeeFound = await this.employeeService.findOneByRfid(decimalData);
+          if (!employeeFound) {
             throw new BadRequestException('TARJETA RFID INEXISTENTE');
           }
           break;
         case AuthMethods.fingerprint:
-          entityFound = await this.employeeService.findOne(data);
+          employeeFound = await this.employeeService.findOne(data);
           break;
       }
       // VERIFY IS_ACTIVE
@@ -83,14 +85,16 @@ export class AuthenticationRecordService {
 
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
-        entity: entityFound._id.toString(),
         device: deviceFound._id.toString(),
+        vehicle: vehicleFound?._id?.toString() ?? null,
+        employee: employeeFound?._id?.toString() ?? null,
         authentication_method: authMethodFound._id.toString(),
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
       return {
-        entity: entityFound,
+        vehicle: vehicleFound ?? null,
+        employee: employeeFound ?? null,
         message: 'AUTENTICACIÓN EXITOSA',
       };
     } catch (err) {

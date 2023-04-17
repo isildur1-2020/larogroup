@@ -184,13 +184,8 @@ export class EmployeeService {
         { $match: { rfid } },
         ...employeeQuery,
       ]);
-      if (employeeFound.length === 0) {
-        throw new BadRequestException(
-          `Employee with rfid ${rfid} does not exists`,
-        );
-      }
-      console.log('Employee found with barcode successfully');
-      return employeeFound[0];
+      console.log('Employee found with RFID successfully');
+      return employeeFound?.[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

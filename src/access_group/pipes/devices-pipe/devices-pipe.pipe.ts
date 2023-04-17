@@ -35,6 +35,7 @@ export class ParseDevicesPipe implements PipeTransform {
 
   async transform(value: CreateAccessGroupDto, metadata: ArgumentMetadata) {
     const { device } = value;
+    if (!device) return value;
     let newDevices = [];
     const areMoreThanOne = device.includes(',');
     if (areMoreThanOne) {

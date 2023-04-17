@@ -12,8 +12,4 @@ export class CreateAuthenticationRecordDto {
   @IsNotEmpty()
   @IsString()
   public auth_method: string;
-
-  @IsOptional()
-  @IsMongoId()
-  public entity: string;
 }
