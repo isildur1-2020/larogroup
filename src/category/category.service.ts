@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import { Category, CategoryDocument } from './entities/category.entity';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import {
@@ -37,9 +38,9 @@ export class CategoryService {
   async findAll(): Promise<Category[]> {
     try {
       const categoriesFound = await this.categoryModel.aggregate([
+        ...subcompanyQuery,
         {
           $project: {
-            sub_company: 0,
             updatedAt: 0,
           },
         },

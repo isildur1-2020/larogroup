@@ -1,17 +1,70 @@
+import { roleQuery } from './roleQuery';
+import { profilePictureQuery } from './profilePictureQuery';
+
 export const employeeQuery = [
+  // DNI TYPE
   {
     $lookup: {
-      from: 'employees',
-      localField: 'employee',
+      from: 'dnitypes',
+      localField: 'dni_type',
       foreignField: '_id',
-      as: 'employee',
+      as: 'dni_type',
+      pipeline: [
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$dni_type',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  ...profilePictureQuery,
+  ...roleQuery,
+  // CATEGORIES
+  {
+    $lookup: {
+      from: 'categories',
+      localField: 'categories',
+      foreignField: '_id',
+      as: 'categories',
+      pipeline: [
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+            sub_company: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$categories',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  // CITY
+  {
+    $lookup: {
+      from: 'cities',
+      localField: 'city',
+      foreignField: '_id',
+      as: 'city',
       pipeline: [
         {
           $lookup: {
-            from: 'dnitypes',
-            localField: 'dni_type',
+            from: 'countries',
+            localField: 'country',
             foreignField: '_id',
-            as: 'dni_type',
+            as: 'country',
             pipeline: [
               {
                 $project: {
@@ -22,64 +75,36 @@ export const employeeQuery = [
             ],
           },
         },
-        { $unwind: '$dni_type' },
-        // ROLE
         {
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                },
-              },
-            ],
+          $unwind: {
+            path: '$country',
+            preserveNullAndEmptyArrays: true,
           },
         },
-        { $unwind: '$role' },
-        // CATEGORY
-        // {
-        //   $lookup: {
-        //     from: 'categories',
-        //     localField: 'first_category',
-        //     foreignField: '_id',
-        //     as: 'first_category',
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           createdAt: 0,
-        //           updatedAt: 0,
-        //           sub_company: 0,
-        //         },
-        //       },
-        //     ],
-        //   },
-        // },
-        // { $unwind: '$first_category' },
-        // CAMPUS
         {
-          $lookup: {
-            from: 'campus',
-            localField: 'campus',
-            foreignField: '_id',
-            as: 'campus',
-            pipeline: [
-              {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
-                  sub_company: 0,
-                },
-              },
-            ],
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
           },
         },
-        { $unwind: '$campus' },
-        // SUBCOMPANY
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$city',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  // CAMPUS
+  {
+    $lookup: {
+      from: 'campus',
+      localField: 'campus',
+      foreignField: '_id',
+      as: 'campus',
+      pipeline: [
+        // SUB COMPANY
         {
           $lookup: {
             from: 'subcompanies',
@@ -97,57 +122,56 @@ export const employeeQuery = [
                   pipeline: [
                     {
                       $project: {
+                        city: 0,
+                        country: 0,
                         createdAt: 0,
                         updatedAt: 0,
-                        city: 0,
                       },
                     },
                   ],
                 },
               },
-              { $unwind: '$company' },
               {
-                $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
+                $unwind: {
+                  path: '$company',
+                  preserveNullAndEmptyArrays: true,
                 },
               },
-            ],
-          },
-        },
-        { $unwind: '$sub_company' },
-        // CITY
-        {
-          $lookup: {
-            from: 'cities',
-            localField: 'city',
-            foreignField: '_id',
-            as: 'city',
-            pipeline: [
               {
                 $project: {
-                  createdAt: 0,
-                  updatedAt: 0,
+                  city: 0,
                   country: 0,
+                  createdAt: 0,
+                  updatedAt: 0,
                 },
               },
             ],
           },
         },
-        { $unwind: '$city' },
-        // GLOBAL PROJECT
+        {
+          $unwind: {
+            path: '$sub_company',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $project: {
-            is_active: 0,
-            contract_start_date: 0,
-            contract_end_date: 0,
-            company: 0,
+            createdAt: 0,
+            updatedAt: 0,
           },
         },
       ],
     },
   },
   {
-    $unwind: '$employee',
+    $unwind: {
+      path: '$campus',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  {
+    $project: {
+      is_active: 0,
+    },
   },
 ];

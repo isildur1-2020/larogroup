@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceService } from 'src/device/device.service';
 import { EmployeeService } from 'src/employee/employee.service';
-import { employeeQuery } from 'src/employee/queries/employeeQuery';
+import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
 import { UpdateFingerprintDto } from './dto/update-fingerprint.dto';
 import {

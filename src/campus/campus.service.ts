@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateCampusDto } from './dto/create-campus.dto';
 import { UpdateCampusDto } from './dto/update-campus.dto';
 import { Campus, CampusDocument } from './entities/campus.entity';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import {
   Inject,
@@ -37,9 +38,9 @@ export class CampusService {
   async findAll(): Promise<Campus[]> {
     try {
       const campusFound = await this.campusModel.aggregate([
+        ...subcompanyQuery,
         {
           $project: {
-            sub_company: 0,
             updatedAt: 0,
           },
         },
