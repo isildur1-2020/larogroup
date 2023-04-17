@@ -98,6 +98,17 @@ export class VehicleService {
     throw new NotFoundException();
   }
 
+  async findOneByBarcode(barcode: string): Promise<Vehicle> {
+    try {
+      const vehicleFound = await this.vehicleModel.findOne({ barcode });
+      console.log('Vehicle found with barcode successfully');
+      return vehicleFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<void> {
     try {
       await this.documentExists(id);

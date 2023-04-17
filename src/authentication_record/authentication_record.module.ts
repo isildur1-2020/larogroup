@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { RoleModule } from 'src/role/role.module';
 import { DeviceModule } from 'src/device/device.module';
+import { VehicleModule } from 'src/vehicle/vehicle.module';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { DirectionModule } from 'src/direction/direction.module';
 import { AuthenticationRecordService } from './authentication_record.service';
@@ -19,7 +21,9 @@ import {
         schema: AuthenticationRecordSchema,
       },
     ]),
+    RoleModule,
     DeviceModule,
+    VehicleModule,
     EmployeeModule,
     DirectionModule,
     AuthenticationMethodModule,

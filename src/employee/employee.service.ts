@@ -164,14 +164,26 @@ export class EmployeeService {
     }
   }
 
-  async findOneByData(data: object): Promise<Employee> {
+  async findOneByBarcode(barcode: string): Promise<Employee> {
     try {
-      const employeeFound = await this.employeeModel.findOne(data);
+      const employeeFound = await this.employeeModel.findOne({ barcode });
+      console.log('Employee found with barcode successfully');
+      return employeeFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findOneByRfid(rfid: string): Promise<Employee> {
+    try {
+      const employeeFound = await this.employeeModel.findOne({ rfid });
       if (employeeFound === null) {
         throw new BadRequestException(
-          'Not employee found with this data parameters',
+          `Employee with rfid ${rfid} does not exists`,
         );
       }
+      console.log('Employee found with rfid successfully');
       return employeeFound;
     } catch (err) {
       console.log(err);

@@ -1,6 +1,5 @@
 import { roleQuery } from './roleQuery';
 import { profilePictureQuery } from './profilePictureQuery';
-import { accessGroupQuery } from './accessGroupQuery';
 
 export const employeeQuery = [
   // DNI TYPE

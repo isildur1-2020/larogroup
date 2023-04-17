@@ -10,6 +10,8 @@ export type VehicleDocument = mongoose.HydratedDocument<Vehicle>;
   versionKey: false,
 })
 export class Vehicle {
+  public _id: string;
+
   @Prop({
     default: true,
   })

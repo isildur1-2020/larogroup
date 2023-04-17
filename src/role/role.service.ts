@@ -1,19 +1,15 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { Role } from './entities/role.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectModel(Role.name)
-    private roleModel: Model<Role>,
+    private roleModel: mongoose.Model<Role>,
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -51,8 +47,18 @@ export class RoleService {
     }
   }
 
-  findOne(id: string) {
-    throw new NotFoundException();
+  async findOne(id: string): Promise<Role> {
+    try {
+      const roleFound = await this.roleModel.findById(id);
+      if (roleFound === null) {
+        throw new BadRequestException(`Role with id ${id} does not exists`);
+      }
+      console.log('Role found by id successfully');
+      return roleFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async findOneByName(name: string): Promise<Role> {

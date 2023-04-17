@@ -1,7 +1,10 @@
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { RoleService } from 'src/role/role.service';
 import { DeviceService } from 'src/device/device.service';
+import { VehicleService } from 'src/vehicle/vehicle.service';
+import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { DirectionService } from 'src/direction/direction.service';
@@ -20,6 +23,7 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -34,48 +38,75 @@ export class AuthenticationRecordService {
     private employeeService: EmployeeService,
     @Inject(DirectionService)
     private directionService: DirectionService,
+    @Inject(VehicleService)
+    private vehicleService: VehicleService,
+    @Inject(RoleService)
+    private roleService: RoleService,
   ) {}
 
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
-  ): Promise<Employee> {
+  ): Promise<{
+    role: string;
+    message: string;
+    entity: Employee | Vehicle;
+  }> {
     try {
-      let query = {};
-      let userFound: Employee = null;
-      const { data, sn, direction, auth_method, employee } =
+      let entityFound: Employee | Vehicle = null;
+      const { data, sn, direction, auth_method } =
         createAuthenticationRecordDto;
 
       const deviceFound = await this.deviceService.findOneBySN(sn);
       const authMethodFound =
-        await this.authenticationMethodService.findOneByName(auth_method);
+        await this.authenticationMethodService.findOneByKey(auth_method);
       const directionFound = await this.directionService.findOneByName(
         direction,
       );
 
       switch (auth_method) {
         case AuthMethods.barcode:
-          query = { barcode: data };
-          userFound = await this.employeeService.findOneByData(query);
+          entityFound = await this.vehicleService.findOneByBarcode(data);
+          if (entityFound !== null) break;
+          entityFound = await this.employeeService.findOneByBarcode(data);
+          if (entityFound === null) {
+            throw new BadRequestException(
+              'No existe una entidad con esta información',
+            );
+          }
           break;
         case AuthMethods.rfid:
           const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
           const decimalData = hex2dec.hexToDec(hexReversed);
-          query = { rfid: decimalData };
-          userFound = await this.employeeService.findOneByData(query);
+          entityFound = await this.employeeService.findOneByRfid(decimalData);
           break;
         case AuthMethods.fingerprint:
-          userFound = await this.employeeService.findOne(employee);
+          entityFound = await this.employeeService.findOne(data);
           break;
       }
+      const roleFound = await this.roleService.findOne(entityFound.role._id);
+      // VERIFY IS_ACTIVE
+      if (!Boolean(entityFound.is_active)) {
+        throw new BadRequestException({
+          entity: entityFound,
+          role: roleFound.name,
+          message: 'Usuario inactivo',
+        });
+      }
+
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
-        employee: userFound._id.toString(),
+        entity: entityFound._id.toString(),
         device: deviceFound._id.toString(),
+        direction: directionFound._id.toString(),
         authentication_method: authMethodFound._id.toString(),
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
-      return userFound;
+      return {
+        role: roleFound.name,
+        entity: entityFound,
+        message: 'Autorizado exitosamente',
+      };
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

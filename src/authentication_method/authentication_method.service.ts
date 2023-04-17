@@ -21,14 +21,13 @@ export class AuthenticationMethodService {
 
   async create(
     createAuthenticationMethodDto: CreateAuthenticationMethodDto,
-  ): Promise<AuthenticationMethod> {
+  ): Promise<void> {
     try {
       const newAuthenticationMethod = new this.authenticationMethodModel(
         createAuthenticationMethodDto,
       );
-      const authenticationMethodCreated = await newAuthenticationMethod.save();
+      await newAuthenticationMethod.save();
       console.log('Authentication method created successfully');
-      return authenticationMethodCreated;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -73,10 +72,10 @@ export class AuthenticationMethodService {
     throw new NotFoundException();
   }
 
-  async findOneByName(name: string): Promise<AuthenticationMethod> {
+  async findOneByKey(key: string): Promise<AuthenticationMethod> {
     try {
       const authMethodFound = await this.authenticationMethodModel.findOne({
-        name,
+        key,
       });
       if (authMethodFound === null) {
         throw new BadRequestException('Auth method does not exists');
