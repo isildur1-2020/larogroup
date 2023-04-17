@@ -4,6 +4,7 @@ import { RoleService } from 'src/role/role.service';
 import { roleQuery } from 'src/common/queries/roleQuery';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Vehicle, VehicleDocument } from './entities/vehicle.entity';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
@@ -100,9 +101,12 @@ export class VehicleService {
 
   async findOneByBarcode(barcode: string): Promise<Vehicle> {
     try {
-      const vehicleFound = await this.vehicleModel.findOne({ barcode });
-      console.log('Vehicle found with barcode successfully');
-      return vehicleFound;
+      const vehicleFound = await this.vehicleModel.aggregate([
+        { $match: { barcode } },
+        ...vehicleQuery,
+      ]);
+      console.log('Employee found with barcode successfully');
+      return vehicleFound?.[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

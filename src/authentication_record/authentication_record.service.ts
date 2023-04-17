@@ -1,13 +1,11 @@
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RoleService } from 'src/role/role.service';
 import { DeviceService } from 'src/device/device.service';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
-import { DirectionService } from 'src/direction/direction.service';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -23,7 +21,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -36,32 +33,23 @@ export class AuthenticationRecordService {
     private authenticationMethodService: AuthenticationMethodService,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
-    @Inject(DirectionService)
-    private directionService: DirectionService,
     @Inject(VehicleService)
     private vehicleService: VehicleService,
-    @Inject(RoleService)
-    private roleService: RoleService,
   ) {}
 
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
-    role: string;
     message: string;
     entity: Employee | Vehicle;
   }> {
     try {
       let entityFound: Employee | Vehicle = null;
-      const { data, sn, direction, auth_method } =
-        createAuthenticationRecordDto;
+      const { data, sn, auth_method } = createAuthenticationRecordDto;
 
       const deviceFound = await this.deviceService.findOneBySN(sn);
       const authMethodFound =
         await this.authenticationMethodService.findOneByKey(auth_method);
-      const directionFound = await this.directionService.findOneByName(
-        direction,
-      );
 
       switch (auth_method) {
         case AuthMethods.barcode:
@@ -69,9 +57,7 @@ export class AuthenticationRecordService {
           if (entityFound !== null) break;
           entityFound = await this.employeeService.findOneByBarcode(data);
           if (entityFound === null) {
-            throw new BadRequestException(
-              'No existe una entidad con esta información',
-            );
+            throw new BadRequestException('CODIGO QR NO EXISTE');
           }
           break;
         case AuthMethods.rfid:
@@ -83,29 +69,26 @@ export class AuthenticationRecordService {
           entityFound = await this.employeeService.findOne(data);
           break;
       }
-      const roleFound = await this.roleService.findOne(entityFound.role._id);
       // VERIFY IS_ACTIVE
-      if (!Boolean(entityFound.is_active)) {
-        throw new BadRequestException({
-          entity: entityFound,
-          role: roleFound.name,
-          message: 'Usuario inactivo',
-        });
-      }
+      // if (!Boolean(entityFound.is_active)) {
+      //   throw new BadRequestException({
+      //     entity: entityFound,
+      //     role: roleFound.name,
+      //     message: 'Usuario inactivo',
+      //   });
+      // }
 
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
         entity: entityFound._id.toString(),
         device: deviceFound._id.toString(),
-        direction: directionFound._id.toString(),
         authentication_method: authMethodFound._id.toString(),
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
       return {
-        role: roleFound.name,
         entity: entityFound,
-        message: 'Autorizado exitosamente',
+        message: 'AUTENTICACIÓN EXITOSA',
       };
     } catch (err) {
       console.log(err);

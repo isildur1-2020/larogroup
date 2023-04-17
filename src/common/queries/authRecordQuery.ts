@@ -1,13 +1,11 @@
 import { deviceQuery } from './deviceQuery';
 import { employeeQuery } from './employeeQuery';
 import { authMethodQuery } from './authMethodQuery';
-import { directionQuery } from './directionQuery';
 
 export const authRecordQuery = [
   ...deviceQuery,
   ...employeeQuery,
   ...authMethodQuery,
-  ...directionQuery,
   {
     $lookup: {
       from: 'employees',

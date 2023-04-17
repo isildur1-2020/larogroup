@@ -12,7 +12,6 @@ export class AuthenticationRecordController {
   ) {}
 
   @Post()
-  @Auth(ValidRoles.coordinator)
   create(@Body() createAuthenticationRecordDto: CreateAuthenticationRecordDto) {
     return this.authenticationRecordService.create(
       createAuthenticationRecordDto,
@@ -26,11 +25,13 @@ export class AuthenticationRecordController {
   }
 
   @Get(':id')
+  @Auth(ValidRoles.superadmin)
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.authenticationRecordService.findOne(id);
   }
 
   @Delete(':id')
+  @Auth(ValidRoles.superadmin)
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.authenticationRecordService.remove(id);
   }

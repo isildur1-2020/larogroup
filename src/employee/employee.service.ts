@@ -166,9 +166,12 @@ export class EmployeeService {
 
   async findOneByBarcode(barcode: string): Promise<Employee> {
     try {
-      const employeeFound = await this.employeeModel.findOne({ barcode });
+      const employeeFound = await this.employeeModel.aggregate([
+        { $match: { barcode } },
+        ...employeeQuery,
+      ]);
       console.log('Employee found with barcode successfully');
-      return employeeFound;
+      return employeeFound?.[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -177,14 +180,17 @@ export class EmployeeService {
 
   async findOneByRfid(rfid: string): Promise<Employee> {
     try {
-      const employeeFound = await this.employeeModel.findOne({ rfid });
-      if (employeeFound === null) {
+      const employeeFound = await this.employeeModel.aggregate([
+        { $match: { rfid } },
+        ...employeeQuery,
+      ]);
+      if (employeeFound.length === 0) {
         throw new BadRequestException(
           `Employee with rfid ${rfid} does not exists`,
         );
       }
-      console.log('Employee found with rfid successfully');
-      return employeeFound;
+      console.log('Employee found with barcode successfully');
+      return employeeFound[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
