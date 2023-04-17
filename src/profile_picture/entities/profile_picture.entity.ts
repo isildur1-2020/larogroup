@@ -8,6 +8,8 @@ export type ProfilePictureDocument = HydratedDocument<ProfilePicture>;
   versionKey: false,
 })
 export class ProfilePicture {
+  public _id: string;
+
   @Prop({
     index: true,
     required: true,

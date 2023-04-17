@@ -8,6 +8,7 @@ import { EmployeeController } from './employee.controller';
 import { DniTypeModule } from 'src/dni_type/dni_type.module';
 import { CategoryModule } from 'src/category/category.module';
 import { Employee, EmployeeSchema } from './entities/employee.entity';
+import { ProfilePictureModule } from 'src/profile_picture/profile_picture.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Employee, EmployeeSchema } from './entities/employee.entity';
     CampusModule,
     DniTypeModule,
     CategoryModule,
+    ProfilePictureModule,
   ],
   controllers: [EmployeeController],
   providers: [EmployeeService],

@@ -11,6 +11,7 @@ import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { ProfilePictureService } from 'src/profile_picture/profile_picture.service';
 
 @Injectable()
 export class EmployeeService {
@@ -25,6 +26,8 @@ export class EmployeeService {
     private campusService: CampusService,
     @Inject(RoleService)
     private roleService: RoleService,
+    @Inject(ProfilePictureService)
+    private profilePictureService: ProfilePictureService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
@@ -114,8 +117,13 @@ export class EmployeeService {
 
   async remove(id: string) {
     try {
-      await this.documentExists(id);
+      const employeeFound = await this.findOne(id);
       await this.employeeModel.findByIdAndDelete(id);
+      if (employeeFound?.profile_picture) {
+        await this.profilePictureService.remove(
+          employeeFound.profile_picture._id.toString(),
+        );
+      }
       console.log(`Employee with id ${id} was deleted succesfully`);
     } catch (err) {
       console.log(err);
