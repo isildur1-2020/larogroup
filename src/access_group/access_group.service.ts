@@ -11,6 +11,8 @@ import {
   AccessGroup,
   AccessGroupDocument,
 } from './entities/access_group.entity';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
+import { deviceQuery } from 'src/common/queries/deviceQuery';
 
 @Injectable()
 export class AccessGroupService {
@@ -35,7 +37,16 @@ export class AccessGroupService {
 
   async findAll(): Promise<AccessGroup[]> {
     try {
-      const accessGroupsFound = await this.accessGroupModel.find();
+      const accessGroupsFound = await this.accessGroupModel.aggregate([
+        ...subcompanyQuery,
+        ...deviceQuery,
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Access groups found successfully');
       return accessGroupsFound;
     } catch (err) {
@@ -62,8 +73,18 @@ export class AccessGroupService {
     throw new NotFoundException();
   }
 
-  update(id: number, updateAccessGroupDto: UpdateAccessGroupDto) {
-    throw new NotFoundException();
+  async update(
+    id: string,
+    updateAccessGroupDto: UpdateAccessGroupDto,
+  ): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.accessGroupModel.findByIdAndUpdate(id, updateAccessGroupDto);
+      console.log(`Access group was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {

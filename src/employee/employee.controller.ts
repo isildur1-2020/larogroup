@@ -15,6 +15,7 @@ import { ParseCategoriesPipe } from './pipes/parse-categories.pipe';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { ParseAccessGroupPipe } from './pipes/parse-access-group.pipe';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 
 @Controller('employee')
@@ -23,7 +24,10 @@ export class EmployeeController {
 
   @Post()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  create(@Body(ParseCategoriesPipe) createEmployeeDto: CreateEmployeeDto) {
+  create(
+    @Body(ParseCategoriesPipe, ParseAccessGroupPipe)
+    createEmployeeDto: CreateEmployeeDto,
+  ) {
     return this.employeeService.create(createEmployeeDto);
   }
 
@@ -43,7 +47,8 @@ export class EmployeeController {
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
-    @Body() updateEmployeeDto: UpdateEmployeeDto,
+    @Body(ParseCategoriesPipe, ParseAccessGroupPipe)
+    updateEmployeeDto: UpdateEmployeeDto,
   ) {
     return this.employeeService.update(id, updateEmployeeDto);
   }

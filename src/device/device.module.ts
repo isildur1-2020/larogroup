@@ -3,8 +3,8 @@ import { DeviceService } from './device.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DeviceController } from './device.controller';
 import { CampusModule } from 'src/campus/campus.module';
-import { ReasonModule } from 'src/reason/reason.module';
 import { Device, DeviceSchema } from './entities/device.entity';
+import { DirectionModule } from 'src/direction/direction.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { Device, DeviceSchema } from './entities/device.entity';
       },
     ]),
     CampusModule,
-    ReasonModule,
+    DirectionModule,
   ],
   controllers: [DeviceController],
   providers: [DeviceService],

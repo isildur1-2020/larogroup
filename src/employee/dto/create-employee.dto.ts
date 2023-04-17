@@ -83,4 +83,8 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsString()
   public profile_picture: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public access_group: string;
 }

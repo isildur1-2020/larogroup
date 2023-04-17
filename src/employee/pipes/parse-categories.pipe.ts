@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from 'mongoose';
+import { isValidObjectId } from 'mongoose';
 import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { CategoryService } from 'src/category/category.service';
 import {

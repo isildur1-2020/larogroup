@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
-import { ReasonService } from 'src/reason/reason.service';
 import { campusQuery } from 'src/common/queries/campusQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
 import { directionQuery } from 'src/common/queries/directionQuery';
+import { DirectionService } from 'src/direction/direction.service';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
@@ -16,15 +16,15 @@ export class DeviceService {
     private deviceModel: Model<DeviceDocument>,
     @Inject(CampusService)
     private campusService: CampusService,
-    @Inject(ReasonService)
-    private reasonService: ReasonService,
+    @Inject(DirectionService)
+    private directionService: DirectionService,
   ) {}
 
   async create(createDeviceDto: CreateDeviceDto): Promise<Device> {
     try {
       const { campus, direction } = createDeviceDto;
       await this.campusService.documentExists(campus);
-      await this.reasonService.documentExists(direction);
+      await this.directionService.documentExists(direction);
       const newDevice = new this.deviceModel(createDeviceDto);
       const deviceSaved = newDevice.save();
       console.log('Device created successfully');

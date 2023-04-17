@@ -5,6 +5,7 @@ import { Campus } from 'src/campus/entities/campus.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
 import { Category } from 'src/category/entities/category.entity';
+import { AccessGroup } from 'src/access_group/entities/access_group.entity';
 import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
 
 export type EmployeeDocument = mongoose.HydratedDocument<Employee>;
@@ -71,7 +72,14 @@ export class Employee {
   @Prop()
   public phone: string;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }] })
+  @Prop({
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+      },
+    ],
+  })
   public categories: Category[];
 
   @Prop({
@@ -110,6 +118,16 @@ export class Employee {
     type: mongoose.Schema.Types.ObjectId,
   })
   public profile_picture: ProfilePicture;
+
+  @Prop({
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AccessGroup',
+      },
+    ],
+  })
+  public access_group: AccessGroup[];
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

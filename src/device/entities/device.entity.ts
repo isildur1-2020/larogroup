@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
+import { Direction } from 'readline';
 import { Campus } from 'src/campus/entities/campus.entity';
-import { Reason } from 'src/reason/entities/reason.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
 export type DeviceDocument = mongoose.HydratedDocument<Device>;
@@ -36,11 +36,11 @@ export class Device {
   public is_online: boolean;
 
   @Prop({
-    ref: 'Reason',
+    ref: 'Direction',
     required: true,
     type: mongoose.Schema.Types.ObjectId,
   })
-  public direction: Reason;
+  public direction: Direction;
 
   @Prop({
     required: true,

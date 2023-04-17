@@ -1,8 +1,8 @@
 export const directionQuery = [
-  // REASON
+  // DIRECTION
   {
     $lookup: {
-      from: 'reasons',
+      from: 'directions',
       localField: 'direction',
       foreignField: '_id',
       as: 'direction',
@@ -16,5 +16,10 @@ export const directionQuery = [
       ],
     },
   },
-  { $unwind: '$direction' },
+  {
+    $unwind: {
+      path: '$direction',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
 ];
