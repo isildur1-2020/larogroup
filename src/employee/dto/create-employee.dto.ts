@@ -7,10 +7,11 @@ import {
   IsOptional,
   IsDateString,
   IsNumberString,
-  IsArray,
 } from 'class-validator';
 
 export class CreateEmployeeDto {
+  public _id: string;
+
   @IsNotEmpty()
   @IsString()
   public employee_id: string;

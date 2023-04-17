@@ -107,11 +107,16 @@ export class EmployeeService {
   ): Promise<void> {
     try {
       const employeeFound = await this.findOne(id);
+      const { profile_picture } = employeeFound;
       await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
-      if (employeeFound?.profile_picture) {
-        await this.profilePictureService.remove(
-          employeeFound.profile_picture._id.toString(),
-        );
+      if (updateEmployeeDto?.profile_picture) {
+        if (
+          updateEmployeeDto.profile_picture !== profile_picture._id.toString()
+        ) {
+          await this.profilePictureService.remove(
+            employeeFound.profile_picture._id.toString(),
+          );
+        }
       }
       console.log(`Employee with id ${id} was updated succesfully`);
     } catch (err) {
