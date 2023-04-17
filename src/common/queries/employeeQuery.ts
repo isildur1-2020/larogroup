@@ -1,5 +1,6 @@
 import { roleQuery } from './roleQuery';
 import { profilePictureQuery } from './profilePictureQuery';
+import { accessGroupQuery } from './accessGroupQuery';
 
 export const employeeQuery = [
   // DNI TYPE
@@ -22,6 +23,31 @@ export const employeeQuery = [
   {
     $unwind: {
       path: '$dni_type',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  // ACCESS GROUP
+  {
+    $lookup: {
+      from: 'accessgroups',
+      localField: 'access_group',
+      foreignField: '_id',
+      as: 'access_group',
+      pipeline: [
+        {
+          $project: {
+            device: 0,
+            createdAt: 0,
+            updatedAt: 0,
+            sub_company: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$access_group',
       preserveNullAndEmptyArrays: true,
     },
   },
