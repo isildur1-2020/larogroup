@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { Device } from 'src/device/entities/device.entity';
-import { Reason } from '../../reason/entities/reason.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { Direction } from 'src/direction/entities/direction.entity';
 import { AuthenticationMethod } from '../../authentication_method/entities/authentication_method.entity';
 
 export type AuthenticationRecordDocument =
@@ -14,8 +14,8 @@ export type AuthenticationRecordDocument =
 })
 export class AuthenticationRecord {
   @Prop({
-    required: true,
     ref: 'Device',
+    required: true,
     type: mongoose.Schema.Types.ObjectId,
   })
   public device: Device;
@@ -40,11 +40,11 @@ export class AuthenticationRecord {
   public authentication_method: AuthenticationMethod;
 
   @Prop({
-    ref: 'Reason',
     required: true,
+    ref: 'Direction',
     type: mongoose.Schema.Types.ObjectId,
   })
-  public reason: Reason;
+  public reason: Direction;
 }
 
 export const AuthenticationRecordSchema =

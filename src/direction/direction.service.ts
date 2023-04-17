@@ -47,6 +47,22 @@ export class DirectionService {
     }
   }
 
+  async findOneByName(key: string): Promise<Direction> {
+    try {
+      const directionFound = await this.directionModel.findOne({ key });
+      if (directionFound === null) {
+        throw new BadRequestException(
+          `Direction with key ${key} does not exists`,
+        );
+      }
+      console.log('Direction found successfully');
+      return directionFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async documentExists(id: string): Promise<void> {
     try {
       const isExists = await this.directionModel.exists({ _id: id });

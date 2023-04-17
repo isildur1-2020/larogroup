@@ -4,15 +4,17 @@ import { RoleService } from 'src/role/role.service';
 import { roleQuery } from 'src/common/queries/roleQuery';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { EmployeeService } from 'src/employee/employee.service';
 import { Vehicle, VehicleDocument } from './entities/vehicle.entity';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { profilePictureQuery } from 'src/common/queries/profilePictureQuery';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { profilePictureQuery } from 'src/common/queries/profilePictureQuery';
 
 @Injectable()
 export class VehicleService {
@@ -21,10 +23,14 @@ export class VehicleService {
     private vehicleModel: Model<VehicleDocument>,
     @Inject(RoleService)
     private roleService: RoleService,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
   ) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
+      const { barcode } = createVehicleDto;
+      await this.employeeService.verifyEmployeeWithBarcode(barcode);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.vehicle,
       );
@@ -56,6 +62,20 @@ export class VehicleService {
       ]);
       console.log('Vehicles found successfully');
       return vehiclesFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async verifyVehicleWithBarcode(barcode: string): Promise<void> {
+    try {
+      const vehicleFound = await this.vehicleModel.findOne({ barcode });
+      if (vehicleFound !== null) {
+        throw new BadRequestException(
+          'Already exists a vehicle with this barcode number',
+        );
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

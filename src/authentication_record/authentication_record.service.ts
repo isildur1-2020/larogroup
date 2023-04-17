@@ -1,10 +1,10 @@
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ReasonService } from 'src/reason/reason.service';
 import { DeviceService } from 'src/device/device.service';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { DirectionService } from 'src/direction/direction.service';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -30,10 +30,10 @@ export class AuthenticationRecordService {
     private deviceService: DeviceService,
     @Inject(AuthenticationMethodService)
     private authenticationMethodService: AuthenticationMethodService,
-    @Inject(ReasonService)
-    private reasonService: ReasonService,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
+    @Inject(DirectionService)
+    private directionService: DirectionService,
   ) {}
 
   async create(
@@ -42,15 +42,17 @@ export class AuthenticationRecordService {
     try {
       let query = {};
       let userFound: Employee = null;
-      const { data, sn, reason, auth_method_name, employee } =
+      const { data, sn, direction, auth_method, employee } =
         createAuthenticationRecordDto;
 
       const deviceFound = await this.deviceService.findOneBySN(sn);
-      await this.reasonService.documentExists(reason);
       const authMethodFound =
-        await this.authenticationMethodService.findOneByName(auth_method_name);
+        await this.authenticationMethodService.findOneByName(auth_method);
+      const directionFound = await this.directionService.findOneByName(
+        direction,
+      );
 
-      switch (auth_method_name) {
+      switch (auth_method) {
         case AuthMethods.barcode:
           query = { barcode: data };
           userFound = await this.employeeService.findOneByData(query);

@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
 import { CampusService } from 'src/campus/campus.service';
+import { VehicleService } from 'src/vehicle/vehicle.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
@@ -10,8 +11,13 @@ import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { ProfilePictureService } from 'src/profile_picture/profile_picture.service';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class EmployeeService {
@@ -28,11 +34,14 @@ export class EmployeeService {
     private roleService: RoleService,
     @Inject(ProfilePictureService)
     private profilePictureService: ProfilePictureService,
+    @Inject(forwardRef(() => VehicleService))
+    private vehicleService: VehicleService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      const { city, campus, dni_type, email } = createEmployeeDto;
+      const { city, campus, dni_type, email, barcode } = createEmployeeDto;
+      await this.vehicleService.verifyVehicleWithBarcode(barcode);
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
       await this.dniTypeService.documentExists(dni_type);
@@ -135,6 +144,20 @@ export class EmployeeService {
         );
       }
       console.log(`Employee with id ${id} was deleted succesfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async verifyEmployeeWithBarcode(barcode: string): Promise<void> {
+    try {
+      const employeeFound = await this.employeeModel.findOne({ barcode });
+      if (employeeFound !== null) {
+        throw new BadRequestException(
+          'Already exists a employee with this barcode number',
+        );
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

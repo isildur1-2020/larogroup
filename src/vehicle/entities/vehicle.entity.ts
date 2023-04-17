@@ -52,7 +52,10 @@ export class Vehicle {
   })
   public fabricator: string;
 
-  @Prop()
+  @Prop({
+    index: true,
+    unique: true,
+  })
   barcode: string;
 
   @Prop({

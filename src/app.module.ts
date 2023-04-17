@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
-import { ReasonModule } from './reason/reason.module';
 import { EnvConfiguration } from './config/app.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CountryModule } from './country/country.module';
@@ -43,7 +42,6 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     AuthModule,
     DeviceModule,
     CampusModule,
-    ReasonModule,
     CountryModule,
     DniTypeModule,
     VehicleModule,

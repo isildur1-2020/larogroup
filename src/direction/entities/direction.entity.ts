@@ -8,6 +8,8 @@ export type DirectionDocument = HydratedDocument<Direction>;
   versionKey: false,
 })
 export class Direction {
+  public _id: string;
+
   @Prop({
     required: true,
     unique: true,

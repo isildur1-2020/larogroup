@@ -106,10 +106,16 @@ export class Employee {
   })
   public city: City;
 
-  @Prop()
+  @Prop({
+    index: true,
+    unique: true,
+  })
   public barcode: string;
 
-  @Prop()
+  @Prop({
+    index: true,
+    unique: true,
+  })
   public rfid: string;
 
   @Prop({
