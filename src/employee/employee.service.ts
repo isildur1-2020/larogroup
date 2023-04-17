@@ -106,8 +106,13 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<void> {
     try {
-      await this.documentExists(id);
+      const employeeFound = await this.findOne(id);
       await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
+      if (employeeFound?.profile_picture) {
+        await this.profilePictureService.remove(
+          employeeFound.profile_picture._id.toString(),
+        );
+      }
       console.log(`Employee with id ${id} was updated succesfully`);
     } catch (err) {
       console.log(err);

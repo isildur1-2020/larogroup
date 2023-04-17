@@ -18,6 +18,7 @@ import { DniTypeModule } from './dni_type/dni_type.module';
 import { CategoryModule } from './category/category.module';
 import { EmployeeModule } from './employee/employee.module';
 import { joiValidationSchema } from './config/joi.validation';
+import { DirectionModule } from './direction/direction.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { SubCompanyModule } from './sub_company/sub_company.module';
 import { FingerprintModule } from './fingerprint/fingerprint.module';
@@ -63,6 +64,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     AuthenticationRecordModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
     VehicleModule,
+    DirectionModule,
   ],
 })
 export class AppModule {}

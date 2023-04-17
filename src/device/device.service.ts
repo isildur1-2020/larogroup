@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
-import { ChangeStatusDto } from './dto/change-status.dto';
 import { ReasonService } from 'src/reason/reason.service';
 import { campusQuery } from 'src/common/queries/campusQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
@@ -92,20 +91,6 @@ export class DeviceService {
       await this.documentExists(id);
       await this.deviceModel.findByIdAndDelete(id);
       console.log(`Device with id ${id} was deleted successfully`);
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async changeStatus(
-    id: string,
-    changeStatusDto: ChangeStatusDto,
-  ): Promise<void> {
-    try {
-      await this.documentExists(id);
-      const { is_online } = changeStatusDto;
-      await this.deviceModel.findByIdAndUpdate(id, { is_online });
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

@@ -1,0 +1,91 @@
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { CreateDirectionDto } from './dto/create-direction.dto';
+import { UpdateDirectionDto } from './dto/update-direction.dto';
+import { Direction, DirectionDocument } from './entities/direction.entity';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+
+@Injectable()
+export class DirectionService {
+  constructor(
+    @InjectModel(Direction.name)
+    private directionModel: Model<DirectionDocument>,
+  ) {}
+
+  async create(createDirectionDto: CreateDirectionDto): Promise<Direction> {
+    try {
+      const newDirection = new this.directionModel(createDirectionDto);
+      const directionCreated = await newDirection.save();
+      console.log('Direction created successfully');
+      return directionCreated;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findAll(): Promise<Direction[]> {
+    try {
+      const directionsFound = await this.directionModel.aggregate([
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
+      console.log('Directions found successfully');
+      return directionsFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async documentExists(id: string): Promise<void> {
+    try {
+      const isExists = await this.directionModel.exists({ _id: id });
+      if (isExists === null) {
+        throw new BadRequestException(
+          `Direction with id ${id} does not exists`,
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  findOne(id: string) {
+    throw new NotFoundException();
+  }
+
+  async update(
+    id: string,
+    updateDirectionDto: UpdateDirectionDto,
+  ): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.directionModel.findByIdAndUpdate(id, updateDirectionDto);
+      console.log(`Direction with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async remove(id: string): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.directionModel.findByIdAndDelete(id);
+      console.log(`Direction with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+}
