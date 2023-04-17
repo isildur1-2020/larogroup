@@ -48,9 +48,11 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     ReasonModule,
     CountryModule,
     DniTypeModule,
+    VehicleModule,
     CompanyModule,
     CategoryModule,
     EmployeeModule,
+    DirectionModule,
     SuperadminModule,
     SubCompanyModule,
     AccessGroupModule,
@@ -63,8 +65,6 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     AuthenticationMethodModule,
     AuthenticationRecordModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
-    VehicleModule,
-    DirectionModule,
   ],
 })
 export class AppModule {}

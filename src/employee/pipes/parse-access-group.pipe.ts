@@ -1,5 +1,7 @@
 import { isValidObjectId } from 'mongoose';
+import { removeDuplicates } from 'src/utils/utils';
 import { CreateEmployeeDto } from '../dto/create-employee.dto';
+import { AccessGroupService } from 'src/access_group/access_group.service';
 import {
   Inject,
   Injectable,
@@ -7,8 +9,6 @@ import {
   ArgumentMetadata,
   BadRequestException,
 } from '@nestjs/common';
-import { removeDuplicates } from 'src/utils/utils';
-import { AccessGroupService } from 'src/access_group/access_group.service';
 
 @Injectable()
 export class ParseAccessGroupPipe implements PipeTransform {
@@ -17,21 +17,21 @@ export class ParseAccessGroupPipe implements PipeTransform {
     private accessGroupService: AccessGroupService,
   ) {}
 
+  existsAccessGroup = async (id: string) => {
+    try {
+      await this.accessGroupService.documentExists(id);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  };
+
   validateMongoId = (id: string) => {
     const isValidMongoId = isValidObjectId(id);
     if (!isValidMongoId) {
       throw new BadRequestException(
-        'The access_group must be a valid mongo id',
+        'The access group must be a valid mongo id',
       );
-    }
-  };
-
-  existsAccessGroup = async (access_group_id: string) => {
-    try {
-      await this.accessGroupService.documentExists(access_group_id);
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
     }
   };
 
@@ -42,17 +42,17 @@ export class ParseAccessGroupPipe implements PipeTransform {
     if (areMoreThanOne) {
       newAccesGroup = access_group.split(',');
       newAccesGroup = removeDuplicates(newAccesGroup);
-      newAccesGroup.forEach((access_group_id: string) => {
+      for (let access_group_id of newAccesGroup) {
         this.validateMongoId(access_group_id);
-        this.existsAccessGroup(access_group_id);
-      });
+        await this.existsAccessGroup(access_group_id);
+      }
       return {
         ...value,
         access_group: newAccesGroup,
       };
     }
     this.validateMongoId(access_group);
-    this.existsAccessGroup(access_group);
+    await this.accessGroupService.documentExists(access_group);
     return value;
   }
 }

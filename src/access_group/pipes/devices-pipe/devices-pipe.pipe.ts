@@ -40,17 +40,17 @@ export class ParseDevicesPipe implements PipeTransform {
     if (areMoreThanOne) {
       newDevices = device.split(',');
       newDevices = removeDuplicates(newDevices);
-      newDevices.forEach((device_id: string) => {
+      for (let device_id of newDevices) {
         this.validateMongoId(device_id);
-        this.existsDevice(device_id);
-      });
+        await this.existsDevice(device_id);
+      }
       return {
         ...value,
         device: newDevices,
       };
     }
     this.validateMongoId(device);
-    this.existsDevice(device);
+    await this.existsDevice(device);
     return value;
   }
 }
