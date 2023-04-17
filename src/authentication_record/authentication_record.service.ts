@@ -57,13 +57,16 @@ export class AuthenticationRecordService {
           if (entityFound !== null) break;
           entityFound = await this.employeeService.findOneByBarcode(data);
           if (entityFound === null) {
-            throw new BadRequestException('CODIGO QR NO EXISTE');
+            throw new BadRequestException('CODIGO QR INEXISTENTE');
           }
           break;
         case AuthMethods.rfid:
           const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
           const decimalData = hex2dec.hexToDec(hexReversed);
           entityFound = await this.employeeService.findOneByRfid(decimalData);
+          if (entityFound === null) {
+            throw new BadRequestException('TARJETA RFID INEXISTENTE');
+          }
           break;
         case AuthMethods.fingerprint:
           entityFound = await this.employeeService.findOne(data);
