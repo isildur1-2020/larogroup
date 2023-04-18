@@ -51,13 +51,11 @@ export class FingerprintController {
   }
 
   @Get(':fingerprintId')
-  @Auth(ValidRoles.superadmin, ValidRoles.coordinator)
   findOne(@Param('fingerprintId') id: string, @Res() res: Response) {
     return this.fingerprintService.findOneByName(id, res);
   }
 
   @Patch(':id')
-  @Auth(ValidRoles.superadmin)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateFingerprintDto: UpdateFingerprintDto,
