@@ -1,7 +1,9 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { deviceQuery } from 'src/common/queries/deviceQuery';
 import { CreateAccessGroupDto } from './dto/create-access_group.dto';
 import { UpdateAccessGroupDto } from './dto/update-access_group.dto';
+import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import {
   Injectable,
   NotFoundException,
@@ -11,8 +13,6 @@ import {
   AccessGroup,
   AccessGroupDocument,
 } from './entities/access_group.entity';
-import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
-import { deviceQuery } from 'src/common/queries/deviceQuery';
 
 @Injectable()
 export class AccessGroupService {
@@ -89,6 +89,7 @@ export class AccessGroupService {
 
   async remove(id: string): Promise<void> {
     try {
+      await this.documentExists(id);
       await this.accessGroupModel.findByIdAndDelete(id);
       console.log(`Access group with id ${id} was deleted successfully`);
     } catch (err) {

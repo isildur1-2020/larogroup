@@ -13,6 +13,7 @@ export const subcompanyQuery = [
   { $unwind: '$sub_company' },
   {
     $project: {
+      createdAt: 0,
       updatedAt: 0,
     },
   },

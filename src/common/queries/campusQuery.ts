@@ -13,6 +13,7 @@ export const campusQuery = [
   { $unwind: '$campus' },
   {
     $project: {
+      createdAt: 0,
       updatedAt: 0,
     },
   },

@@ -25,8 +25,9 @@ export class DeviceService {
       const { campus, direction } = createDeviceDto;
       await this.campusService.documentExists(campus);
       await this.directionService.documentExists(direction);
+      console.log(createDeviceDto);
       const newDevice = new this.deviceModel(createDeviceDto);
-      const deviceSaved = newDevice.save();
+      const deviceSaved = await newDevice.save();
       console.log('Device created successfully');
       return deviceSaved;
     } catch (err) {
