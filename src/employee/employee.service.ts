@@ -64,8 +64,7 @@ export class EmployeeService {
 
   async findAll(payload: JwtPayload): Promise<Employee[]> {
     try {
-      const { sub_company, company } = payload;
-      console.log({ sub_company, company });
+      // const { sub_company, company } = payload;
       const employeesFound = await this.employeeModel.aggregate([
         ...employeeQuery,
       ]);
@@ -92,11 +91,7 @@ export class EmployeeService {
   async findOne(id: string): Promise<Employee> {
     try {
       const employeeFound = await this.employeeModel.aggregate([
-        {
-          $match: {
-            _id: new mongoose.Types.ObjectId(id),
-          },
-        },
+        { $match: { _id: new mongoose.Types.ObjectId(id) } },
         ...employeeQuery,
       ]);
       if (employeeFound.length === 0) {
@@ -116,15 +111,19 @@ export class EmployeeService {
   ): Promise<void> {
     try {
       const employeeFound = await this.findOne(id);
-      const { profile_picture } = employeeFound;
-      await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
-      if (updateEmployeeDto?.profile_picture) {
-        if (
-          updateEmployeeDto.profile_picture !== profile_picture._id.toString()
-        ) {
-          await this.profilePictureService.remove(
-            employeeFound.profile_picture._id.toString(),
-          );
+      const bodyPictureId = updateEmployeeDto?.profile_picture;
+      if (bodyPictureId) {
+        const existsPicture = employeeFound.profile_picture;
+        if (existsPicture.length === 0) {
+          await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
+        } else {
+          const currentProfilePictureId = existsPicture[0]._id.toString();
+          const isSamePictureId = bodyPictureId === currentProfilePictureId;
+          if (isSamePictureId) {
+            throw new BadRequestException('Is the same picture profile');
+          }
+          await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
+          await this.profilePictureService.remove(currentProfilePictureId);
         }
       }
       console.log(`Employee with id ${id} was updated succesfully`);
@@ -138,10 +137,10 @@ export class EmployeeService {
     try {
       const employeeFound = await this.findOne(id);
       await this.employeeModel.findByIdAndDelete(id);
-      if (employeeFound?.profile_picture) {
-        await this.profilePictureService.remove(
-          employeeFound.profile_picture._id.toString(),
-        );
+      const currentPicture = employeeFound.profile_picture;
+      if (currentPicture.length !== 0) {
+        const currentPictureId = currentPicture[0]._id.toString();
+        await this.profilePictureService.remove(currentPictureId);
       }
       console.log(`Employee with id ${id} was deleted succesfully`);
     } catch (err) {

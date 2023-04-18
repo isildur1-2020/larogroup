@@ -1,11 +1,11 @@
-export const profilePictureQuery = [
-  //PROFILE PICTURE
+export const dniQuery = [
+  // DNI TYPE
   {
     $lookup: {
-      from: 'profilepictures',
-      localField: 'profile_picture',
+      from: 'dnitypes',
+      localField: 'dni_type',
       foreignField: '_id',
-      as: 'profile_picture',
+      as: 'dni_type',
       pipeline: [
         {
           $project: {
@@ -16,4 +16,5 @@ export const profilePictureQuery = [
       ],
     },
   },
+  { $unwind: '$dni_type' },
 ];

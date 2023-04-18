@@ -16,10 +16,5 @@ export const roleQuery = [
       ],
     },
   },
-  {
-    $unwind: {
-      path: '$role',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
+  { $unwind: '$role' },
 ];

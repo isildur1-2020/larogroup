@@ -119,11 +119,15 @@ export class Employee {
   public rfid: string;
 
   @Prop({
-    default: null,
-    ref: 'ProfilePicture',
-    type: mongoose.Schema.Types.ObjectId,
+    // default: null,
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ProfilePicture',
+      },
+    ],
   })
-  public profile_picture: ProfilePicture;
+  public profile_picture: ProfilePicture[];
 
   @Prop({
     type: [

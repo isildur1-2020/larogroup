@@ -3,6 +3,7 @@ import { IsMongoId, IsNotEmpty, IsString, MinLength } from 'class-validator';
 export class CreateDeviceDto {
   @IsNotEmpty()
   @IsString()
+  @MinLength(6)
   public name: string;
 
   @IsNotEmpty()

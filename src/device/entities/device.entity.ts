@@ -19,6 +19,8 @@ export class Device {
   public name: string;
 
   @Prop({
+    index: true,
+    unique: true,
     required: true,
   })
   public sn: string;
