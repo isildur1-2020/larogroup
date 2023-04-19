@@ -112,6 +112,15 @@ export class EmployeeService {
     try {
       const employeeFound = await this.findOne(id);
       const bodyPictureId = updateEmployeeDto?.profile_picture;
+      const barcodeData = updateEmployeeDto?.barcode;
+      if (barcodeData) {
+        const entityExists = await this.vehicleService.findOneByBarcode(
+          barcodeData,
+        );
+        if (entityExists) {
+          throw new BadRequestException('This barcode is already in use');
+        }
+      }
       if (bodyPictureId) {
         const existsPicture = employeeFound.profile_picture;
         if (existsPicture.length === 0) {

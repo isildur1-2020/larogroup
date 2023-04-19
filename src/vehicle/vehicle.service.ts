@@ -1,15 +1,12 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RoleService } from 'src/role/role.service';
-import { roleQuery } from 'src/common/queries/roleQuery';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Vehicle, VehicleDocument } from './entities/vehicle.entity';
-import { accessGroupQuery } from 'src/common/queries/accessGroupQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
-import { profilePictureQuery } from 'src/common/queries/profilePictureQuery';
 import {
   Inject,
   Injectable,
@@ -109,6 +106,15 @@ export class VehicleService {
   async update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<void> {
     try {
       await this.documentExists(id);
+      const barcodeData = updateVehicleDto?.barcode;
+      if (barcodeData) {
+        const entityExists = await this.employeeService.findOneByBarcode(
+          barcodeData,
+        );
+        if (entityExists) {
+          throw new BadRequestException('This barcode is already in use');
+        }
+      }
       await this.vehicleModel.findByIdAndUpdate(id, updateVehicleDto);
       console.log(`Vehicle with id ${id} was updated successfully`);
     } catch (err) {
