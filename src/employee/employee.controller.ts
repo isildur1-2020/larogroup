@@ -15,8 +15,8 @@ import { ParseCategoriesPipe } from './pipes/parse-categories.pipe';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-import { ParseAccessGroupPipe } from './pipes/parse-access-group.pipe';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { ParseAccessGroupPipe } from 'src/common/pipes/parse-access-group/parse-access-group.pipe';
 
 @Controller('employee')
 export class EmployeeController {

@@ -21,6 +21,7 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -40,6 +41,7 @@ export class AuthenticationRecordService {
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
+    type: string;
     message: string;
     vehicle: Vehicle | null;
     employee: Employee | null;
@@ -96,6 +98,7 @@ export class AuthenticationRecordService {
         vehicle: vehicleFound ?? null,
         employee: employeeFound ?? null,
         message: 'AUTENTICACIÓN EXITOSA',
+        type: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
       };
     } catch (err) {
       console.log(err);

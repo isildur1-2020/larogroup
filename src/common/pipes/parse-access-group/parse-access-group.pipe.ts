@@ -1,6 +1,7 @@
 import { isValidObjectId } from 'mongoose';
 import { removeDuplicates } from 'src/utils/utils';
-import { CreateEmployeeDto } from '../dto/create-employee.dto';
+import { CreateVehicleDto } from 'src/vehicle/dto/create-vehicle.dto';
+import { CreateEmployeeDto } from 'src/employee/dto/create-employee.dto';
 import { AccessGroupService } from 'src/access_group/access_group.service';
 import {
   Inject,
@@ -35,7 +36,10 @@ export class ParseAccessGroupPipe implements PipeTransform {
     }
   };
 
-  async transform(value: CreateEmployeeDto, metadata: ArgumentMetadata) {
+  async transform(
+    value: CreateEmployeeDto | CreateVehicleDto,
+    _: ArgumentMetadata,
+  ) {
     const { access_group } = value;
     if (!access_group) return value;
     let newAccesGroup = [];

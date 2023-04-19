@@ -29,10 +29,14 @@ export class CreateVehicleDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  barcode: string;
+  public barcode: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  profile_picture: string;
+  public profile_picture: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public access_group: string;
 }

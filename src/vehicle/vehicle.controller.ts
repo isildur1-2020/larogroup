@@ -13,6 +13,7 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { ParseAccessGroupPipe } from 'src/common/pipes/parse-access-group/parse-access-group.pipe';
 
 @Controller('vehicle')
 export class VehicleController {
@@ -20,7 +21,7 @@ export class VehicleController {
 
   @Post()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  create(@Body() createVehicleDto: CreateVehicleDto) {
+  create(@Body(ParseAccessGroupPipe) createVehicleDto: CreateVehicleDto) {
     return this.vehicleService.create(createVehicleDto);
   }
 
@@ -40,7 +41,7 @@ export class VehicleController {
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
-    @Body() updateVehicleDto: UpdateVehicleDto,
+    @Body(ParseAccessGroupPipe) updateVehicleDto: UpdateVehicleDto,
   ) {
     return this.vehicleService.update(id, updateVehicleDto);
   }

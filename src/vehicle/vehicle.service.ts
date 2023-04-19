@@ -7,6 +7,7 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Vehicle, VehicleDocument } from './entities/vehicle.entity';
+import { accessGroupQuery } from 'src/common/queries/accessGroupQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { profilePictureQuery } from 'src/common/queries/profilePictureQuery';
 import {
@@ -51,15 +52,7 @@ export class VehicleService {
   async findAll(): Promise<Vehicle[]> {
     try {
       const vehiclesFound = await this.vehicleModel.aggregate([
-        ...roleQuery,
-        ...profilePictureQuery,
-        {
-          $project: {
-            is_active: 0,
-            createdAt: 0,
-            updatedAt: 0,
-          },
-        },
+        ...vehicleQuery,
       ]);
       console.log('Vehicles found successfully');
       return vehiclesFound;

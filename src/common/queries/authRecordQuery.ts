@@ -5,8 +5,24 @@ import { authMethodQuery } from './authMethodQuery';
 import { directionQuery } from './directionQuery';
 
 export const authRecordQuery = [
-  // DEVICES
   ...authMethodQuery,
+  // VEHICLES
+  {
+    $lookup: {
+      from: 'vehicles',
+      localField: 'vehicle',
+      foreignField: '_id',
+      as: 'vehicle',
+      pipeline: [...vehicleQuery],
+    },
+  },
+  {
+    $unwind: {
+      path: '$vehicle',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  // DEVICES
   {
     $lookup: {
       from: 'devices',
@@ -26,12 +42,6 @@ export const authRecordQuery = [
     },
   },
   { $unwind: '$device' },
-  {
-    $project: {
-      createdAt: 0,
-      updatedAt: 0,
-    },
-  },
   // EMPLOYEE
   {
     $lookup: {
@@ -51,19 +61,15 @@ export const authRecordQuery = [
       ],
     },
   },
-  { $unwind: '$employee' },
   {
-    $project: {
-      createdAt: 0,
-      updatedAt: 0,
+    $unwind: {
+      path: '$employee',
+      preserveNullAndEmptyArrays: true,
     },
   },
-  // ...employeeQuery,
-  // ...vehicleQuery,
-  // ...employeeQuery,
+  // GLOBAL PROJECT
   {
     $project: {
-      createdAt: 0,
       updatedAt: 0,
     },
   },

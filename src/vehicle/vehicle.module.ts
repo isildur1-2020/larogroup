@@ -5,6 +5,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { VehicleController } from './vehicle.controller';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { Vehicle, VehicleSchema } from './entities/vehicle.entity';
+import { AccessGroupModule } from 'src/access_group/access_group.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { Vehicle, VehicleSchema } from './entities/vehicle.entity';
       },
     ]),
     RoleModule,
+    AccessGroupModule,
     forwardRef(() => EmployeeModule),
   ],
   controllers: [VehicleController],

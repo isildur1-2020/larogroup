@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { Role } from 'src/role/entities/role.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
+import { AccessGroup } from 'src/access_group/entities/access_group.entity';
 
 export type VehicleDocument = mongoose.HydratedDocument<Vehicle>;
 
@@ -66,6 +67,16 @@ export class Vehicle {
     type: mongoose.Schema.Types.ObjectId,
   })
   profile_picture: ProfilePicture;
+
+  @Prop({
+    type: [
+      {
+        ref: 'AccessGroup',
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    ],
+  })
+  access_group: AccessGroup[];
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);
