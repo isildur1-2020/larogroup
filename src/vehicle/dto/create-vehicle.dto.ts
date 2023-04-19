@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateVehicleDto {
   @IsNotEmpty()
@@ -39,4 +44,11 @@ export class CreateVehicleDto {
   @IsNotEmpty()
   @IsString()
   public access_group: string;
+
+  @IsOptional()
+  @IsDateString()
+  public contract_start_date: string;
+
+  @IsDateString()
+  public contract_end_date: string;
 }

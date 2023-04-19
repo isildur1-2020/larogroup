@@ -77,6 +77,17 @@ export class Vehicle {
     ],
   })
   access_group: AccessGroup[];
+
+  @Prop({
+    type: mongoose.Schema.Types.Date,
+  })
+  public contract_start_date: string;
+
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.Date,
+  })
+  public contract_end_date: string;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

@@ -1,12 +1,15 @@
+import * as moment from 'moment';
 import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { Entity } from './interfaces/entity.interface';
 import { DeviceService } from 'src/device/device.service';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
@@ -21,7 +24,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -47,6 +49,7 @@ export class AuthenticationRecordService {
     employee: Employee | null;
   }> {
     try {
+      let entity: Entity;
       let vehicleFound: Vehicle = null;
       let employeeFound: Employee = null;
       const { data, sn, auth_method } = createAuthenticationRecordDto;
@@ -79,13 +82,21 @@ export class AuthenticationRecordService {
 
       console.log({ vehicleFound, employeeFound });
       // VERIFY IS_ACTIVE
-      // if (!Boolean(entityFound.is_active)) {
-      //   throw new BadRequestException({
-      //     entity: entityFound,
-      //     role: roleFound.name,
-      //     message: 'Usuario inactivo',
-      //   });
-      // }
+      entity = vehicleFound ? vehicleFound : employeeFound;
+      if (!Boolean(entity.is_active)) {
+        throw new BadRequestException({
+          entity,
+          message: 'Entidad inactiva',
+        });
+      }
+      // VERIFY CONTRACT_END_DATE
+      const isInactiveByContract = moment().isAfter(entity.contract_end_date);
+      if (isInactiveByContract) {
+        throw new BadRequestException({
+          entity,
+          message: 'Entidad bloqueada por contrato',
+        });
+      }
 
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,

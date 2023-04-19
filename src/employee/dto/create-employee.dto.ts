@@ -62,7 +62,6 @@ export class CreateEmployeeDto {
   @IsDateString()
   public contract_start_date: string;
 
-  @IsOptional()
   @IsDateString()
   public contract_end_date: string;
 

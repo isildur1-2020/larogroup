@@ -95,6 +95,7 @@ export class Employee {
   public contract_start_date: string;
 
   @Prop({
+    required: true,
     type: mongoose.Schema.Types.Date,
   })
   public contract_end_date: string;
@@ -138,11 +139,6 @@ export class Employee {
     ],
   })
   public access_group: AccessGroup[];
-
-  @Prop({
-    default: 0,
-  })
-  public fingerprints: number;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
