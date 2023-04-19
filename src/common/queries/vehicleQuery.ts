@@ -15,7 +15,6 @@ export const vehicleQuery = [
   },
   {
     $project: {
-      access_group: 0,
       createdAt: 0,
       updatedAt: 0,
     },
