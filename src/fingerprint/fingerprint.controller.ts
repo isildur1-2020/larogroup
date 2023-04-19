@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
+import { filePath } from 'src/utils/filePath';
 import { fileFilter, fileNamer } from '../common/multer';
 import { FingerprintService } from './fingerprint.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -32,8 +33,8 @@ export class FingerprintController {
     FileInterceptor('fingerprint', {
       fileFilter,
       storage: diskStorage({
-        destination: './static/fingerprints',
         filename: fileNamer,
+        destination: `.${filePath.root}${filePath.temporal}`,
       }),
     }),
   )

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { Model } from 'mongoose';
 import { Response } from 'express';
+import { filePath } from 'src/utils/filePath';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceService } from 'src/device/device.service';
 import { EmployeeService } from 'src/employee/employee.service';
@@ -21,6 +22,8 @@ import {
 
 @Injectable()
 export class FingerprintService {
+  tmpFingerprintPath: string;
+
   constructor(
     @InjectModel(Fingerprint.name)
     private fingerprintModel: Model<FingerprintDocument>,
@@ -38,9 +41,25 @@ export class FingerprintService {
       if (!file) {
         throw new BadRequestException('The fingerprint file is required');
       }
+      const { filename } = file;
       const { employee } = createFingerprintDto;
+      const { root, temporal, fingerprints } = filePath;
+      // SET SAVED FINGERPRINT PATH
+      this.tmpFingerprintPath = join(
+        __dirname,
+        '../../',
+        `${root}${temporal}/${filename}`,
+      );
+      const fingerprintsPath = join(
+        __dirname,
+        '../../',
+        `${root}${fingerprints}/${filename}`,
+      );
+      // VALIDATIONS
       await this.findTwoToVerificate(employee);
       await this.employeeService.documentExists(employee);
+      fs.renameSync(this.tmpFingerprintPath, fingerprintsPath);
+      // CREATE AND SAVE FINGERPRINT
       const newFingerprint = new this.fingerprintModel({
         employee,
         fingerprint: file.filename,
@@ -50,6 +69,7 @@ export class FingerprintService {
       return fingerprintCreated;
     } catch (err) {
       console.log(err);
+      fs.unlinkSync(this.tmpFingerprintPath);
       throw new BadRequestException(err.message);
     }
   }
@@ -64,7 +84,21 @@ export class FingerprintService {
             localField: 'employee',
             foreignField: '_id',
             as: 'employee',
-            pipeline: [...employeeQuery],
+            pipeline: [
+              ...employeeQuery,
+              {
+                $project: {
+                  rfid: 0,
+                  city: 0,
+                  barcode: 0,
+                  is_active: 0,
+                  categories: 0,
+                  access_group: 0,
+                  contract_end_date: 0,
+                  contract_start_date: 0,
+                },
+              },
+            ],
           },
         },
         { $unwind: '$employee' },

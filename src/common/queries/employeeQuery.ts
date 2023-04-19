@@ -4,7 +4,7 @@ import { cityQuery } from './cityQuery';
 import { campusQuery } from './campusQuery';
 import { deviceQuery } from './deviceQuery';
 import { subcompanyQuery } from './subcompanyQuery';
-import { catergoriesQuery } from './categoriesQuery';
+import { categoriesQuery } from './categoriesQuery';
 import { profilePictureQuery } from './profilePictureQuery';
 
 export const employeeQuery = [
@@ -32,7 +32,7 @@ export const employeeQuery = [
   ...roleQuery,
   ...cityQuery,
   ...campusQuery,
-  ...catergoriesQuery,
+  ...categoriesQuery,
   ...profilePictureQuery,
   {
     $project: {
