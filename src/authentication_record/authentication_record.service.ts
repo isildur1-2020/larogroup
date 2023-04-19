@@ -76,6 +76,8 @@ export class AuthenticationRecordService {
           employeeFound = await this.employeeService.findOne(data);
           break;
       }
+
+      console.log({ vehicleFound, employeeFound });
       // VERIFY IS_ACTIVE
       // if (!Boolean(entityFound.is_active)) {
       //   throw new BadRequestException({

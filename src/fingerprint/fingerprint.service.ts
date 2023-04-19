@@ -136,6 +136,24 @@ export class FingerprintService {
     }
   }
 
+  async fingerprintCountByEmployee(
+    employee: string,
+  ): Promise<{ message: string; err: boolean; count: number }> {
+    try {
+      const isExists = await this.fingerprintModel.find({ employee });
+      const message = 'Fingerprints count by employee found successfully';
+      console.log(message);
+      return {
+        message,
+        err: false,
+        count: isExists.length,
+      };
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOneByName(fingerprintImage: string, res: Response) {
     try {
       const fingerprintImagePath = join(

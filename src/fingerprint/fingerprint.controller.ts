@@ -45,6 +45,13 @@ export class FingerprintController {
     return this.fingerprintService.create(createFingerprintDto, file);
   }
 
+  @Get('count')
+  getFingerprintCountByEmployee(
+    @Query('employee_id', ParseMongoIdPipe) employee_id: string,
+  ) {
+    return this.fingerprintService.fingerprintCountByEmployee(employee_id);
+  }
+
   @Get()
   findAllBySnDevice(@Query('sn') sn: string) {
     return this.fingerprintService.findAllBySnDevice(sn);

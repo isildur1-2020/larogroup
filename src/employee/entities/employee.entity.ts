@@ -138,6 +138,11 @@ export class Employee {
     ],
   })
   public access_group: AccessGroup[];
+
+  @Prop({
+    default: 0,
+  })
+  public fingerprints: number;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
