@@ -14,7 +14,6 @@ export type AuthenticationRecordDocument =
 })
 export class AuthenticationRecord {
   @Prop({
-    ref: 'Device',
     required: true,
     type: mongoose.Schema.Types.ObjectId,
   })

@@ -2,6 +2,8 @@ import { dniQuery } from './dniQuery';
 import { roleQuery } from './roleQuery';
 import { cityQuery } from './cityQuery';
 import { campusQuery } from './campusQuery';
+import { deviceQuery } from './deviceQuery';
+import { subcompanyQuery } from './subcompanyQuery';
 import { catergoriesQuery } from './categoriesQuery';
 import { profilePictureQuery } from './profilePictureQuery';
 
@@ -13,12 +15,13 @@ export const employeeQuery = [
       let: { pid: '$access_group' },
       pipeline: [
         { $match: { $expr: { $in: ['$_id', '$$pid'] } } },
+        ...subcompanyQuery,
+        ...deviceQuery,
         {
           $project: {
+            sub_company: 0,
             createdAt: 0,
             updatedAt: 0,
-            sub_company: 0,
-            device: 0,
           },
         },
       ],

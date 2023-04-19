@@ -9,6 +9,7 @@ export const countryQuery = [
         {
           $project: {
             updatedAt: 0,
+            createdAt: 0,
           },
         },
       ],
@@ -18,6 +19,7 @@ export const countryQuery = [
   {
     $project: {
       updatedAt: 0,
+      createdAt: 0,
     },
   },
 ];

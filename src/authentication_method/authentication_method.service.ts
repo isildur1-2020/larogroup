@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   AuthenticationMethod,
@@ -92,6 +93,7 @@ export class AuthenticationMethodService {
     updateAuthenticationMethodDto: UpdateAuthenticationMethodDto,
   ): Promise<void> {
     try {
+      throw new ForbiddenException('This endpoint is forbidden');
       await this.documentExists(id);
       await this.authenticationMethodModel.findByIdAndUpdate(
         id,

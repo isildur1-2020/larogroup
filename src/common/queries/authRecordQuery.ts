@@ -1,42 +1,69 @@
 import { deviceQuery } from './deviceQuery';
+import { vehicleQuery } from './vehicleQuery';
 import { employeeQuery } from './employeeQuery';
 import { authMethodQuery } from './authMethodQuery';
+import { directionQuery } from './directionQuery';
 
 export const authRecordQuery = [
-  ...deviceQuery,
-  ...employeeQuery,
+  // DEVICES
   ...authMethodQuery,
   {
     $lookup: {
-      from: 'employees',
-      localField: 'entity',
+      from: 'devices',
+      localField: 'device',
       foreignField: '_id',
-      as: 'employee',
-      pipeline: [...employeeQuery],
+      as: 'device',
+      pipeline: [
+        ...directionQuery,
+        {
+          $project: {
+            campus: 0,
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
     },
   },
-  {
-    $unwind: {
-      path: '$employee',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
-  {
-    $lookup: {
-      from: 'vehicles',
-      localField: 'entity',
-      foreignField: '_id',
-      as: 'vehicle',
-    },
-  },
-  {
-    $unwind: {
-      path: '$vehicle',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
+  { $unwind: '$device' },
   {
     $project: {
+      createdAt: 0,
+      updatedAt: 0,
+    },
+  },
+  // EMPLOYEE
+  {
+    $lookup: {
+      from: 'employees',
+      localField: 'employee',
+      foreignField: '_id',
+      as: 'employee',
+      pipeline: [
+        ...employeeQuery,
+        {
+          $project: {
+            access_group: 0,
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  { $unwind: '$employee' },
+  {
+    $project: {
+      createdAt: 0,
+      updatedAt: 0,
+    },
+  },
+  // ...employeeQuery,
+  // ...vehicleQuery,
+  // ...employeeQuery,
+  {
+    $project: {
+      createdAt: 0,
       updatedAt: 0,
     },
   },

@@ -9,6 +9,7 @@ export const directionQuery = [
       pipeline: [
         {
           $project: {
+            key: 0,
             createdAt: 0,
             updatedAt: 0,
           },

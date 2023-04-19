@@ -126,6 +126,7 @@ export class EmployeeService {
           await this.profilePictureService.remove(currentProfilePictureId);
         }
       }
+      await this.employeeModel.findByIdAndUpdate(id, updateEmployeeDto);
       console.log(`Employee with id ${id} was updated succesfully`);
     } catch (err) {
       console.log(err);

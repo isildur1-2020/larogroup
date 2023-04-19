@@ -1,5 +1,5 @@
-import { profilePictureQuery } from './profilePictureQuery';
 import { roleQuery } from './roleQuery';
+import { profilePictureQuery } from './profilePictureQuery';
 
 export const vehicleQuery = [
   // VEHICLE
@@ -8,6 +8,12 @@ export const vehicleQuery = [
   {
     $project: {
       updatedAt: 0,
+    },
+  },
+  {
+    $unwind: {
+      path: '$vehicle',
+      preserveNullAndEmptyArrays: true,
     },
   },
 ];

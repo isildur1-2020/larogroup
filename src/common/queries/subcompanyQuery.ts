@@ -1,3 +1,4 @@
+import { cityQuery } from './cityQuery';
 import { companyQuery } from './companyQuery';
 
 export const subcompanyQuery = [
@@ -7,7 +8,7 @@ export const subcompanyQuery = [
       localField: 'sub_company',
       foreignField: '_id',
       as: 'sub_company',
-      pipeline: [...companyQuery],
+      pipeline: [...companyQuery, ...cityQuery],
     },
   },
   { $unwind: '$sub_company' },

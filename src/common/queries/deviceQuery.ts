@@ -1,3 +1,4 @@
+import { campusQuery } from './campusQuery';
 import { directionQuery } from './directionQuery';
 
 export const deviceQuery = [
@@ -9,9 +10,9 @@ export const deviceQuery = [
       pipeline: [
         { $match: { $expr: { $in: ['$_id', '$$pid'] } } },
         ...directionQuery,
+        ...campusQuery,
         {
           $project: {
-            campus: 0,
             createdAt: 0,
             updatedAt: 0,
           },
