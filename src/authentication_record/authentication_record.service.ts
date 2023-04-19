@@ -10,6 +10,7 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { AccessGroupService } from 'src/access_group/access_group.service';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
@@ -38,6 +39,8 @@ export class AuthenticationRecordService {
     private employeeService: EmployeeService,
     @Inject(VehicleService)
     private vehicleService: VehicleService,
+    @Inject(AccessGroupService)
+    private accessGroupService: AccessGroupService,
   ) {}
 
   async create(
@@ -79,14 +82,12 @@ export class AuthenticationRecordService {
           employeeFound = await this.employeeService.findOne(data);
           break;
       }
-
-      console.log({ vehicleFound, employeeFound });
       // VERIFY IS_ACTIVE
       entity = vehicleFound ? vehicleFound : employeeFound;
       if (!Boolean(entity.is_active)) {
         throw new BadRequestException({
           entity,
-          message: 'Entidad inactiva',
+          message: 'ENTIDAD INACTIVA',
         });
       }
       // VERIFY CONTRACT_END_DATE
@@ -94,7 +95,26 @@ export class AuthenticationRecordService {
       if (isInactiveByContract) {
         throw new BadRequestException({
           entity,
-          message: 'Entidad bloqueada por contrato',
+          message: 'ENTIDAD INACTIVA POR FECHA DE CONTRATO',
+        });
+      }
+      // VERIFY ACCESS_GROUP
+      let isValidAccessGroup = false;
+      const deviceId = deviceFound._id.toString();
+      const accessGroupsByDevice =
+        await this.accessGroupService.findOneByDevice(deviceId);
+      const authorizedGroups = accessGroupsByDevice.map(({ _id }) =>
+        _id.toString(),
+      );
+      const userGroups = entity.access_group.map(({ _id }) => _id.toString());
+      userGroups.forEach((_id) => {
+        isValidAccessGroup = authorizedGroups.some((el) => el === _id);
+        if (isValidAccessGroup) return;
+      });
+      if (!isValidAccessGroup) {
+        throw new BadRequestException({
+          entity,
+          message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
         });
       }
 

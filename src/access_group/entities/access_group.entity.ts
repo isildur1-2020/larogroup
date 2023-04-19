@@ -10,6 +10,8 @@ export type AccessGroupDocument = mongoose.HydratedDocument<AccessGroup>;
   versionKey: false,
 })
 export class AccessGroup {
+  public _id: string;
+
   @Prop({
     required: true,
     unique: true,

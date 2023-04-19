@@ -55,6 +55,19 @@ export class AccessGroupService {
     }
   }
 
+  async findOneByDevice(device_id: string): Promise<AccessGroup[]> {
+    try {
+      const accessGroupFound = this.accessGroupModel.find({
+        device: device_id,
+      });
+      console.log('Accessgroup by device id found successfully');
+      return accessGroupFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async documentExists(id: string): Promise<void> {
     try {
       const isExists = await this.accessGroupModel.exists({ _id: id });
