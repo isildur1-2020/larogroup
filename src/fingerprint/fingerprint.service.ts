@@ -138,14 +138,11 @@ export class FingerprintService {
 
   async fingerprintCountByEmployee(
     employee: string,
-  ): Promise<{ message: string; err: boolean; count: number }> {
+  ): Promise<{ count: number }> {
     try {
       const isExists = await this.fingerprintModel.find({ employee });
-      const message = 'Fingerprints count by employee found successfully';
-      console.log(message);
+      console.log('Fingerprints count by employee found successfully');
       return {
-        message,
-        err: false,
         count: isExists.length,
       };
     } catch (err) {
