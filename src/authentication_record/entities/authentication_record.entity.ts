@@ -42,6 +42,11 @@ export class AuthenticationRecord {
     type: mongoose.Schema.Types.ObjectId,
   })
   public authentication_method: AuthenticationMethod;
+
+  @Prop({
+    required: true,
+  })
+  public entity: string;
 }
 
 export const AuthenticationRecordSchema =

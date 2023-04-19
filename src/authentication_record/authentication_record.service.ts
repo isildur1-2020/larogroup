@@ -41,7 +41,7 @@ export class AuthenticationRecordService {
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
-    type: string;
+    entity?: string;
     message: string;
     vehicle: Vehicle | null;
     employee: Employee | null;
@@ -91,6 +91,7 @@ export class AuthenticationRecordService {
         vehicle: vehicleFound?._id?.toString() ?? null,
         employee: employeeFound?._id?.toString() ?? null,
         authentication_method: authMethodFound._id.toString(),
+        entity: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
@@ -98,7 +99,6 @@ export class AuthenticationRecordService {
         vehicle: vehicleFound ?? null,
         employee: employeeFound ?? null,
         message: 'AUTENTICACIÓN EXITOSA',
-        type: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
       };
     } catch (err) {
       console.log(err);
