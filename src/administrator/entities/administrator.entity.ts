@@ -35,6 +35,7 @@ export class Administrator {
     index: true,
     unique: true,
     required: true,
+    inmutable: true,
   })
   public username: string;
 

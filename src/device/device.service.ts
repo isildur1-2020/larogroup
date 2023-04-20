@@ -64,12 +64,15 @@ export class DeviceService {
 
   async findOneBySN(sn: string): Promise<Device> {
     try {
-      const deviceFound = await this.deviceModel.findOne({ sn });
-      if (deviceFound === null) {
+      const deviceFound = await this.deviceModel.aggregate([
+        { $match: { sn } },
+        ...directionQuery,
+      ]);
+      if (deviceFound.length === 0) {
         throw new BadRequestException(`Device with sn ${sn} does not exists`);
       }
       console.log('Device found succesfully');
-      return deviceFound;
+      return deviceFound[0];
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

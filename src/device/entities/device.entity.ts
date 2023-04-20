@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
-import { Direction } from 'readline';
 import { Campus } from 'src/campus/entities/campus.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Direction } from 'src/direction/entities/direction.entity';
 
 export type DeviceDocument = mongoose.HydratedDocument<Device>;
 

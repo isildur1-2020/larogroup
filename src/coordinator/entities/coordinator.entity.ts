@@ -35,9 +35,10 @@ export class Coordinator {
   public employee: Employee;
 
   @Prop({
+    index: true,
     unique: true,
     required: true,
-    index: true,
+    inmutable: true,
   })
   public username: string;
 

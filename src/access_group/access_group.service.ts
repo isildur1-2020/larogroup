@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { deviceQuery } from 'src/common/queries/deviceQuery';
 import { CreateAccessGroupDto } from './dto/create-access_group.dto';
@@ -57,9 +57,16 @@ export class AccessGroupService {
 
   async findOneByDevice(device_id: string): Promise<AccessGroup[]> {
     try {
-      const accessGroupFound = this.accessGroupModel.find({
-        device: device_id,
-      });
+      const accessGroupFound = this.accessGroupModel.aggregate([
+        { $match: { device: new mongoose.Types.ObjectId(device_id) } },
+        ...deviceQuery,
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ]);
       console.log('Accessgroup by device id found successfully');
       return accessGroupFound;
     } catch (err) {
