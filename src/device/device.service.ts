@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { IsOnlineDto } from './dto/is-online.dto';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
@@ -84,6 +85,17 @@ export class DeviceService {
       await this.documentExists(id);
       await this.deviceModel.findByIdAndUpdate(id, updateDeviceDto);
       console.log(`Device with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async updatebySN(sn: string, isOnlineDto: IsOnlineDto): Promise<void> {
+    try {
+      const deviceFound = await this.findOneBySN(sn);
+      await this.deviceModel.findByIdAndUpdate(deviceFound._id, isOnlineDto);
+      console.log(`Device with sn ${sn} was updated successfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

@@ -55,7 +55,7 @@ export class AccessGroupService {
     }
   }
 
-  async findOneByDevice(device_id: string): Promise<AccessGroup[]> {
+  async findByDevice(device_id: string): Promise<AccessGroup[]> {
     try {
       const accessGroupFound = this.accessGroupModel.aggregate([
         { $match: { device: new mongoose.Types.ObjectId(device_id) } },

@@ -4,7 +4,6 @@ import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Entity } from './interfaces/entity.interface';
 import { DeviceService } from 'src/device/device.service';
-import { Device } from 'src/device/entities/device.entity';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
@@ -12,7 +11,6 @@ import { Employee } from 'src/employee/entities/employee.entity';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AccessGroupService } from 'src/access_group/access_group.service';
-import { AccessGroup } from 'src/access_group/entities/access_group.entity';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
@@ -101,41 +99,29 @@ export class AuthenticationRecordService {
         });
       }
       // VERIFY ACCESS_GROUP
-      // let isValidAccessGroup = false;
-      // const deviceId = deviceFound._id.toString();
-      // const accessGroupsByDevice =
-      //   await this.accessGroupService.findOneByDevice(deviceId);
-      // const authorizedGroups = accessGroupsByDevice.map(({ _id }) =>
-      //   _id.toString(),
-      // );
-      // const userGroups = entity.access_group.map(({ _id }) => _id.toString());
-      // userGroups.forEach((_id) => {
-      //   isValidAccessGroup = authorizedGroups.some((el) => el === _id);
-      //   if (isValidAccessGroup) return;
-      // });
-      // if (!isValidAccessGroup) {
-      //   throw new BadRequestException({
-      //     entity,
-      //     message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
-      //   });
-      // }
+      const deviceId = deviceFound._id.toString();
+      const groupsFound = await this.accessGroupService.findByDevice(deviceId);
+      if (groupsFound.length === 0) {
+        throw new BadRequestException(
+          'Este dispositivo no pertenece a ningún grupo de acceso',
+        );
+      }
+      const authorizedGroup = groupsFound[0]._id.toString();
+      const userGroups = entity.access_group.map((el) => el._id.toString());
+      const isUserAuthorized = userGroups.some(
+        (_id) => _id === authorizedGroup,
+      );
+      if (!isUserAuthorized) {
+        throw new BadRequestException({
+          entity,
+          message: 'Entidad bloqueada por grupo de acceso',
+        });
+      }
       // VERIFY ANTI_PASSBACK
-      // let oppositeDevices: Device[] = [];
-      // accessGroupsByDevice.forEach((access_group: AccessGroup) => {
-      //   const { device } = access_group;
-      //   device.forEach((dev: Device) => {
-      //     if (dev.direction.name !== deviceFound.direction.name) {
-      //       oppositeDevices.push(dev);
-      //     }
-      //   });
-      // });
-      // const isValidAntiPassback = oppositeDevices.some(
-      //   ({ _id }) => _id.toString() === deviceId,
-      // );
-      // console.log({ isValidAntiPassback });
 
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
+        access_group: authorizedGroup,
         device: deviceFound._id.toString(),
         vehicle: vehicleFound?._id?.toString() ?? null,
         employee: employeeFound?._id?.toString() ?? null,

@@ -120,7 +120,6 @@ export class Employee {
   public rfid: string;
 
   @Prop({
-    // default: null,
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,

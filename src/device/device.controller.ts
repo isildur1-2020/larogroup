@@ -6,8 +6,10 @@ import {
   Param,
   Delete,
   Controller,
+  Query,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
+import { IsOnlineDto } from './dto/is-online.dto';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Auth } from '../auth/decorators/auth-decorator.decorator';
@@ -37,6 +39,11 @@ export class DeviceController {
     @Body() updateDeviceDto: UpdateDeviceDto,
   ) {
     return this.deviceService.update(id, updateDeviceDto);
+  }
+
+  @Patch()
+  updateBySn(@Query('sn') sn: string, @Body() isOnlineDto: IsOnlineDto) {
+    return this.deviceService.updatebySN(sn, isOnlineDto);
   }
 
   @Delete(':id')

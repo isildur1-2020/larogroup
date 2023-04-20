@@ -69,12 +69,10 @@ export class CreateEmployeeDto {
   @IsMongoId()
   public city: string;
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
   public barcode: string;
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
   public rfid: string;
