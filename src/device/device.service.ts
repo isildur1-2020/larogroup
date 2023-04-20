@@ -91,14 +91,19 @@ export class DeviceService {
     }
   }
 
-  async updatebySN(sn: string, isOnlineDto: IsOnlineDto): Promise<void> {
+  async updatebySN(
+    sn: string,
+    isOnlineDto: IsOnlineDto,
+  ): Promise<{ err: boolean; message: string }> {
     try {
       const deviceFound = await this.findOneBySN(sn);
       await this.deviceModel.findByIdAndUpdate(deviceFound._id, isOnlineDto);
-      console.log(`Device with sn ${sn} was updated successfully`);
+      const message = `Device with sn ${sn} was updated successfully`;
+      console.log(message);
+      return { err: false, message };
     } catch (err) {
       console.log(err);
-      throw new BadRequestException(err.message);
+      throw new BadRequestException({ err: true, message: err.message });
     }
   }
 
