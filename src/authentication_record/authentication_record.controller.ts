@@ -24,12 +24,6 @@ export class AuthenticationRecordController {
     return this.authenticationRecordService.findAll();
   }
 
-  @Get(':id')
-  @Auth(ValidRoles.superadmin)
-  findOne(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.authenticationRecordService.findOne(id);
-  }
-
   @Delete(':id')
   @Auth(ValidRoles.superadmin)
   remove(@Param('id', ParseMongoIdPipe) id: string) {

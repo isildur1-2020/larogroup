@@ -25,6 +25,8 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { deviceQuery } from 'src/common/queries/deviceQuery';
+import { directionQuery } from 'src/common/queries/directionQuery';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -46,7 +48,6 @@ export class AuthenticationRecordService {
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
-    entity?: string;
     message: string;
     vehicle: Vehicle | null;
     employee: Employee | null;
@@ -118,6 +119,22 @@ export class AuthenticationRecordService {
         });
       }
       // VERIFY ANTI_PASSBACK
+      const devicesCount = await this.accessGroupService.findDevicesCountById(
+        authorizedGroup,
+      );
+      if (devicesCount > 1) {
+        const recordFound = await this.findByEntityIdAndAccessGroup(
+          vehicleFound._id.toString(),
+          authorizedGroup,
+        );
+        if (recordFound !== null) {
+          const lastDeviceDirectionSaved = recordFound.device.direction.name;
+          const currentDeviceDirection = deviceFound.direction.name;
+          if (lastDeviceDirectionSaved === currentDeviceDirection) {
+            throw new BadRequestException('Bloqueado por antipassback');
+          }
+        }
+      }
 
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
@@ -127,6 +144,9 @@ export class AuthenticationRecordService {
         employee: employeeFound?._id?.toString() ?? null,
         authentication_method: authMethodFound._id.toString(),
         entity: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
+        entity_id: vehicleFound
+          ? vehicleFound._id.toString()
+          : employeeFound._id.toString(),
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
@@ -153,8 +173,39 @@ export class AuthenticationRecordService {
     }
   }
 
-  findOne(id: string) {
-    throw new NotFoundException();
+  async findByEntityIdAndAccessGroup(
+    entity_id: string,
+    access_group: string,
+  ): Promise<AuthenticationRecord> {
+    try {
+      const dataFound = await this.authenticationRecordModel.aggregate([
+        {
+          $match: {
+            entity_id: new mongoose.Types.ObjectId(entity_id),
+            access_group: new mongoose.Types.ObjectId(access_group),
+          },
+        },
+        {
+          $lookup: {
+            from: 'devices',
+            localField: 'device',
+            foreignField: '_id',
+            as: 'device',
+            pipeline: [...directionQuery],
+          },
+        },
+        { $unwind: '$device' },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]);
+      return dataFound?.[0] ?? null;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async remove(id: string): Promise<void> {

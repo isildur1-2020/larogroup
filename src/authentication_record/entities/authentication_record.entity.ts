@@ -55,6 +55,12 @@ export class AuthenticationRecord {
     type: mongoose.Schema.Types.ObjectId,
   })
   public access_group: AccessGroup;
+
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public entity_id: Employee | Vehicle;
 }
 
 export const AuthenticationRecordSchema =

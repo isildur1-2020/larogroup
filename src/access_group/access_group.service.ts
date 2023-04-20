@@ -75,6 +75,19 @@ export class AccessGroupService {
     }
   }
 
+  async findDevicesCountById(id: string): Promise<number> {
+    try {
+      const accessGroupFound: AccessGroup =
+        await this.accessGroupModel.findById(id);
+      const devicesCount = accessGroupFound.device.length;
+      console.log('Devices count found successfully');
+      return devicesCount;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async documentExists(id: string): Promise<void> {
     try {
       const isExists = await this.accessGroupModel.exists({ _id: id });
