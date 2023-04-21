@@ -114,6 +114,7 @@ export class FingerprintService {
           },
         },
       ]);
+      console.log('SANTIAGO', sn);
       console.log('Fingerprints found successfully');
       return fingerprintsFound;
     } catch (err) {

@@ -86,26 +86,30 @@ export class AuthenticationRecordService {
       // VERIFY IS_ACTIVE
       entity = vehicleFound ? vehicleFound : employeeFound;
       if (!Boolean(entity.is_active)) {
-        throw new BadRequestException({
-          entity,
-          message: 'Entidad inactiva',
-        });
+        return {
+          vehicle: vehicleFound ?? null,
+          employee: employeeFound ?? null,
+          message: 'ENTIDAD INACTIVA',
+        };
       }
       // VERIFY CONTRACT_END_DATE
       const isInactiveByContract = moment().isAfter(entity.contract_end_date);
       if (isInactiveByContract) {
-        throw new BadRequestException({
-          entity,
-          message: 'Entidad bloqueada por fecha de contrato',
-        });
+        return {
+          vehicle: vehicleFound ?? null,
+          employee: employeeFound ?? null,
+          message: 'ENTIDAD BLOQUEADA POR CONTRATO',
+        };
       }
       // VERIFY ACCESS_GROUP
       const deviceId = deviceFound._id.toString();
       const groupsFound = await this.accessGroupService.findByDevice(deviceId);
       if (groupsFound.length === 0) {
-        throw new BadRequestException(
-          'Este dispositivo no pertenece a ningún grupo de acceso',
-        );
+        return {
+          vehicle: vehicleFound ?? null,
+          employee: employeeFound ?? null,
+          message: 'DISPOSITIVO COLGANTE',
+        };
       }
       const authorizedGroup = groupsFound[0]._id.toString();
       const userGroups = entity.access_group.map((el) => el._id.toString());
@@ -113,10 +117,11 @@ export class AuthenticationRecordService {
         (_id) => _id === authorizedGroup,
       );
       if (!isUserAuthorized) {
-        throw new BadRequestException({
-          entity,
-          message: 'Entidad bloqueada por grupo de acceso',
-        });
+        return {
+          vehicle: vehicleFound ?? null,
+          employee: employeeFound ?? null,
+          message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
+        };
       }
       // VERIFY ANTI_PASSBACK
       const devicesCount = await this.accessGroupService.findDevicesCountById(
@@ -131,7 +136,11 @@ export class AuthenticationRecordService {
           const lastDeviceDirectionSaved = recordFound.device.direction.name;
           const currentDeviceDirection = deviceFound.direction.name;
           if (lastDeviceDirectionSaved === currentDeviceDirection) {
-            throw new BadRequestException('Bloqueado por antipassback');
+            return {
+              vehicle: vehicleFound ?? null,
+              employee: employeeFound ?? null,
+              message: 'BLOQUEADO POR ANTIPASSBACK',
+            };
           }
         }
       }
