@@ -89,7 +89,7 @@ export class AuthenticationRecordService {
         return {
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
-          message: 'ENTIDAD INACTIVA',
+          message: 'INACTIVO',
         };
       }
       // VERIFY CONTRACT_END_DATE
@@ -128,10 +128,18 @@ export class AuthenticationRecordService {
         authorizedGroup,
       );
       if (devicesCount > 1) {
-        const recordFound = await this.findByEntityIdAndAccessGroup(
-          vehicleFound._id.toString(),
-          authorizedGroup,
-        );
+        let recordFound = null;
+        if (vehicleFound) {
+          recordFound = await this.findByEntityIdAndAccessGroup(
+            vehicleFound._id.toString(),
+            authorizedGroup,
+          );
+        } else {
+          recordFound = await this.findByEntityIdAndAccessGroup(
+            employeeFound._id.toString(),
+            authorizedGroup,
+          );
+        }
         if (recordFound !== null) {
           const lastDeviceDirectionSaved = recordFound.device.direction.name;
           const currentDeviceDirection = deviceFound.direction.name;
