@@ -26,7 +26,7 @@ export class VehicleController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findAll() {
     return this.vehicleService.findAll();
   }
