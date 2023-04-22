@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { join } from 'path';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Response } from 'express';
 import { filePath } from 'src/utils/filePath';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,6 +19,7 @@ import {
   Fingerprint,
   FingerprintDocument,
 } from './entities/fingerprint.entity';
+import { AccessGroupService } from 'src/access_group/access_group.service';
 
 @Injectable()
 export class FingerprintService {
@@ -31,6 +32,8 @@ export class FingerprintService {
     private employeeService: EmployeeService,
     @Inject(DeviceService)
     private deviceService: DeviceService,
+    @Inject(AccessGroupService)
+    private accessGroupService: AccessGroupService,
   ) {}
 
   async create(
@@ -77,6 +80,13 @@ export class FingerprintService {
   async findAllBySnDevice(sn: string) {
     try {
       const deviceFound = await this.deviceService.findOneBySN(sn);
+      const accessGroupFound = await this.accessGroupService.findByDevice(
+        deviceFound._id.toString(),
+      );
+      if (accessGroupFound.length === 0) {
+        throw new BadRequestException('Dispositivo aislado');
+      }
+      console.log(accessGroupFound[0]);
       const fingerprintsFound = await this.fingerprintModel.aggregate([
         {
           $lookup: {
@@ -93,7 +103,6 @@ export class FingerprintService {
                   barcode: 0,
                   is_active: 0,
                   categories: 0,
-                  access_group: 0,
                   contract_end_date: 0,
                   contract_start_date: 0,
                 },
@@ -102,11 +111,11 @@ export class FingerprintService {
           },
         },
         { $unwind: '$employee' },
-        {
-          $match: {
-            'employee.campus._id': deviceFound.campus,
-          },
-        },
+        // {
+        //   $match: {
+        //     'employee.access_group._id': accessGroupFound[0],
+        //   },
+        // },
         {
           $project: {
             createdAt: 0,
@@ -114,7 +123,6 @@ export class FingerprintService {
           },
         },
       ]);
-      console.log('SANTIAGO', sn);
       console.log('Fingerprints found successfully');
       return fingerprintsFound;
     } catch (err) {

@@ -8,6 +8,7 @@ import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AccessGroupService } from 'src/access_group/access_group.service';
@@ -17,7 +18,6 @@ import { AuthenticationMethodService } from '../authentication_method/authentica
 import {
   Inject,
   Injectable,
-  NotFoundException,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -25,8 +25,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { deviceQuery } from 'src/common/queries/deviceQuery';
-import { directionQuery } from 'src/common/queries/directionQuery';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -108,7 +106,7 @@ export class AuthenticationRecordService {
         return {
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
-          message: 'DISPOSITIVO COLGANTE',
+          message: 'DISPOSITIVO AISLADO',
         };
       }
       const authorizedGroup = groupsFound[0]._id.toString();
