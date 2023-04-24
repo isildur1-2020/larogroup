@@ -14,6 +14,7 @@ import { UpdateAccessGroupDto } from './dto/update-access_group.dto';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseDevicesPipe } from './pipes/devices-pipe/devices-pipe.pipe';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { UpdateParseDevicesPipe } from './pipes/devices-pipe/update-device.pipe';
 
 @Controller('access-group')
 export class AccessGroupController {
@@ -41,7 +42,7 @@ export class AccessGroupController {
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   update(
     @Param('id', ParseMongoIdPipe) id: string,
-    @Body(ParseDevicesPipe) updateAccessGroupDto: UpdateAccessGroupDto,
+    @Body(UpdateParseDevicesPipe) updateAccessGroupDto: UpdateAccessGroupDto,
   ) {
     return this.accessGroupService.update(id, updateAccessGroupDto);
   }

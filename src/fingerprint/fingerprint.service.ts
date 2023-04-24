@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { join } from 'path';
-import mongoose, { Model } from 'mongoose';
 import { Response } from 'express';
+import * as mongoose from 'mongoose';
 import { filePath } from 'src/utils/filePath';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceService } from 'src/device/device.service';
@@ -9,6 +9,7 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { CreateFingerprintDto } from './dto/create-fingerprint.dto';
 import { UpdateFingerprintDto } from './dto/update-fingerprint.dto';
+import { AccessGroupService } from 'src/access_group/access_group.service';
 import {
   Inject,
   Injectable,
@@ -19,7 +20,6 @@ import {
   Fingerprint,
   FingerprintDocument,
 } from './entities/fingerprint.entity';
-import { AccessGroupService } from 'src/access_group/access_group.service';
 
 @Injectable()
 export class FingerprintService {
@@ -27,7 +27,7 @@ export class FingerprintService {
 
   constructor(
     @InjectModel(Fingerprint.name)
-    private fingerprintModel: Model<FingerprintDocument>,
+    private fingerprintModel: mongoose.Model<FingerprintDocument>,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
     @Inject(DeviceService)
@@ -86,7 +86,6 @@ export class FingerprintService {
       if (accessGroupFound.length === 0) {
         throw new BadRequestException('Dispositivo aislado');
       }
-      console.log(accessGroupFound[0]);
       const fingerprintsFound = await this.fingerprintModel.aggregate([
         {
           $lookup: {
