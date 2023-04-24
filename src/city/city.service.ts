@@ -5,13 +5,13 @@ import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
 import { City, CityDocument } from './entities/city.entity';
 import { CountryService } from 'src/country/country.service';
+import { countryQuery } from 'src/common/queries/countryQuery';
 import {
   Inject,
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { countryQuery } from 'src/common/queries/countryQuery';
 
 @Injectable()
 export class CityService {
