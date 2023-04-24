@@ -84,7 +84,7 @@ export class AuthService {
         payload = {
           _id: superadminFound._id,
           role: superadminFound.role,
-          company: superadminFound.company,
+          // company: superadminFound.company,
           username: superadminFound.username,
         };
         return {
