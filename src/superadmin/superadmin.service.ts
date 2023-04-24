@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { RoleService } from 'src/role/role.service';
-import { CompanyService } from '../company/company.service';
 import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
@@ -24,8 +23,6 @@ export class SuperadminService {
   constructor(
     @InjectModel(Superadmin.name)
     private superadminModel: mongoose.Model<SuperadminDocument>,
-    @Inject(CompanyService)
-    private companyservice: CompanyService,
     @Inject(forwardRef(() => AdministratorService))
     private administratorService: AdministratorService,
     @Inject(forwardRef(() => CoordinatorService))
@@ -38,8 +35,7 @@ export class SuperadminService {
 
   async create(createSuperadminDto: CreateSuperadminDto): Promise<void> {
     try {
-      const { company, password, username, root_password } =
-        createSuperadminDto;
+      const { password, username, root_password } = createSuperadminDto;
       if (root_password !== this.configService.get('ROOT_PASSWORD')) {
         throw new ForbiddenException('You need a unique credential');
       }
@@ -57,7 +53,6 @@ export class SuperadminService {
       if (coordinatorFound !== null) {
         throw new BadRequestException('You cannot use this username');
       }
-      await this.companyservice.documentExists(company);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.superadmin,
       );

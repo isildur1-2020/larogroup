@@ -16,26 +16,6 @@ export const superadminQuery = [
     },
   },
   { $unwind: '$role' },
-  // COMPANY
-  {
-    $lookup: {
-      from: 'companies',
-      localField: 'company',
-      foreignField: '_id',
-      as: 'company',
-      pipeline: [
-        {
-          $project: {
-            createdAt: 0,
-            updatedAt: 0,
-            city: 0,
-            country: 0,
-          },
-        },
-      ],
-    },
-  },
-  { $unwind: '$company' },
   {
     $project: {
       password: 0,

@@ -1,10 +1,4 @@
-import {
-  Matches,
-  IsString,
-  IsMongoId,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { Matches, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateSuperadminDto {
   @IsString()
@@ -23,8 +17,8 @@ export class CreateSuperadminDto {
   )
   public password: string;
 
-  @IsMongoId()
-  public company: string;
+  // @IsMongoId()
+  // public company: string;
 
   @IsString()
   @Matches(
