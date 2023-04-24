@@ -19,13 +19,13 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Post()
-  // @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin)
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.create(createRoleDto);
   }
 
   @Get()
-  // @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin)
   findAll() {
     return this.roleService.findAll();
   }

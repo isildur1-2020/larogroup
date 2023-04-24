@@ -106,8 +106,7 @@ export class SuperadminService {
     try {
       const userFound = await this.superadminModel
         .findOne({ username })
-        .populate('role', 'name')
-        .populate('company', 'name');
+        .populate('role', 'name');
       return userFound;
     } catch (err) {
       console.log(err);
