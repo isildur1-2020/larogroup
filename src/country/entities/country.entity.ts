@@ -5,6 +5,8 @@ export type CountryDocument = HydratedDocument<Country>;
 
 @Schema({ timestamps: true, versionKey: false })
 export class Country {
+  public _id: string;
+
   @Prop({
     index: true,
     unique: true,

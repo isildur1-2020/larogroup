@@ -6,6 +6,8 @@ export type CityDocument = mongoose.HydratedDocument<City>;
 
 @Schema({ timestamps: true, versionKey: false })
 export class City {
+  public _id: string;
+
   @Prop({
     index: true,
     unique: true,

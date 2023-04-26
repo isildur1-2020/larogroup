@@ -8,6 +8,8 @@ export type CampusDocument = mongoose.HydratedDocument<Campus>;
   versionKey: false,
 })
 export class Campus {
+  public _id: string;
+
   @Prop({
     required: true,
   })

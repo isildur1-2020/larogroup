@@ -7,6 +7,8 @@ export type SubCompanyDocument = mongoose.HydratedDocument<SubCompany>;
 
 @Schema({ timestamps: true, versionKey: false })
 export class SubCompany {
+  public _id: string;
+
   @Prop({
     index: true,
     unique: true,
