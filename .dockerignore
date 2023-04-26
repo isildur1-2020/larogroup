@@ -1,7 +1,8 @@
 .git
-fly.toml
-.dockerignore
 dist
-node_modules
+fly.toml
 .gitignore
 Dockerfile
+docker.env
+.dockerignore
+node_modules
