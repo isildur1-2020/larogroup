@@ -25,7 +25,7 @@ export class DniTypeController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findAll() {
     return this.dniTypeService.findAll();
   }
