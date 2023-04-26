@@ -51,15 +51,6 @@ export class SeedService {
 
   async create(createSeedDto: CreateSeedDto) {
     try {
-      // CREATE SUPERADMIN
-      const superadminUsername = 'cotema_superadmin';
-      const superadminPassword = '&O!Tsmk%M7b86WmZ';
-      const ROOT_PASSWORD = this.configService.get('ROOT_PASSWORD');
-      const superadminCreated = await this.superadminService.create({
-        username: superadminUsername,
-        password: superadminPassword,
-        root_password: ROOT_PASSWORD,
-      });
       // CREATE ROLES
       const roles = [
         'superadmin',
@@ -71,25 +62,16 @@ export class SeedService {
       for (let role of roles) {
         await this.roleService.create({ name: role });
       }
-      // CREATE AUTH METHODS
-      const authMethods = [
-        {
-          key: 'fingerprint',
-          name: 'Huella dactilar',
-        },
-        {
-          key: 'barcode',
-          name: 'Código de barras',
-        },
-        {
-          key: 'rfid',
-          name: 'RFID',
-        },
-      ];
-      for (let method of authMethods) {
-        const { key, name } = method;
-        await this.authenticationMethodService.create({ key, name });
-      }
+      // CREATE COUNTRY
+      const countryCreated = await this.countryService.create({
+        name: 'Colombia',
+      });
+      const countryId = countryCreated._id.toString();
+      // CREATE CITIES
+      await this.cityService.create({ name: 'Whatever', country: countryId });
+      const cities = await this.cityService.findAll();
+      const apartadoCity = cities.find((city) => city.name === 'apartado');
+      const apartadoCityId = apartadoCity._id.toString();
       // CREATE DIRECTION
       const directions = [
         {
@@ -115,16 +97,34 @@ export class SeedService {
       for (let dniType of dniTypes) {
         await this.dniTypeService.create({ name: dniType });
       }
-      // CREATE COUNTRY
-      const countryCreated = await this.countryService.create({
-        name: 'Colombia',
+      // CREATE SUPERADMIN
+      const superadminUsername = 'cotema_superadmin';
+      const superadminPassword = '&O!Tsmk%M7b86WmZ';
+      const ROOT_PASSWORD = this.configService.get('ROOT_PASSWORD');
+      const superadminCreated = await this.superadminService.create({
+        username: superadminUsername,
+        password: superadminPassword,
+        root_password: ROOT_PASSWORD,
       });
-      const countryId = countryCreated._id.toString();
-      // CREATE CITIES
-      await this.cityService.create({ name: 'Whatever', country: countryId });
-      const cities = await this.cityService.findAll();
-      const apartadoCity = cities.find((city) => city.name === 'apartado');
-      const apartadoCityId = apartadoCity._id.toString();
+      // CREATE AUTH METHODS
+      const authMethods = [
+        {
+          key: 'fingerprint',
+          name: 'Huella dactilar',
+        },
+        {
+          key: 'barcode',
+          name: 'Código de barras',
+        },
+        {
+          key: 'rfid',
+          name: 'RFID',
+        },
+      ];
+      for (let method of authMethods) {
+        const { key, name } = method;
+        await this.authenticationMethodService.create({ key, name });
+      }
       // CREATE COMPANY
       const companyCreated = await this.companyService.create({
         city: apartadoCityId,
