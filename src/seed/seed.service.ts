@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
 import { CreateSeedDto } from './dto/create-seed.dto';
@@ -62,16 +62,6 @@ export class SeedService {
       for (let role of roles) {
         await this.roleService.create({ name: role });
       }
-      // CREATE COUNTRY
-      const countryCreated = await this.countryService.create({
-        name: 'Colombia',
-      });
-      const countryId = countryCreated._id.toString();
-      // CREATE CITIES
-      await this.cityService.create({ name: 'Whatever', country: countryId });
-      const cities = await this.cityService.findAll();
-      const apartadoCity = cities.find((city) => city.name === 'apartado');
-      const apartadoCityId = apartadoCity._id.toString();
       // CREATE DIRECTION
       const directions = [
         {
@@ -97,6 +87,17 @@ export class SeedService {
       for (let dniType of dniTypes) {
         await this.dniTypeService.create({ name: dniType });
       }
+      // CREATE COUNTRY
+      const countryCreated = await this.countryService.create({
+        name: 'Colombia',
+      });
+      const countryId = countryCreated._id.toString();
+      // CREATE CITIES
+      await this.cityService.create({ country: countryId });
+      const cities = await this.cityService.findAll();
+      const apartadoCity = cities.find((city) => city.name === 'Apartadó');
+      const apartadoCityId = apartadoCity._id.toString();
+
       // CREATE SUPERADMIN
       const superadminUsername = 'cotema_superadmin';
       const superadminPassword = '&O!Tsmk%M7b86WmZ';
@@ -106,6 +107,7 @@ export class SeedService {
         password: superadminPassword,
         root_password: ROOT_PASSWORD,
       });
+
       // CREATE AUTH METHODS
       const authMethods = [
         {
@@ -125,6 +127,7 @@ export class SeedService {
         const { key, name } = method;
         await this.authenticationMethodService.create({ key, name });
       }
+
       // CREATE COMPANY
       const companyCreated = await this.companyService.create({
         city: apartadoCityId,
@@ -144,6 +147,7 @@ export class SeedService {
         sub_company: subCompanyId,
       });
       const campusId = campusCreated._id.toString();
+
       // CREATE ADMINISTRATOR
       const adminCreated = await this.administratorService.create({
         company: companyId,
@@ -161,6 +165,7 @@ export class SeedService {
       // })
     } catch (err) {
       console.log(err);
+      throw new BadRequestException(err.message);
     }
   }
 

@@ -27,22 +27,16 @@ export class CityService {
       const { country } = createCityDto;
       await this.countryService.documentExists(country);
       await this.cityModel.deleteMany();
-      const createCity = async (cityName: string) => {
-        try {
-          const cityData = {
-            country,
-            name: cityName,
-          };
-          const newCity = new this.cityModel(cityData);
-          await newCity.save();
-          console.log(`City ${cityName} was created successfully`);
-        } catch (err) {
-          console.log(err);
-          throw new BadRequestException(err.message);
-        }
-      };
-      colCities.map((cityName) => createCity(cityName));
-      console.log('Cities of Colombia created succesfully');
+      for (let city of colCities) {
+        const cityData = {
+          country,
+          name: city,
+        };
+        const newCity = new this.cityModel(cityData);
+        await newCity.save();
+        console.log(`City ${city} was created successfully`);
+      }
+      console.log(`Cities of ${country} was created succesfully`);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
