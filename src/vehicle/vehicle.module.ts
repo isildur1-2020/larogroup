@@ -6,6 +6,8 @@ import { VehicleController } from './vehicle.controller';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { Vehicle, VehicleSchema } from './entities/vehicle.entity';
 import { AccessGroupModule } from 'src/access_group/access_group.module';
+import { ProfilePictureModule } from 'src/profile_picture/profile_picture.module';
+import { AuthenticationRecordModule } from 'src/authentication_record/authentication_record.module';
 
 @Module({
   imports: [
@@ -15,9 +17,11 @@ import { AccessGroupModule } from 'src/access_group/access_group.module';
         schema: VehicleSchema,
       },
     ]),
-    RoleModule,
-    AccessGroupModule,
+    ProfilePictureModule,
+    forwardRef(() => RoleModule),
     forwardRef(() => EmployeeModule),
+    forwardRef(() => AccessGroupModule),
+    forwardRef(() => AuthenticationRecordModule),
   ],
   controllers: [VehicleController],
   providers: [VehicleService],

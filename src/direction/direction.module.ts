@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { DirectionService } from './direction.service';
+import { DeviceModule } from 'src/device/device.module';
 import { DirectionController } from './direction.controller';
 import { Direction, DirectionSchema } from './entities/direction.entity';
 
@@ -12,6 +13,7 @@ import { Direction, DirectionSchema } from './entities/direction.entity';
         schema: DirectionSchema,
       },
     ]),
+    forwardRef(() => DeviceModule),
   ],
   controllers: [DirectionController],
   providers: [DirectionService],

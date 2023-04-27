@@ -3,13 +3,33 @@ import { Role } from './entities/role.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { VehicleService } from 'src/vehicle/vehicle.service';
+import { EmployeeService } from 'src/employee/employee.service';
+import { SuperadminService } from 'src/superadmin/superadmin.service';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
+import { AdministratorService } from 'src/administrator/administrator.service';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectModel(Role.name)
     private roleModel: mongoose.Model<Role>,
+    @Inject(forwardRef(() => SuperadminService))
+    private superadminService: SuperadminService,
+    @Inject(forwardRef(() => AdministratorService))
+    private administratorService: AdministratorService,
+    @Inject(forwardRef(() => CoordinatorService))
+    private coordinatorService: CoordinatorService,
+    @Inject(forwardRef(() => VehicleService))
+    private vehicleService: VehicleService,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -88,6 +108,12 @@ export class RoleService {
   async remove(id: string): Promise<boolean> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.employeeService.validateByRole(id);
+      await this.vehicleService.validateByRole(id);
+      await this.coordinatorService.validateByRole(id);
+      await this.administratorService.validateByRole(id);
+      await this.superadminService.validateByRole(id);
       await this.roleModel.findByIdAndDelete(id);
       console.log(`Rol with id ${id} deleted successfully`);
       return true;

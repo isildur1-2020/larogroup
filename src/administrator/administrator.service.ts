@@ -26,13 +26,13 @@ export class AdministratorService {
   constructor(
     @InjectModel(Administrator.name)
     private administratorModel: mongoose.Model<AdministratorDocument>,
-    @Inject(CompanyService)
+    @Inject(forwardRef(() => CompanyService))
     private companyService: CompanyService,
     @Inject(forwardRef(() => CoordinatorService))
     private coordinatorService: CoordinatorService,
     @Inject(forwardRef(() => SuperadminService))
     private superadminService: SuperadminService,
-    @Inject(RoleService)
+    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
   ) {}
 
@@ -70,15 +70,9 @@ export class AdministratorService {
     }
   }
 
-  async findAll(company_id: string): Promise<Administrator[]> {
+  async findAll(): Promise<Administrator[]> {
     try {
-      console.log(company_id);
       const administratorsFound = await this.administratorModel.aggregate([
-        {
-          $match: {
-            company: new mongoose.Types.ObjectId(company_id),
-          },
-        },
         ...administratorQuery,
       ]);
       console.log('Administrator found successfully');
@@ -153,6 +147,30 @@ export class AdministratorService {
       await this.documentExists(id);
       await this.administratorModel.findByIdAndDelete(id);
       console.log(`Administrator with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCompany(company: string): Promise<void> {
+    try {
+      const adminsFound = await this.administratorModel.find({ company });
+      if (adminsFound.length > 0) {
+        throw new BadRequestException('There are associated administrators');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByRole(role: string): Promise<void> {
+    try {
+      const adminsFound = await this.administratorModel.find({ role });
+      if (adminsFound.length > 0) {
+        throw new BadRequestException('There are associated administrators');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

@@ -2,12 +2,14 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { EmployeeService } from 'src/employee/employee.service';
 import { subcompanyQuery } from 'src/common/queries/subcompanyQuery';
 import { Category, CategoryDocument } from './entities/category.entity';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -17,8 +19,10 @@ export class CategoryService {
   constructor(
     @InjectModel(Category.name)
     private categoryModel: Model<CategoryDocument>,
-    @Inject(SubCompanyService)
+    @Inject(forwardRef(() => SubCompanyService))
     private subCompanyService: SubCompanyService,
+    @Inject(EmployeeService)
+    private employeeService: EmployeeService,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
@@ -86,8 +90,22 @@ export class CategoryService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.employeeService.validateByCategory(id);
       await this.categoryModel.findByIdAndDelete(id);
       console.log(`Category with id ${id} was deleted succesfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateBySubCompany(sub_company: string): Promise<void> {
+    try {
+      const categoriesFound = await this.categoryModel.find({ sub_company });
+      if (categoriesFound.length > 0) {
+        throw new BadRequestException('There are associated categories');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

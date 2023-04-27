@@ -1,10 +1,13 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { CityService } from 'src/city/city.service';
 import { CreateCountryDto } from './dto/create-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
 import { Country, CountryDocument } from './entities/country.entity';
 import {
+  Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -14,6 +17,8 @@ export class CountryService {
   constructor(
     @InjectModel(Country.name)
     private countryModel: Model<CountryDocument>,
+    @Inject(forwardRef(() => CityService))
+    private cityService: CityService,
   ) {}
 
   async create(createCountryDto: CreateCountryDto): Promise<Country> {
@@ -75,6 +80,8 @@ export class CountryService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // FORBIDDEN DELETE FOREIGN KEYS
+      await this.cityService.validateByCountry(id);
       await this.countryModel.findByIdAndDelete(id);
       console.log(`Country with id ${id} was deleted successfully`);
     } catch (err) {

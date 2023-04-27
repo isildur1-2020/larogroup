@@ -11,7 +11,10 @@ import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
+import { FingerprintService } from 'src/fingerprint/fingerprint.service';
+import { CoordinatorService } from 'src/coordinator/coordinator.service';
 import { ProfilePictureService } from 'src/profile_picture/profile_picture.service';
+import { AuthenticationRecordService } from 'src/authentication_record/authentication_record.service';
 import {
   Inject,
   Injectable,
@@ -24,18 +27,24 @@ export class EmployeeService {
   constructor(
     @InjectModel(Employee.name)
     private employeeModel: mongoose.Model<EmployeeDocument>,
-    @Inject(CityService)
+    @Inject(forwardRef(() => CityService))
     private cityService: CityService,
-    @Inject(DniTypeService)
+    @Inject(forwardRef(() => DniTypeService))
     private dniTypeService: DniTypeService,
-    @Inject(CampusService)
+    @Inject(forwardRef(() => CampusService))
     private campusService: CampusService,
-    @Inject(RoleService)
+    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
     @Inject(ProfilePictureService)
     private profilePictureService: ProfilePictureService,
     @Inject(forwardRef(() => VehicleService))
     private vehicleService: VehicleService,
+    @Inject(forwardRef(() => CoordinatorService))
+    private coordinatorService: CoordinatorService,
+    @Inject(forwardRef(() => FingerprintService))
+    private fingerprintService: FingerprintService,
+    @Inject(forwardRef(() => AuthenticationRecordService))
+    private authenticationRecordService: AuthenticationRecordService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
@@ -146,12 +155,27 @@ export class EmployeeService {
   async remove(id: string) {
     try {
       const employeeFound = await this.findOne(id);
-      await this.employeeModel.findByIdAndDelete(id);
+      // RESTRICT DELETE
+      await this.authenticationRecordService.validateByEmployee(id);
+      await this.coordinatorService.validateByEmployee(id);
+      // REMOVE FINGERPRINTS
+      const employeeId = employeeFound._id.toString();
+      const fingerprintsFound =
+        await this.fingerprintService.findFingerprintsByEmployee(employeeId);
+      if (fingerprintsFound.length > 0) {
+        for (let fingerprint of fingerprintsFound) {
+          const fingerprintId = fingerprint._id.toString();
+          await this.fingerprintService.remove(fingerprintId);
+        }
+      }
+      // REMOVE PROFILE PICTURE
       const currentPicture = employeeFound.profile_picture;
       if (currentPicture.length !== 0) {
         const currentPictureId = currentPicture[0]._id.toString();
         await this.profilePictureService.remove(currentPictureId);
       }
+
+      await this.employeeModel.findByIdAndDelete(id);
       console.log(`Employee with id ${id} was deleted succesfully`);
     } catch (err) {
       console.log(err);
@@ -195,6 +219,78 @@ export class EmployeeService {
       ]);
       console.log('Employee found with RFID successfully');
       return employeeFound?.[0];
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByRole(role: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ role });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCity(city: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ city });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByDniType(dni_type: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ dni_type });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCampus(campus: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ campus });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCategory(categories: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ categories });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByAccessGroup(access_group: string): Promise<void> {
+    try {
+      const employeesFound = await this.employeeModel.find({ access_group });
+      if (employeesFound.length > 0) {
+        throw new BadRequestException('There are associated employees');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

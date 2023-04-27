@@ -7,11 +7,12 @@ import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Vehicle, VehicleDocument } from './entities/vehicle.entity';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { ProfilePictureService } from 'src/profile_picture/profile_picture.service';
+import { AuthenticationRecordService } from 'src/authentication_record/authentication_record.service';
 import {
   Inject,
   Injectable,
   forwardRef,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 
@@ -20,10 +21,14 @@ export class VehicleService {
   constructor(
     @InjectModel(Vehicle.name)
     private vehicleModel: Model<VehicleDocument>,
-    @Inject(RoleService)
+    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
     @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
+    @Inject(ProfilePictureService)
+    private profilePictureService: ProfilePictureService,
+    @Inject(forwardRef(() => AuthenticationRecordService))
+    private authenticationRecordService: AuthenticationRecordService,
   ) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
@@ -85,8 +90,17 @@ export class VehicleService {
     }
   }
 
-  findOne(id: number) {
-    throw new NotFoundException();
+  async findById(id: string): Promise<Vehicle> {
+    try {
+      const vehicleFound = await this.vehicleModel.findById(id);
+      if (vehicleFound === null) {
+        throw new BadRequestException(`Vehicle with id ${id} does not exists`);
+      }
+      return vehicleFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   async findOneByBarcode(barcode: string): Promise<Vehicle> {
@@ -125,9 +139,40 @@ export class VehicleService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.documentExists(id);
+      const vehicleFound = await this.findById(id);
+      // RESTRICT DELETE
+      await this.authenticationRecordService.validateByVehicle(id);
+      // DELETE PROFILE PICTURE
+      if (vehicleFound?.profile_picture) {
+        const { profile_picture } = vehicleFound;
+        await this.profilePictureService.remove(profile_picture.toString());
+      }
       await this.vehicleModel.findByIdAndDelete(id);
       console.log(`Vehicle with id ${id} was updated successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByRole(role: string): Promise<void> {
+    try {
+      const vehiclesFound = await this.vehicleModel.find({ role });
+      if (vehiclesFound.length > 0) {
+        throw new BadRequestException('There are associated vehicles');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByAccessGroup(access_group: string): Promise<void> {
+    try {
+      const vehiclesFound = await this.vehicleModel.find({ access_group });
+      if (vehiclesFound.length > 0) {
+        throw new BadRequestException('There are associated vehicles');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

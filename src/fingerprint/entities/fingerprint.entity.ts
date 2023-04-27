@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Employee } from 'src/employee/entities/employee.entity';
 
 export type FingerprintDocument = mongoose.HydratedDocument<Fingerprint>;
 
@@ -8,13 +9,15 @@ export type FingerprintDocument = mongoose.HydratedDocument<Fingerprint>;
   versionKey: false,
 })
 export class Fingerprint {
+  public _id: string;
+
   @Prop({
     required: true,
     immutable: true,
     ref: 'Employee',
     type: mongoose.Schema.Types.ObjectId,
   })
-  public employee: string;
+  public employee: Employee;
 
   @Prop({
     required: true,

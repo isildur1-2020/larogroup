@@ -3,13 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DniType } from './entities/dni_type.entity';
 import { CreateDniTypeDto } from './dto/create-dni_type.dto';
 import { UpdateDniTypeDto } from './dto/update-dni_type.dto';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { EmployeeService } from 'src/employee/employee.service';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class DniTypeService {
   constructor(
     @InjectModel(DniType.name)
     private dniTypeModel: Model<DniType>,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
   ) {}
 
   async create(createDniTypeDto: CreateDniTypeDto): Promise<DniType> {
@@ -67,6 +75,8 @@ export class DniTypeService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.employeeService.validateByDniType(id);
       await this.dniTypeModel.findOneAndDelete({ _id: id });
       console.log(`Dni type with id ${id} was deleted successfully`);
     } catch (err) {

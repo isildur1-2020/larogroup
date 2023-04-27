@@ -8,17 +8,28 @@ import { campusQuery } from 'src/common/queries/campusQuery';
 import { Device, DeviceDocument } from './entities/device.entity';
 import { directionQuery } from 'src/common/queries/directionQuery';
 import { DirectionService } from 'src/direction/direction.service';
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { AccessGroupService } from 'src/access_group/access_group.service';
+import { AuthenticationRecordService } from 'src/authentication_record/authentication_record.service';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class DeviceService {
   constructor(
     @InjectModel(Device.name)
     private deviceModel: Model<DeviceDocument>,
-    @Inject(CampusService)
+    @Inject(forwardRef(() => CampusService))
     private campusService: CampusService,
-    @Inject(DirectionService)
+    @Inject(forwardRef(() => DirectionService))
     private directionService: DirectionService,
+    @Inject(forwardRef(() => AccessGroupService))
+    private accessGroupService: AccessGroupService,
+    @Inject(forwardRef(() => AuthenticationRecordService))
+    private authenticationRecordService: AuthenticationRecordService,
   ) {}
 
   async create(createDeviceDto: CreateDeviceDto): Promise<Device> {
@@ -110,8 +121,35 @@ export class DeviceService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.authenticationRecordService.validateByDevice(id);
+      await this.accessGroupService.validateByDevice(id);
       await this.deviceModel.findByIdAndDelete(id);
       console.log(`Device with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByDirection(direction: string): Promise<void> {
+    try {
+      const devicesFound = await this.deviceModel.find({ direction });
+      if (devicesFound.length > 0) {
+        throw new BadRequestException('There are associated devices');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCampus(campus: string): Promise<void> {
+    try {
+      const devicesFound = await this.deviceModel.find({ campus });
+      if (devicesFound.length > 0) {
+        throw new BadRequestException('There are associated devices');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

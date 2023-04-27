@@ -2,11 +2,14 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateAuthenticationMethodDto } from './dto/create-authentication_method.dto';
 import { UpdateAuthenticationMethodDto } from './dto/update-authentication_method.dto';
+import { AuthenticationRecordService } from 'src/authentication_record/authentication_record.service';
 import {
+  Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
-  BadRequestException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   AuthenticationMethod,
@@ -18,6 +21,8 @@ export class AuthenticationMethodService {
   constructor(
     @InjectModel(AuthenticationMethod.name)
     private authenticationMethodModel: Model<AuthenticationMethodDocument>,
+    @Inject(forwardRef(() => AuthenticationRecordService))
+    private authenticationRecordService: AuthenticationRecordService,
   ) {}
 
   async create(
@@ -111,6 +116,8 @@ export class AuthenticationMethodService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.authenticationRecordService.validateByAuthMethod(id);
       await this.authenticationMethodModel.findByIdAndDelete(id);
       console.log(
         `Authentication method with id ${id} was deleted successfully`,

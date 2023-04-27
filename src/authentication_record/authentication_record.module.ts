@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { DeviceModule } from 'src/device/device.module';
 import { VehicleModule } from 'src/vehicle/vehicle.module';
 import { EmployeeModule } from 'src/employee/employee.module';
@@ -20,11 +20,11 @@ import {
         schema: AuthenticationRecordSchema,
       },
     ]),
-    DeviceModule,
-    VehicleModule,
-    EmployeeModule,
-    AccessGroupModule,
-    AuthenticationMethodModule,
+    forwardRef(() => DeviceModule),
+    forwardRef(() => VehicleModule),
+    forwardRef(() => EmployeeModule),
+    forwardRef(() => AccessGroupModule),
+    forwardRef(() => AuthenticationMethodModule),
   ],
   controllers: [AuthenticationRecordController],
   providers: [AuthenticationRecordService],

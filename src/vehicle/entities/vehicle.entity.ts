@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { Role } from 'src/role/entities/role.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
 import { AccessGroup } from 'src/access_group/entities/access_group.entity';
+import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
 
 export type VehicleDocument = mongoose.HydratedDocument<Vehicle>;
 

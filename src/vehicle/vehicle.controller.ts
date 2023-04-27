@@ -34,7 +34,7 @@ export class VehicleController {
   @Get(':id')
   @Auth(ValidRoles.superadmin, ValidRoles.administrator)
   findOne(@Param('id') id: string) {
-    return this.vehicleService.findOne(+id);
+    return this.vehicleService.findById(id);
   }
 
   @Patch(':id')

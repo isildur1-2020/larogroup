@@ -27,8 +27,8 @@ export class AdministratorController {
 
   @Get()
   @Auth(ValidRoles.superadmin)
-  findAll(@GetUser('company', ParseMongoIdPipe) company_id: string) {
-    return this.administratorService.findAll(company_id);
+  findAll() {
+    return this.administratorService.findAll();
   }
 
   @Get(':id')

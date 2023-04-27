@@ -18,6 +18,7 @@ import { AuthenticationMethodService } from '../authentication_method/authentica
 import {
   Inject,
   Injectable,
+  forwardRef,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -31,15 +32,15 @@ export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
-    @Inject(DeviceService)
+    @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
-    @Inject(AuthenticationMethodService)
+    @Inject(forwardRef(() => AuthenticationMethodService))
     private authenticationMethodService: AuthenticationMethodService,
-    @Inject(EmployeeService)
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
-    @Inject(VehicleService)
+    @Inject(forwardRef(() => VehicleService))
     private vehicleService: VehicleService,
-    @Inject(AccessGroupService)
+    @Inject(forwardRef(() => AccessGroupService))
     private accessGroupService: AccessGroupService,
   ) {}
 
@@ -230,6 +231,86 @@ export class AuthenticationRecordService {
       console.log(
         `Authentication record with id ${id} was deleted successfully`,
       );
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByAuthMethod(authentication_method: string): Promise<void> {
+    try {
+      const authRecordsFound = await this.authenticationRecordModel.find({
+        authentication_method,
+      });
+      if (authRecordsFound.length > 0) {
+        throw new BadRequestException(
+          'There are associated authorization records',
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByAccessGroup(access_group: string): Promise<void> {
+    try {
+      const authRecordsFound = await this.authenticationRecordModel.find({
+        access_group,
+      });
+      if (authRecordsFound.length > 0) {
+        throw new BadRequestException(
+          'There are associated authorization records',
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByDevice(device: string): Promise<void> {
+    try {
+      const authRecordsFound = await this.authenticationRecordModel.find({
+        device,
+      });
+      if (authRecordsFound.length > 0) {
+        throw new BadRequestException(
+          'There are associated authorization records',
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByEmployee(employee: string): Promise<void> {
+    try {
+      const authRecordsFound = await this.authenticationRecordModel.find({
+        employee,
+      });
+      if (authRecordsFound.length > 0) {
+        throw new BadRequestException(
+          'There are associated authorization records',
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByVehicle(vehicle: string): Promise<void> {
+    try {
+      const authRecordsFound = await this.authenticationRecordModel.find({
+        vehicle,
+      });
+      if (authRecordsFound.length > 0) {
+        throw new BadRequestException(
+          'There are associated authorization records',
+        );
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

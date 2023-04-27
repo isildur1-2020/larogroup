@@ -5,10 +5,14 @@ import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
 import { City, CityDocument } from './entities/city.entity';
 import { CountryService } from 'src/country/country.service';
+import { CompanyService } from 'src/company/company.service';
 import { countryQuery } from 'src/common/queries/countryQuery';
+import { EmployeeService } from 'src/employee/employee.service';
+import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -18,8 +22,14 @@ export class CityService {
   constructor(
     @InjectModel(City.name)
     private cityModel: Model<CityDocument>,
-    @Inject(CountryService)
+    @Inject(forwardRef(() => CountryService))
     private countryService: CountryService,
+    @Inject(forwardRef(() => CompanyService))
+    private companyService: CompanyService,
+    @Inject(forwardRef(() => SubCompanyService))
+    private subCompanyService: SubCompanyService,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
   ) {}
 
   async create(createCityDto: CreateCityDto): Promise<void> {
@@ -84,8 +94,24 @@ export class CityService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE FOREIGN
+      await this.employeeService.validateByCity(id);
+      await this.companyService.validateByCity(id);
+      await this.subCompanyService.validateByCity(id);
       await this.cityModel.findByIdAndDelete(id);
       console.log(`City with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCountry(country: string): Promise<void> {
+    try {
+      const citiesFound = await this.cityModel.find({ country });
+      if (citiesFound.length > 0) {
+        throw new BadRequestException('There are associated cities');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

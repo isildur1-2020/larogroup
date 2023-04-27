@@ -1,10 +1,13 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeviceService } from 'src/device/device.service';
 import { CreateDirectionDto } from './dto/create-direction.dto';
 import { UpdateDirectionDto } from './dto/update-direction.dto';
 import { Direction, DirectionDocument } from './entities/direction.entity';
 import {
+  Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -14,6 +17,8 @@ export class DirectionService {
   constructor(
     @InjectModel(Direction.name)
     private directionModel: Model<DirectionDocument>,
+    @Inject(forwardRef(() => DeviceService))
+    private deviceService: DeviceService,
   ) {}
 
   async create(createDirectionDto: CreateDirectionDto): Promise<Direction> {
@@ -98,6 +103,8 @@ export class DirectionService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
+      // RESTRICT DELETE
+      await this.deviceService.validateByDirection(id);
       await this.directionModel.findByIdAndDelete(id);
       console.log(`Direction with id ${id} was deleted successfully`);
     } catch (err) {

@@ -13,6 +13,7 @@ import { AccessGroupService } from 'src/access_group/access_group.service';
 import {
   Inject,
   Injectable,
+  forwardRef,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -28,11 +29,11 @@ export class FingerprintService {
   constructor(
     @InjectModel(Fingerprint.name)
     private fingerprintModel: mongoose.Model<FingerprintDocument>,
-    @Inject(EmployeeService)
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
-    @Inject(DeviceService)
+    @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
-    @Inject(AccessGroupService)
+    @Inject(forwardRef(() => AccessGroupService))
     private accessGroupService: AccessGroupService,
   ) {}
 
@@ -110,11 +111,6 @@ export class FingerprintService {
           },
         },
         { $unwind: '$employee' },
-        // {
-        //   $match: {
-        //     'employee.access_group._id': accessGroupFound[0],
-        //   },
-        // },
         {
           $project: {
             createdAt: 0,
@@ -123,6 +119,17 @@ export class FingerprintService {
         },
       ]);
       console.log('Fingerprints found successfully');
+      return fingerprintsFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findFingerprintsByEmployee(employee: string): Promise<Fingerprint[]> {
+    try {
+      const fingerprintsFound = await this.fingerprintModel.find({ employee });
+      console.log('Fingerprints bu employee found successfully');
       return fingerprintsFound;
     } catch (err) {
       console.log(err);
@@ -159,6 +166,21 @@ export class FingerprintService {
     }
   }
 
+  async findById(id: string): Promise<Fingerprint> {
+    try {
+      const fingerprintFound = await this.fingerprintModel.findById(id);
+      if (fingerprintFound === null) {
+        throw new BadRequestException(
+          `Fingerprint with id ${id} does not exists`,
+        );
+      }
+      return fingerprintFound;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   findOneByName(fingerprintImage: string, res: Response) {
     try {
       const fingerprintImagePath = join(
@@ -182,6 +204,17 @@ export class FingerprintService {
 
   async remove(id: string): Promise<void> {
     try {
+      const fingerprintFound = await this.findById(id);
+      const { fingerprint: url } = fingerprintFound;
+      const fingerprintPath = join(
+        __dirname,
+        '../../',
+        filePath.root,
+        filePath.fingerprints,
+        url,
+      );
+      console.log(fingerprintPath);
+      fs.unlinkSync(fingerprintPath);
       await this.fingerprintModel.findByIdAndDelete(id);
       console.log(`Fingerprint with id ${id} was deleted successfully`);
     } catch (err) {

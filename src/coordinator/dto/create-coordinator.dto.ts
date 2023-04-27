@@ -4,7 +4,6 @@ import {
   IsMongoId,
   MinLength,
   MaxLength,
-  IsOptional,
 } from 'class-validator';
 
 export class CreateCoordinatorDto {
@@ -26,12 +25,6 @@ export class CreateCoordinatorDto {
     },
   )
   public password: string;
-
-  @IsMongoId()
-  public sub_company: string;
-
-  @IsMongoId()
-  public company: string;
 
   @IsMongoId()
   public campus: string;

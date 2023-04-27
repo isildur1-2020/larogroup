@@ -3,14 +3,13 @@ import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RoleService } from 'src/role/role.service';
 import { CampusService } from 'src/campus/campus.service';
-import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { coordinatorQuery } from './queries/coordinatorQuery';
 import { EmployeeService } from 'src/employee/employee.service';
+import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { CreateCoordinatorDto } from './dto/create-coordinator.dto';
 import { UpdateCoordinatorDto } from './dto/update-coordinator.dto';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
-import { SubCompanyService } from 'src/sub_company/sub_company.service';
 import { AdministratorService } from 'src/administrator/administrator.service';
 import {
   Inject,
@@ -28,24 +27,21 @@ export class CoordinatorService {
   constructor(
     @InjectModel(Coordinator.name)
     private coordinatorModel: mongoose.Model<CoordinatorDocument>,
-    @Inject(EmployeeService)
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
-    @Inject(SubCompanyService)
-    private subCompanyService: SubCompanyService,
-    @Inject(CampusService)
+    @Inject(forwardRef(() => CampusService))
     private campusService: CampusService,
     @Inject(forwardRef(() => AdministratorService))
     private administratorService: AdministratorService,
     @Inject(forwardRef(() => SuperadminService))
     private superadminService: SuperadminService,
-    @Inject(RoleService)
+    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
   ) {}
 
   async create(createCoordinatorDto: CreateCoordinatorDto): Promise<void> {
     try {
-      const { employee, sub_company, campus, password, username } =
-        createCoordinatorDto;
+      const { employee, campus, password, username } = createCoordinatorDto;
       // VALIDATE IF AN ADMINISTRATOR EXISTS WITH THIS USERNAME
       const adminFound = await this.administratorService.findByUsername(
         username,
@@ -61,7 +57,6 @@ export class CoordinatorService {
         throw new BadRequestException('You cannot use this username');
       }
       await this.employeeService.documentExists(employee);
-      await this.subCompanyService.documentExists(sub_company);
       await this.campusService.documentExists(campus);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.coordinator,
@@ -82,7 +77,6 @@ export class CoordinatorService {
   async findAll(): Promise<Coordinator[]> {
     try {
       const coordinatorsFound = await this.coordinatorModel.aggregate([
-        ...employeeQuery,
         ...coordinatorQuery,
       ]);
       console.log('Coordinators found successfully');
@@ -150,6 +144,42 @@ export class CoordinatorService {
       await this.documentExists(id);
       await this.coordinatorModel.findByIdAndDelete(id);
       console.log(`Coordinator with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByRole(role: string): Promise<void> {
+    try {
+      const coordinatorsFound = await this.coordinatorModel.find({ role });
+      if (coordinatorsFound.length > 0) {
+        throw new BadRequestException('There are associated coordinators');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByCampus(campus: string): Promise<void> {
+    try {
+      const coordinatorsFound = await this.coordinatorModel.find({ campus });
+      if (coordinatorsFound.length > 0) {
+        throw new BadRequestException('There are associated coordinators');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByEmployee(employee: string): Promise<void> {
+    try {
+      const coordinatorsFound = await this.coordinatorModel.find({ employee });
+      if (coordinatorsFound.length > 0) {
+        throw new BadRequestException('There are associated coordinators');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

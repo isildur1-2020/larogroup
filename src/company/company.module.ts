@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CityModule } from 'src/city/city.module';
 import { CompanyService } from './company.service';
+import { Module, forwardRef } from '@nestjs/common';
 import { CompanyController } from './company.controller';
 import { Company, CompanySchema } from './entities/company.entity';
+import { SubCompanyModule } from 'src/sub_company/sub_company.module';
+import { AdministratorModule } from 'src/administrator/administrator.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { Company, CompanySchema } from './entities/company.entity';
         schema: CompanySchema,
       },
     ]),
-    CityModule,
+    forwardRef(() => CityModule),
+    forwardRef(() => SubCompanyModule),
+    forwardRef(() => AdministratorModule),
   ],
   controllers: [CompanyController],
   providers: [CompanyService],

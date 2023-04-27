@@ -1,20 +1,25 @@
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
 import { CreateSeedDto } from './dto/create-seed.dto';
 import { UpdateSeedDto } from './dto/update-seed.dto';
+import { CampusService } from 'src/campus/campus.service';
+import { CompanyService } from 'src/company/company.service';
 import { CountryService } from 'src/country/country.service';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { DirectionService } from 'src/direction/direction.service';
 import { SuperadminService } from 'src/superadmin/superadmin.service';
-import { AuthenticationMethodService } from 'src/authentication_method/authentication_method.service';
-import { CompanyService } from 'src/company/company.service';
 import { SubCompanyService } from 'src/sub_company/sub_company.service';
-import { CampusService } from 'src/campus/campus.service';
-import { AdministratorService } from 'src/administrator/administrator.service';
 import { CoordinatorService } from 'src/coordinator/coordinator.service';
-import { EmployeeService } from 'src/employee/employee.service';
+import { AdministratorService } from 'src/administrator/administrator.service';
+import { AuthenticationMethodService } from 'src/authentication_method/authentication_method.service';
+import {
+  Inject,
+  Injectable,
+  ImATeapotException,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class SeedService {
@@ -170,18 +175,18 @@ export class SeedService {
   }
 
   findAll() {
-    return `This action returns all seed`;
+    throw new ImATeapotException();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} seed`;
+    throw new ImATeapotException();
   }
 
   update(id: number, updateSeedDto: UpdateSeedDto) {
-    return `This action updates a #${id} seed`;
+    throw new ImATeapotException();
   }
 
   remove(id: number) {
-    return `This action removes a #${id} seed`;
+    throw new ImATeapotException();
   }
 }

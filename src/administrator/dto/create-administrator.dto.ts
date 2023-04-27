@@ -13,7 +13,7 @@ export class CreateAdministratorDto {
 
   @IsString()
   @MinLength(4)
-  @MaxLength(20)
+  @MaxLength(40)
   public username: string;
 
   @IsString()

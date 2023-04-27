@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Query,
-  Delete,
   Controller,
   UploadedFile,
   UseInterceptors,
@@ -68,11 +67,5 @@ export class FingerprintController {
     @Body() updateFingerprintDto: UpdateFingerprintDto,
   ) {
     return this.fingerprintService.update(id, updateFingerprintDto);
-  }
-
-  @Delete(':id')
-  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  remove(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.fingerprintService.remove(id);
   }
 }

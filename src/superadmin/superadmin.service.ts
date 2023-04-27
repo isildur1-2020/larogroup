@@ -6,6 +6,7 @@ import { RoleService } from 'src/role/role.service';
 import { superadminQuery } from './queries/superadmin.query';
 import { CreateSuperadminDto } from './dto/create-superadmin.dto';
 import { UpdateSuperadminDto } from './dto/update-superadmin.dto';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CoordinatorService } from 'src/coordinator/coordinator.service';
 import { Superadmin, SuperadminDocument } from './entities/superadmin.entity';
 import { AdministratorService } from 'src/administrator/administrator.service';
@@ -16,7 +17,6 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 
 @Injectable()
 export class SuperadminService {
@@ -29,7 +29,7 @@ export class SuperadminService {
     private coordinatorService: CoordinatorService,
     @Inject(ConfigService)
     private configService: ConfigService,
-    @Inject(RoleService)
+    @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
   ) {}
 
@@ -70,7 +70,6 @@ export class SuperadminService {
   }
 
   async findAll(companyId: string): Promise<Superadmin[]> {
-    throw new ForbiddenException('This endpoint is forbidden');
     try {
       const superadminsFound = await this.superadminModel.aggregate([
         {
@@ -127,7 +126,6 @@ export class SuperadminService {
 
   async update(id: string, updateSuperadminDto: UpdateSuperadminDto) {
     try {
-      throw new ForbiddenException('This endpoint is forbidden');
       await this.documentExists(id);
       await this.superadminModel.findByIdAndUpdate(id, updateSuperadminDto);
       console.log(`Superadmin with id ${id} was updated successfully`);
@@ -142,6 +140,18 @@ export class SuperadminService {
       await this.documentExists(id);
       await this.superadminModel.findByIdAndRemove(id);
       console.log(`Superadmin with id ${id} was deleted successfully`);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByRole(role: string): Promise<void> {
+    try {
+      const superadminsFound = await this.superadminModel.find({ role });
+      if (superadminsFound.length > 0) {
+        throw new BadRequestException('There are associated superadmins');
+      }
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

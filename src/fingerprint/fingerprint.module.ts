@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { DeviceModule } from 'src/device/device.module';
 import { FingerprintService } from './fingerprint.service';
 import { EmployeeModule } from 'src/employee/employee.module';
@@ -15,11 +15,12 @@ import { Fingerprint, FingerprintSchema } from './entities/fingerprint.entity';
         schema: FingerprintSchema,
       },
     ]),
-    DeviceModule,
-    EmployeeModule,
-    AccessGroupModule,
+    forwardRef(() => DeviceModule),
+    forwardRef(() => EmployeeModule),
+    forwardRef(() => AccessGroupModule),
   ],
   controllers: [FingerprintController],
   providers: [FingerprintService],
+  exports: [FingerprintService],
 })
 export class FingerprintModule {}

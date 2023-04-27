@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
+import { EmployeeModule } from 'src/employee/employee.module';
 import { Category, CategorySchema } from './entities/category.entity';
 import { SubCompanyModule } from 'src/sub_company/sub_company.module';
 
@@ -13,7 +14,8 @@ import { SubCompanyModule } from 'src/sub_company/sub_company.module';
         schema: CategorySchema,
       },
     ]),
-    SubCompanyModule,
+    forwardRef(() => EmployeeModule),
+    forwardRef(() => SubCompanyModule),
   ],
   controllers: [CategoryController],
   providers: [CategoryService],

@@ -4,7 +4,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Controller,
   UploadedFile,
   UseInterceptors,
@@ -57,11 +56,5 @@ export class ProfilePictureController {
     @Body() updateProfilePictureDto: UpdateProfilePictureDto,
   ) {
     return this.profilePictureService.update(id, updateProfilePictureDto);
-  }
-
-  @Delete(':id')
-  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
-  remove(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.profilePictureService.remove(id);
   }
 }

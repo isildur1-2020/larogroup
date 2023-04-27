@@ -6,7 +6,6 @@ import { CoordinatorService } from './coordinator.service';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { CoordinatorController } from './coordinator.controller';
 import { SuperadminModule } from 'src/superadmin/superadmin.module';
-import { SubCompanyModule } from 'src/sub_company/sub_company.module';
 import { AdministratorModule } from 'src/administrator/administrator.module';
 import { Coordinator, CoordinatorSchema } from './entities/coordinator.entity';
 
@@ -18,10 +17,9 @@ import { Coordinator, CoordinatorSchema } from './entities/coordinator.entity';
         schema: CoordinatorSchema,
       },
     ]),
-    RoleModule,
-    CampusModule,
-    EmployeeModule,
-    SubCompanyModule,
+    forwardRef(() => RoleModule),
+    forwardRef(() => CampusModule),
+    forwardRef(() => EmployeeModule),
     forwardRef(() => SuperadminModule),
     forwardRef(() => AdministratorModule),
   ],
