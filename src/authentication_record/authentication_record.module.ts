@@ -3,6 +3,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { DeviceModule } from 'src/device/device.module';
 import { VehicleModule } from 'src/vehicle/vehicle.module';
 import { EmployeeModule } from 'src/employee/employee.module';
+import { AttendanceModule } from 'src/attendance/attendance.module';
 import { AccessGroupModule } from 'src/access_group/access_group.module';
 import { AuthenticationRecordService } from './authentication_record.service';
 import { AuthenticationRecordController } from './authentication_record.controller';
@@ -20,6 +21,7 @@ import {
         schema: AuthenticationRecordSchema,
       },
     ]),
+    AttendanceModule,
     forwardRef(() => DeviceModule),
     forwardRef(() => VehicleModule),
     forwardRef(() => EmployeeModule),

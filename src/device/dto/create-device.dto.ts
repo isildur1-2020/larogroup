@@ -1,4 +1,11 @@
-import { IsMongoId, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsBooleanString,
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateDeviceDto {
   @IsNotEmpty()
@@ -19,4 +26,12 @@ export class CreateDeviceDto {
   @IsString()
   @MinLength(4)
   public zone: string;
+
+  @IsOptional()
+  @IsBooleanString()
+  public check_attendance: boolean;
+
+  @IsOptional()
+  @IsBooleanString()
+  public uncheck_attendance: boolean;
 }

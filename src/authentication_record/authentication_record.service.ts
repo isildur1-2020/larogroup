@@ -10,6 +10,7 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
+import { AttendanceService } from 'src/attendance/attendance.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AccessGroupService } from 'src/access_group/access_group.service';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
@@ -42,6 +43,8 @@ export class AuthenticationRecordService {
     private vehicleService: VehicleService,
     @Inject(forwardRef(() => AccessGroupService))
     private accessGroupService: AccessGroupService,
+    @Inject(AttendanceService)
+    private attendanceService: AttendanceService,
   ) {}
 
   async create(
@@ -151,7 +154,38 @@ export class AuthenticationRecordService {
           }
         }
       }
+      // SAVE ATTENDANCE
+      const { check_attendance, uncheck_attendance } = deviceFound;
+      if (check_attendance && uncheck_attendance) {
+        return {
+          vehicle: vehicleFound ?? null,
+          employee: employeeFound ?? null,
+          message: 'BIDIRECTIONAL ATTENDANCE DEVICE',
+        };
+      }
+      const attendanceData = {
+        device: deviceFound,
+        vehicle: vehicleFound,
+        employee: employeeFound,
+        entity: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
+      };
+      if (check_attendance) {
+        const attendanceFound = await this.attendanceService.findOne(
+          attendanceData,
+        );
+        if (attendanceFound !== null) {
+          return {
+            vehicle: vehicleFound ?? null,
+            employee: employeeFound ?? null,
+            message: 'DOUBLE ATTENDANCE',
+          };
+        }
+        await this.attendanceService.create(attendanceData);
+      } else if (uncheck_attendance) {
+        await this.attendanceService.remove(attendanceData);
+      }
 
+      // SAVE AUTHORIZE RECORD
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
         access_group: authorizedGroup,

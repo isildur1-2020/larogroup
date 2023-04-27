@@ -28,6 +28,7 @@ import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
 import { SeedModule } from './seed/seed.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { SeedModule } from './seed/seed.module';
     AuthenticationRecordModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
     SeedModule,
+    AttendanceModule,
   ],
 })
 export class AppModule {}

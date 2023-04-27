@@ -48,6 +48,16 @@ export class Device {
     required: true,
   })
   public zone: string;
+
+  @Prop({
+    default: false,
+  })
+  public check_attendance: boolean;
+
+  @Prop({
+    default: false,
+  })
+  public uncheck_attendance: boolean;
 }
 
 export const DeviceSchema = SchemaFactory.createForClass(Device);
