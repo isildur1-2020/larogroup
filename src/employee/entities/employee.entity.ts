@@ -63,10 +63,7 @@ export class Employee {
   @Prop()
   public second_lastname: string;
 
-  @Prop({
-    required: true,
-    unique: true,
-  })
+  @Prop()
   public email: string;
 
   @Prop()

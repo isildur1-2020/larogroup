@@ -44,6 +44,7 @@ export class CreateEmployeeDto {
   @IsString()
   public second_lastname: string;
 
+  @IsOptional()
   @IsEmail()
   public email: string;
 
