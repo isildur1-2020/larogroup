@@ -34,9 +34,9 @@ export class DeviceService {
 
   async create(createDeviceDto: CreateDeviceDto): Promise<Device> {
     try {
-      const { campus, direction, check_attendance, uncheck_attendance } =
+      let { campus, direction, check_attendance, uncheck_attendance } =
         createDeviceDto;
-      if (Boolean(check_attendance) && Boolean(uncheck_attendance)) {
+      if (check_attendance === 'true' && uncheck_attendance === 'true') {
         throw new BadRequestException(
           'check_attendance and uncheck_attendance cannot be true at same time',
         );
@@ -101,7 +101,7 @@ export class DeviceService {
     try {
       await this.documentExists(id);
       const { check_attendance, uncheck_attendance } = updateDeviceDto;
-      if (Boolean(check_attendance) && Boolean(uncheck_attendance)) {
+      if (check_attendance === 'true' && uncheck_attendance === 'true') {
         throw new BadRequestException(
           'check_attendance and uncheck_attendance cannot be true at same time',
         );

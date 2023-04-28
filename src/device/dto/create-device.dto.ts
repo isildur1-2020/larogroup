@@ -2,6 +2,7 @@ import {
   IsBooleanString,
   IsMongoId,
   IsNotEmpty,
+  IsNumberString,
   IsOptional,
   IsString,
   MinLength,
@@ -29,9 +30,9 @@ export class CreateDeviceDto {
 
   @IsOptional()
   @IsBooleanString()
-  public check_attendance: boolean;
+  public check_attendance: boolean | string;
 
   @IsOptional()
   @IsBooleanString()
-  public uncheck_attendance: boolean;
+  public uncheck_attendance: boolean | string;
 }
