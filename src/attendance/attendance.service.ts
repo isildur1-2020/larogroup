@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { attendanceQuery } from './queries/attendance.query';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { Attendance, AttendanceDocument } from './entities/attendance.entity';
@@ -40,7 +41,9 @@ export class AttendanceService {
 
   async findAll(): Promise<Attendance[]> {
     try {
-      const attendanceFound = await this.attendanceModel.find();
+      const attendanceFound = await this.attendanceModel.aggregate([
+        ...attendanceQuery,
+      ]);
       console.log('Attendance found successfully');
       return attendanceFound;
     } catch (err) {
