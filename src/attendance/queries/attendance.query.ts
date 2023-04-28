@@ -1,7 +1,7 @@
 import { campusQuery } from 'src/common/queries/campusQuery';
-import { directionQuery } from 'src/common/queries/directionQuery';
-import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
+import { employeeQuery } from 'src/common/queries/employeeQuery';
+import { directionQuery } from 'src/common/queries/directionQuery';
 
 export const attendanceQuery = [
   // VEHICLES
@@ -67,7 +67,6 @@ export const attendanceQuery = [
   { $unwind: '$device' },
   {
     $project: {
-      createdAt: 0,
       updatedAt: 0,
     },
   },
