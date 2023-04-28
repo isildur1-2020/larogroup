@@ -18,7 +18,6 @@ export class SeedController {
   constructor(private readonly seedService: SeedService) {}
 
   @Post()
-  @Auth(ValidRoles.superadmin)
   create(@Body() createSeedDto: CreateSeedDto) {
     return this.seedService.create(createSeedDto);
   }
