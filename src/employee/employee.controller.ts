@@ -31,6 +31,11 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
+  // @Post('upload')
+  // uploadData() {
+
+  // }
+
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
   findAll(@GetUser() payload: JwtPayload) {

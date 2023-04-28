@@ -105,8 +105,7 @@ export class CoordinatorService {
     try {
       const userFound = await this.coordinatorModel
         .findOne({ username })
-        .populate('role', 'name')
-        .populate('sub_company', 'name');
+        .populate('role', 'name');
       return userFound;
     } catch (err) {
       console.log(err);
