@@ -27,7 +27,7 @@ export class DeviceController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
   findAll() {
     return this.deviceService.findAll();
   }

@@ -19,7 +19,7 @@ export class AuthenticationRecordController {
   }
 
   @Get()
-  @Auth(ValidRoles.superadmin, ValidRoles.administrator)
+  @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
   findAll() {
     return this.authenticationRecordService.findAll();
   }
