@@ -21,7 +21,7 @@ export class CategoryService {
     private categoryModel: Model<CategoryDocument>,
     @Inject(forwardRef(() => SubCompanyService))
     private subCompanyService: SubCompanyService,
-    @Inject(EmployeeService)
+    @Inject(forwardRef(() => EmployeeService))
     private employeeService: EmployeeService,
   ) {}
 

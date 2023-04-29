@@ -2,20 +2,22 @@ import * as path from 'path';
 import * as mongoose from 'mongoose';
 import { filePath } from 'src/utils/filePath';
 import { InjectModel } from '@nestjs/mongoose';
+import { xlsxToJson } from '../utils/xlsxToJson';
 import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
-import * as excelToJson from 'convert-excel-to-json';
 import { CampusService } from 'src/campus/campus.service';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { DniTypeService } from 'src/dni_type/dni_type.service';
+import { CategoryService } from 'src/category/category.service';
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Employee, EmployeeDocument } from './entities/employee.entity';
 import { FingerprintService } from 'src/fingerprint/fingerprint.service';
 import { CoordinatorService } from 'src/coordinator/coordinator.service';
+import { AccessGroupService } from 'src/access_group/access_group.service';
 import { ProfilePictureService } from 'src/profile_picture/profile_picture.service';
 import { AuthenticationRecordService } from 'src/authentication_record/authentication_record.service';
 import {
@@ -48,11 +50,18 @@ export class EmployeeService {
     private fingerprintService: FingerprintService,
     @Inject(forwardRef(() => AuthenticationRecordService))
     private authenticationRecordService: AuthenticationRecordService,
+    @Inject(CategoryService)
+    private categoryService: CategoryService,
+    @Inject(forwardRef(() => AccessGroupService))
+    private accessGroupService: AccessGroupService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      const { city, campus, dni_type, email, barcode } = createEmployeeDto;
+      let { city, campus, dni_type, email, barcode, access_group, categories } =
+        createEmployeeDto;
+      access_group = JSON.parse(access_group);
+      categories = JSON.parse(categories);
       await this.vehicleService.verifyVehicleWithBarcode(barcode);
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
@@ -62,6 +71,8 @@ export class EmployeeService {
       );
       const newEmployee = new this.employeeModel({
         ...createEmployeeDto,
+        categories,
+        access_group,
         email: email.toLowerCase(),
         role: roleFound._id.toString(),
       });
@@ -119,23 +130,68 @@ export class EmployeeService {
 
   async uploadEmployees() {
     try {
+      let dataPromises: any[] = [];
+      let employeeCategories: string[] | string;
+      let employeeAccessGroup: string[] | string;
       const sourceFile = path.join(
         __dirname,
         '../../',
         filePath.root,
         filePath.templates,
-        'employeeTemplate.xlsx',
+        'employeesTemplate.xlsx',
       );
-      const employees = excelToJson({
-        sourceFile,
-        header: {
-          rows: 1,
-        },
-        columnToKey: {
-          '*': '{{columnHeader}}',
-        },
-      });
-      console.log(employees);
+      const employeesData: CreateEmployeeDto[] = xlsxToJson(sourceFile);
+      for (let employee of employeesData) {
+        const { categories, access_group } = employee;
+        // VALIDATE CATEGORIES
+        const moreThanOneCategory = categories.includes(',');
+        if (moreThanOneCategory) {
+          const categoriesIds = categories.split(',');
+          for (let id of categoriesIds) {
+            const isValidId = mongoose.isValidObjectId(id);
+            if (!isValidId) {
+              throw new BadRequestException(
+                `Invalid mongo id ${id} - dni ${employee.dni}`,
+              );
+            }
+            await this.categoryService.documentExists(id);
+          }
+          employeeCategories = categoriesIds;
+        } else {
+          await this.categoryService.documentExists(categories);
+          employeeCategories = categories;
+        }
+        // ACCESS_GROUP
+        const moreThanOneAccessGroup = access_group.includes(',');
+        if (moreThanOneAccessGroup) {
+          const accessGroupIds = access_group.split(',');
+          for (let id of accessGroupIds) {
+            const isValidId = mongoose.isValidObjectId(id);
+            if (!isValidId) {
+              throw new BadRequestException(
+                `Invalid mongo id ${id} - dni ${employee.dni}`,
+              );
+            }
+            await this.accessGroupService.documentExists(id);
+          }
+          employeeAccessGroup = accessGroupIds;
+        } else {
+          await this.accessGroupService.documentExists(access_group);
+          employeeAccessGroup = access_group;
+        }
+        // CREATE
+        const employeePromise = this.create({
+          ...employee,
+          categories: JSON.stringify(employeeCategories),
+          access_group: JSON.stringify(employeeAccessGroup),
+        });
+        dataPromises.push(employeePromise);
+        // console.log(`Employee created - dni ${employee.dni}`);
+      }
+      await Promise.all(dataPromises);
+      return {
+        message: 'Empleados creados exitosamente',
+      };
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
