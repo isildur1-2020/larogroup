@@ -31,10 +31,10 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  // @Post('upload')
-  // uploadData() {
-
-  // }
+  @Post('upload')
+  uploadData() {
+    return this.employeeService.uploadEmployees();
+  }
 
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)

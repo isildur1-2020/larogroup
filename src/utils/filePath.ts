@@ -3,4 +3,5 @@ export const filePath = {
   profilePictures: '/profile',
   fingerprints: '/fingerprints',
   temporal: '/tmp',
+  templates: '/templates',
 };

@@ -1,7 +1,10 @@
+import * as path from 'path';
 import * as mongoose from 'mongoose';
+import { filePath } from 'src/utils/filePath';
 import { InjectModel } from '@nestjs/mongoose';
 import { CityService } from 'src/city/city.service';
 import { RoleService } from 'src/role/role.service';
+import * as excelToJson from 'convert-excel-to-json';
 import { CampusService } from 'src/campus/campus.service';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -108,6 +111,31 @@ export class EmployeeService {
       }
       console.log('Employee found succesfully');
       return employeeFound[0];
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async uploadEmployees() {
+    try {
+      const sourceFile = path.join(
+        __dirname,
+        '../../',
+        filePath.root,
+        filePath.templates,
+        'employeeTemplate.xlsx',
+      );
+      const employees = excelToJson({
+        sourceFile,
+        header: {
+          rows: 1,
+        },
+        columnToKey: {
+          '*': '{{columnHeader}}',
+        },
+      });
+      console.log(employees);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

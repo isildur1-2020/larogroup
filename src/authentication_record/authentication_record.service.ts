@@ -156,13 +156,6 @@ export class AuthenticationRecordService {
       }
       // SAVE ATTENDANCE
       const { check_attendance, uncheck_attendance } = deviceFound;
-      if (check_attendance && uncheck_attendance) {
-        return {
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'BIDIRECTIONAL ATTENDANCE DEVICE',
-        };
-      }
       const attendanceData = {
         device: deviceFound,
         vehicle: vehicleFound,
@@ -173,14 +166,9 @@ export class AuthenticationRecordService {
         const attendanceFound = await this.attendanceService.findOne(
           attendanceData,
         );
-        if (attendanceFound !== null) {
-          return {
-            vehicle: vehicleFound ?? null,
-            employee: employeeFound ?? null,
-            message: 'DOUBLE ATTENDANCE',
-          };
+        if (attendanceFound === null) {
+          await this.attendanceService.create(attendanceData);
         }
-        await this.attendanceService.create(attendanceData);
       } else if (uncheck_attendance) {
         await this.attendanceService.remove(attendanceData);
       }
