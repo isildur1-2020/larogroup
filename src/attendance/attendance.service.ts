@@ -39,6 +39,16 @@ export class AttendanceService {
     }
   }
 
+  async findOneByVehicle(vehicle: string): Promise<Attendance> {
+    try {
+      const attendanceFound = await this.attendanceModel.findOne({ vehicle });
+      console.log('Attendance by vehicle found successfully');
+      return attendanceFound;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   async findAll(): Promise<Attendance[]> {
     try {
       const attendanceFound = await this.attendanceModel.aggregate([
@@ -75,7 +85,7 @@ export class AttendanceService {
         attendanceFound = await this.findOneByEmployee(employeeId);
       } else if (entity === ValidRoles.vehicle) {
         const vehicleId = vehicle._id.toString();
-        attendanceFound = await this.findOneByEmployee(vehicleId);
+        attendanceFound = await this.findOneByVehicle(vehicleId);
       }
       return attendanceFound;
     } catch (err) {
