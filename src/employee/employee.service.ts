@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import * as mongoose from 'mongoose';
 import { filePath } from 'src/utils/filePath';
@@ -128,18 +129,18 @@ export class EmployeeService {
     }
   }
 
-  async uploadEmployees() {
+  async uploadEmployees(file: Express.Multer.File) {
+    const sourceFile = path.join(
+      __dirname,
+      '../../',
+      filePath.root,
+      filePath.temporal,
+      file.filename,
+    );
     try {
       let dataPromises: any[] = [];
       let employeeCategories: string[] | string;
       let employeeAccessGroup: string[] | string;
-      const sourceFile = path.join(
-        __dirname,
-        '../../',
-        filePath.root,
-        filePath.templates,
-        'employeesTemplate.xlsx',
-      );
       const employeesData: CreateEmployeeDto[] = xlsxToJson(sourceFile);
       for (let employee of employeesData) {
         const { categories, access_group } = employee;
@@ -195,6 +196,8 @@ export class EmployeeService {
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
+    } finally {
+      fs.unlinkSync(sourceFile);
     }
   }
 

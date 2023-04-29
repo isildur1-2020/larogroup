@@ -10,7 +10,7 @@ export const xlsxToJson = (sourceFile: string): any[] => {
         '*': '{{columnHeader}}',
       },
     });
-    return data?.['Employees'];
+    return data?.['Entities'];
   } catch (err) {
     console.log(err);
   }

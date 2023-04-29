@@ -1,2 +1,2 @@
-export { fileFilter } from './fileFilter.helper';
-export { fileNamer } from './fileNamer.helper';
+export { fileNamer, xlsxTemplateNamer } from './fileNamer.helper';
+export { fileFilter, xlsxTemplateFilter } from './fileFilter.helper';
