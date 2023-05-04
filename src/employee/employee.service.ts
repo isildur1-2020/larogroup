@@ -59,7 +59,7 @@ export class EmployeeService {
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      let { city, campus, dni_type, email, barcode } = createEmployeeDto;
+      let { city, campus, dni_type, barcode } = createEmployeeDto;
       await this.vehicleService.verifyVehicleWithBarcode(barcode);
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
@@ -69,7 +69,6 @@ export class EmployeeService {
       );
       const newEmployee = new this.employeeModel({
         ...createEmployeeDto,
-        email: email.toLowerCase(),
         role: roleFound._id.toString(),
       });
       const employeeCreated: Employee = await newEmployee.save();
