@@ -61,8 +61,12 @@ export class EmployeeService {
     try {
       let { city, campus, dni_type, email, barcode, access_group, categories } =
         createEmployeeDto;
-      access_group = JSON.parse(access_group);
-      categories = JSON.parse(categories);
+      if (typeof access_group === 'string') {
+        access_group = JSON.parse(access_group);
+      }
+      if (typeof categories === 'string') {
+        categories = JSON.parse(categories);
+      }
       await this.vehicleService.verifyVehicleWithBarcode(barcode);
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);

@@ -41,7 +41,9 @@ export class VehicleService {
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
       let { barcode, access_group } = createVehicleDto;
-      access_group = JSON.parse(access_group);
+      if (typeof access_group === 'string') {
+        access_group = JSON.parse(access_group);
+      }
       await this.employeeService.verifyEmployeeWithBarcode(barcode);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.vehicle,
