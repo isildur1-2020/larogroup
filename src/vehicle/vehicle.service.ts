@@ -40,17 +40,13 @@ export class VehicleService {
 
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     try {
-      let { barcode, access_group } = createVehicleDto;
-      if (typeof access_group === 'string') {
-        access_group = JSON.parse(access_group);
-      }
+      let { barcode } = createVehicleDto;
       await this.employeeService.verifyEmployeeWithBarcode(barcode);
       const roleFound = await this.roleService.findOneByName(
         ValidRoles.vehicle,
       );
       const newVehicle = new this.vehicleModel({
         ...createVehicleDto,
-        access_group,
         role: roleFound._id.toString(),
       });
       const vehicleSaved = await newVehicle.save();
@@ -162,11 +158,18 @@ export class VehicleService {
           vehiclesAccessGroup = access_group;
         }
         // CREATE
-        const vehiclePromise = this.create({
+        let { barcode } = vehicle;
+        await this.employeeService.verifyEmployeeWithBarcode(barcode);
+        const roleFound = await this.roleService.findOneByName(
+          ValidRoles.vehicle,
+        );
+        const newVehicle = new this.vehicleModel({
           ...vehicle,
           access_group: JSON.stringify(vehiclesAccessGroup),
+          role: roleFound._id.toString(),
         });
-        dataPromises.push(vehiclePromise);
+        const vehicleSaved = newVehicle.save();
+        dataPromises.push(vehicleSaved);
       }
       await Promise.all(dataPromises);
       return {

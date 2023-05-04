@@ -59,14 +59,7 @@ export class EmployeeService {
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     try {
-      let { city, campus, dni_type, email, barcode, access_group, categories } =
-        createEmployeeDto;
-      if (typeof access_group === 'string') {
-        access_group = JSON.parse(access_group);
-      }
-      if (typeof categories === 'string') {
-        categories = JSON.parse(categories);
-      }
+      let { city, campus, dni_type, email, barcode } = createEmployeeDto;
       await this.vehicleService.verifyVehicleWithBarcode(barcode);
       await this.cityService.documentExists(city);
       await this.campusService.documentExists(campus);
@@ -76,8 +69,6 @@ export class EmployeeService {
       );
       const newEmployee = new this.employeeModel({
         ...createEmployeeDto,
-        categories,
-        access_group,
         email: email.toLowerCase(),
         role: roleFound._id.toString(),
       });
@@ -185,12 +176,23 @@ export class EmployeeService {
           employeeAccessGroup = access_group;
         }
         // CREATE
-        const employeePromise = this.create({
+        let { city, campus, dni_type, email, barcode } = employee;
+        await this.vehicleService.verifyVehicleWithBarcode(barcode);
+        await this.cityService.documentExists(city);
+        await this.campusService.documentExists(campus);
+        await this.dniTypeService.documentExists(dni_type);
+        const roleFound = await this.roleService.findOneByName(
+          ValidRoles.employee,
+        );
+        const newEmployee = new this.employeeModel({
           ...employee,
           categories: JSON.stringify(employeeCategories),
           access_group: JSON.stringify(employeeAccessGroup),
+          email: email.toLowerCase(),
+          role: roleFound._id.toString(),
         });
-        dataPromises.push(employeePromise);
+        const employeeCreated = newEmployee.save();
+        dataPromises.push(employeeCreated);
         // console.log(`Employee created - dni ${employee.dni}`);
       }
       await Promise.all(dataPromises);
