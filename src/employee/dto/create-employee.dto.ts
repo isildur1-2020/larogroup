@@ -26,7 +26,6 @@ export class CreateEmployeeDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(4)
   public first_name: string;
 
   @IsOptional()
@@ -36,7 +35,6 @@ export class CreateEmployeeDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(4)
   public first_lastname: string;
 
   @IsOptional()
