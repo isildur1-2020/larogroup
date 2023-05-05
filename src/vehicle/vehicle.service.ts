@@ -165,7 +165,7 @@ export class VehicleService {
         );
         const newVehicle = new this.vehicleModel({
           ...vehicle,
-          access_group: JSON.stringify(vehiclesAccessGroup),
+          access_group: vehiclesAccessGroup,
           role: roleFound._id.toString(),
         });
         const vehicleSaved = newVehicle.save();

@@ -175,7 +175,7 @@ export class EmployeeService {
           employeeAccessGroup = access_group;
         }
         // CREATE
-        let { city, campus, dni_type, email, barcode } = employee;
+        let { city, campus, dni_type, barcode } = employee;
         await this.vehicleService.verifyVehicleWithBarcode(barcode);
         await this.cityService.documentExists(city);
         await this.campusService.documentExists(campus);
@@ -185,10 +185,9 @@ export class EmployeeService {
         );
         const newEmployee = new this.employeeModel({
           ...employee,
-          categories: JSON.stringify(employeeCategories),
-          access_group: JSON.stringify(employeeAccessGroup),
-          email: email.toLowerCase(),
           role: roleFound._id.toString(),
+          categories: employeeCategories,
+          access_group: employeeAccessGroup,
         });
         const employeeCreated = newEmployee.save();
         dataPromises.push(employeeCreated);
