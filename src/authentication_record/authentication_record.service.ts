@@ -27,6 +27,9 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { employeeQuery } from 'src/common/queries/employeeQuery';
+import { vehicleQuery } from 'src/common/queries/vehicleQuery';
+import { authMethodQuery } from 'src/common/queries/authMethodQuery';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -202,7 +205,84 @@ export class AuthenticationRecordService {
   async findAll(): Promise<AuthenticationRecord[]> {
     try {
       const authenticationRecordsFound =
-        await this.authenticationRecordModel.aggregate([...authRecordQuery]);
+        await this.authenticationRecordModel.aggregate([
+          {
+            $sort: {
+              createdAt: -1,
+            },
+          },
+          {
+            $limit: 1000,
+          },
+          ...authMethodQuery,
+          // VEHICLES
+          {
+            $lookup: {
+              from: 'vehicles',
+              localField: 'vehicle',
+              foreignField: '_id',
+              as: 'vehicle',
+              pipeline: [...vehicleQuery],
+            },
+          },
+          {
+            $unwind: {
+              path: '$vehicle',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          // DEVICES
+          {
+            $lookup: {
+              from: 'devices',
+              localField: 'device',
+              foreignField: '_id',
+              as: 'device',
+              pipeline: [
+                ...directionQuery,
+                {
+                  $project: {
+                    campus: 0,
+                    createdAt: 0,
+                    updatedAt: 0,
+                  },
+                },
+              ],
+            },
+          },
+          { $unwind: '$device' },
+          // EMPLOYEE
+          {
+            $lookup: {
+              from: 'employees',
+              localField: 'employee',
+              foreignField: '_id',
+              as: 'employee',
+              pipeline: [
+                ...employeeQuery,
+                {
+                  $project: {
+                    access_group: 0,
+                    createdAt: 0,
+                    updatedAt: 0,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $unwind: {
+              path: '$employee',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          // GLOBAL PROJECT
+          {
+            $project: {
+              updatedAt: 0,
+            },
+          },
+        ]);
       console.log('Authentication records found successfully');
       return authenticationRecordsFound;
     } catch (err) {
