@@ -104,7 +104,7 @@ export class AuthenticationRecordService {
       const isInactiveByContract = moment().isAfter(entity.contract_end_date);
       if (isInactiveByContract) {
         return {
-          code: '103',
+          code: '102',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'ENTIDAD BLOQUEADA POR CONTRATO',
