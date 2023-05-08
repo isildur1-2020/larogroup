@@ -1,6 +1,15 @@
+import {
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Delete,
+  Controller,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
-import { Get, Post, Body, Param, Delete, Controller } from '@nestjs/common';
 import { AuthenticationRecordService } from './authentication_record.service';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -20,8 +29,8 @@ export class AuthenticationRecordController {
 
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
-  findAll() {
-    return this.authenticationRecordService.findAll();
+  findAll(@Query('page', ParseIntPipe) page: number) {
+    return this.authenticationRecordService.findAll(page);
   }
 
   @Delete(':id')

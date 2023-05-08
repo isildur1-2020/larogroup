@@ -30,6 +30,7 @@ import {
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { authMethodQuery } from 'src/common/queries/authMethodQuery';
+import { number } from 'joi';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -53,6 +54,7 @@ export class AuthenticationRecordService {
   async create(
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
+    code: string;
     message: string;
     vehicle: Vehicle | null;
     employee: Employee | null;
@@ -95,12 +97,14 @@ export class AuthenticationRecordService {
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'INACTIVO',
+          code: '101',
         };
       }
       // VERIFY CONTRACT_END_DATE
       const isInactiveByContract = moment().isAfter(entity.contract_end_date);
       if (isInactiveByContract) {
         return {
+          code: '103',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'ENTIDAD BLOQUEADA POR CONTRATO',
@@ -111,6 +115,7 @@ export class AuthenticationRecordService {
       const groupsFound = await this.accessGroupService.findByDevice(deviceId);
       if (groupsFound.length === 0) {
         return {
+          code: '400',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'DISPOSITIVO AISLADO',
@@ -123,6 +128,7 @@ export class AuthenticationRecordService {
       );
       if (!isUserAuthorized) {
         return {
+          code: '400',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
@@ -150,9 +156,10 @@ export class AuthenticationRecordService {
           const currentDeviceDirection = deviceFound.direction.name;
           if (lastDeviceDirectionSaved === currentDeviceDirection) {
             return {
+              code: '103',
               vehicle: vehicleFound ?? null,
               employee: employeeFound ?? null,
-              message: 'BLOQUEADO POR ANTIPASSBACK',
+              message: 'BLOQUEADO POR DOBLE MARCACIÓN',
             };
           }
         }
@@ -192,6 +199,7 @@ export class AuthenticationRecordService {
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
       return {
+        code: '100',
         vehicle: vehicleFound ?? null,
         employee: employeeFound ?? null,
         message: 'AUTENTICACIÓN EXITOSA',
@@ -202,18 +210,13 @@ export class AuthenticationRecordService {
     }
   }
 
-  async findAll(): Promise<AuthenticationRecord[]> {
+  async findAll(page: number): Promise<AuthenticationRecord[]> {
     try {
       const authenticationRecordsFound =
         await this.authenticationRecordModel.aggregate([
-          {
-            $sort: {
-              createdAt: -1,
-            },
-          },
-          {
-            $limit: 1000,
-          },
+          { $skip: 20 * page },
+          { $limit: 20 },
+          { $sort: { createdAt: -1 } },
           ...authMethodQuery,
           // VEHICLES
           {
