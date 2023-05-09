@@ -210,13 +210,17 @@ export class AuthenticationRecordService {
     }
   }
 
-  async findAll(page: number): Promise<AuthenticationRecord[]> {
+  async findAll(page: number): Promise<{
+    count: number;
+    data: AuthenticationRecord[];
+  }> {
     try {
+      const totalRecords = await this.authenticationRecordModel.count();
       const authenticationRecordsFound =
         await this.authenticationRecordModel.aggregate([
+          { $sort: { createdAt: -1 } },
           { $skip: 20 * page },
           { $limit: 20 },
-          { $sort: { createdAt: -1 } },
           ...authMethodQuery,
           // VEHICLES
           {
@@ -287,7 +291,10 @@ export class AuthenticationRecordService {
           },
         ]);
       console.log('Authentication records found successfully');
-      return authenticationRecordsFound;
+      return {
+        count: totalRecords,
+        data: authenticationRecordsFound,
+      };
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
