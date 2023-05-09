@@ -30,7 +30,6 @@ import {
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { authMethodQuery } from 'src/common/queries/authMethodQuery';
-import { number } from 'joi';
 
 @Injectable()
 export class AuthenticationRecordService {
@@ -210,17 +209,12 @@ export class AuthenticationRecordService {
     }
   }
 
-  async findAll(page: number): Promise<{
-    count: number;
-    data: AuthenticationRecord[];
-  }> {
+  async findAll(): Promise<AuthenticationRecord[]> {
     try {
-      const totalRecords = await this.authenticationRecordModel.count();
       const authenticationRecordsFound =
         await this.authenticationRecordModel.aggregate([
           { $sort: { createdAt: -1 } },
-          { $skip: 20 * page },
-          { $limit: 20 },
+          { $limit: 1000 },
           ...authMethodQuery,
           // VEHICLES
           {
@@ -291,10 +285,7 @@ export class AuthenticationRecordService {
           },
         ]);
       console.log('Authentication records found successfully');
-      return {
-        count: totalRecords,
-        data: authenticationRecordsFound,
-      };
+      return authenticationRecordsFound;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

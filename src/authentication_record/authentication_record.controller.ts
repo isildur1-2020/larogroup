@@ -29,8 +29,8 @@ export class AuthenticationRecordController {
 
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
-  findAll(@Query('page', ParseIntPipe) page: number) {
-    return this.authenticationRecordService.findAll(page);
+  findAll() {
+    return this.authenticationRecordService.findAll();
   }
 
   @Delete(':id')
