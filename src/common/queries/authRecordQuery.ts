@@ -1,28 +1,7 @@
-import { vehicleQuery } from './vehicleQuery';
-import { employeeQuery } from './employeeQuery';
 import { directionQuery } from './directionQuery';
-import { authMethodQuery } from './authMethodQuery';
+import { categoriesQuery } from './categoriesQuery';
 
 export const authRecordQuery = [
-  { $sort: { createdAt: -1 } },
-  { $limit: 1000 },
-  ...authMethodQuery,
-  // VEHICLES
-  {
-    $lookup: {
-      from: 'vehicles',
-      localField: 'vehicle',
-      foreignField: '_id',
-      as: 'vehicle',
-      pipeline: [...vehicleQuery],
-    },
-  },
-  {
-    $unwind: {
-      path: '$vehicle',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
   // DEVICES
   {
     $lookup: {
@@ -34,9 +13,13 @@ export const authRecordQuery = [
         ...directionQuery,
         {
           $project: {
+            sn: 0,
             campus: 0,
+            is_online: 0,
             createdAt: 0,
             updatedAt: 0,
+            check_attendance: 0,
+            uncheck_attendance: 0,
           },
         },
       ],
@@ -51,12 +34,57 @@ export const authRecordQuery = [
       foreignField: '_id',
       as: 'employee',
       pipeline: [
-        ...employeeQuery,
+        ...categoriesQuery,
+        {
+          $lookup: {
+            from: 'campus',
+            localField: 'campus',
+            foreignField: '_id',
+            as: 'campus',
+            pipeline: [
+              {
+                $lookup: {
+                  from: 'subcompanies',
+                  localField: 'sub_company',
+                  foreignField: '_id',
+                  as: 'sub_company',
+                  pipeline: [
+                    {
+                      $project: {
+                        city: 0,
+                        company: 0,
+                        createdAt: 0,
+                        updatedAt: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+              { $unwind: '$sub_company' },
+              {
+                $project: {
+                  name: 0,
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+          },
+        },
+        { $unwind: '$campus' },
         {
           $project: {
-            access_group: 0,
+            role: 0,
+            rfid: 0,
+            city: 0,
+            barcode: 0,
+            dni_type: 0,
             createdAt: 0,
             updatedAt: 0,
+            is_active: 0,
+            access_group: 0,
+            contract_end_date: 0,
+            contract_start_date: 0,
           },
         },
       ],
@@ -68,10 +96,40 @@ export const authRecordQuery = [
       preserveNullAndEmptyArrays: true,
     },
   },
+  // VEHICLES
+  {
+    $lookup: {
+      from: 'vehicles',
+      localField: 'vehicle',
+      foreignField: '_id',
+      as: 'vehicle',
+      pipeline: [
+        {
+          $project: {
+            role: 0,
+            barcode: 0,
+            is_active: 0,
+            access_group: 0,
+            contract_end_date: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$vehicle',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // GLOBAL PROJECT
   {
     $project: {
+      data: 0,
+      entity_id: 0,
       updatedAt: 0,
+      access_group: 0,
+      authentication_method: 0,
     },
   },
 ];

@@ -6,7 +6,6 @@ import {
   Query,
   Delete,
   Controller,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
@@ -29,8 +28,11 @@ export class AuthenticationRecordController {
 
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
-  findAll() {
-    return this.authenticationRecordService.findAll();
+  findAll(
+    @Query('start_date') start_date?: string,
+    @Query('end_date') end_date?: string,
+  ) {
+    return this.authenticationRecordService.findAll(start_date, end_date);
   }
 
   @Delete(':id')
