@@ -124,7 +124,7 @@ export class AuthenticationRecordService {
       );
       if (!isUserAuthorized) {
         return {
-          code: '400',
+          code: '104',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
           message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
