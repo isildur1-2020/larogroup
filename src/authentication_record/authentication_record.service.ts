@@ -127,7 +127,7 @@ export class AuthenticationRecordService {
           code: '104',
           vehicle: vehicleFound ?? null,
           employee: employeeFound ?? null,
-          message: 'ENTIDAD BLOQUEADA POR GRUPO DE ACCESO',
+          message: 'GRUPO DE ACCESO INVALIDO',
         };
       }
       // VERIFY ANTI_PASSBACK
