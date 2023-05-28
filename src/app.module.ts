@@ -18,6 +18,7 @@ import { DniTypeModule } from './dni_type/dni_type.module';
 import { CategoryModule } from './category/category.module';
 import { EmployeeModule } from './employee/employee.module';
 import { joiValidationSchema } from './config/joi.validation';
+import { ExpulsionModule } from './expulsion/expulsion.module';
 import { DirectionModule } from './direction/direction.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { AttendanceModule } from './attendance/attendance.module';
@@ -29,6 +30,11 @@ import { AdministratorModule } from './administrator/administrator.module';
 import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
+
+const DB_USER = process.env.ROOT_USERNAME;
+const DB_PWD = process.env.ROOT_PASSWORD;
+const DB_NAME = process.env.MONGO_DATABASE;
+const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@larosoft_db/${DB_NAME}`;
 
 @Module({
   imports: [
@@ -52,6 +58,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     CategoryModule,
     EmployeeModule,
     DirectionModule,
+    ExpulsionModule,
     SuperadminModule,
     SubCompanyModule,
     AttendanceModule,
@@ -62,7 +69,7 @@ import { AuthenticationRecordModule } from './authentication_record/authenticati
     ProfilePictureModule,
     AuthenticationMethodModule,
     AuthenticationRecordModule,
-    MongooseModule.forRoot(process.env.MONGODB_URI),
+    MongooseModule.forRoot(MONGODB_URI),
   ],
 })
 export class AppModule {}

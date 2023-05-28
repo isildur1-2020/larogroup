@@ -69,14 +69,9 @@ export class SuperadminService {
     }
   }
 
-  async findAll(companyId: string): Promise<Superadmin[]> {
+  async findAll(): Promise<Superadmin[]> {
     try {
       const superadminsFound = await this.superadminModel.aggregate([
-        {
-          $match: {
-            company: new mongoose.Types.ObjectId(companyId),
-          },
-        },
         ...superadminQuery,
       ]);
       console.log('Superadmins found successfully');

@@ -1,4 +1,7 @@
 # compiled output
+mongo-init.js
+/mongo-data/*
+/app-data/*
 /dist
 /node_modules
 /static/fingerprints/*
