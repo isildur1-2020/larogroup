@@ -31,10 +31,11 @@ import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
 
-const DB_USER = process.env.ROOT_USERNAME;
+const DB_HOST = process.env.MONGO_HOST;
 const DB_PWD = process.env.ROOT_PASSWORD;
+const DB_USER = process.env.ROOT_USERNAME;
 const DB_NAME = process.env.MONGO_DATABASE;
-const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@larosoft_db/${DB_NAME}`;
+const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
 
 @Module({
   imports: [

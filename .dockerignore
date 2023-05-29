@@ -7,4 +7,4 @@ docker.env
 .dockerignore
 node_modules
 mongo-data/*
-app-data/*
+README.md

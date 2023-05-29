@@ -4,7 +4,7 @@ services:
   mongodb:
     image: mongo:5
     restart: always
-    container_name: larosoft_db
+    container_name: ${MONGO_HOST}
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
@@ -15,20 +15,23 @@ services:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     command: ['--auth']
 
-
   app:
     restart: always
     depends_on:
       - mongodb
-    image: tapitarias/repoget:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laroaccess-app
     container_name: larosoft_app
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./app-data:/app/static
+      - ./static:/app/static
     environment:
       PORT: ${PORT}
       JWT_SECRET: ${JWT_SECRET}
+      MONGO_HOST: ${MONGO_HOST}
       ROOT_USERNAME: ${ROOT_USERNAME}
       ROOT_PASSWORD: ${ROOT_PASSWORD}
       MONGO_DATABASE: ${MONGO_DATABASE}

@@ -1,11 +1,13 @@
 # compiled output
 mongo-init.js
-/mongo-data/*
-/app-data/*
-/dist
-/node_modules
-/static/fingerprints/*
-/static/profile/*
+mongo-data
+dist
+node_modules
+static/fingerprints/*
+static/profile/*
+static/tmp/*
+.env
+
 # Logs
 logs
 *.log
@@ -17,20 +19,6 @@ lerna-debug.log*
 
 # OS
 .DS_Store
-.env
-
-# Tests
-/coverage
-/.nyc_output
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
 
 # IDE - VSCode
 .vscode/*
