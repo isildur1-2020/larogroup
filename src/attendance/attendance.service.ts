@@ -2,9 +2,12 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { attendanceQuery } from './queries/attendance.query';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
+import { ExpulsionService } from 'src/expulsion/expulsion.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { CurrentUser } from 'src/auth/interfaces/jwt-payload.interface';
 import { Attendance, AttendanceDocument } from './entities/attendance.entity';
 import {
+  Inject,
   Injectable,
   BadRequestException,
   InternalServerErrorException,
@@ -15,6 +18,8 @@ export class AttendanceService {
   constructor(
     @InjectModel(Attendance.name)
     private attendanceModel: Model<AttendanceDocument>,
+    @Inject(ExpulsionService)
+    private expulsionService: ExpulsionService,
   ) {}
 
   async create(createAttendanceDto: CreateAttendanceDto): Promise<Attendance> {
@@ -105,6 +110,27 @@ export class AttendanceService {
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
+    }
+  }
+
+  async deleteOne(id: string, currentUser: CurrentUser): Promise<void> {
+    try {
+      await this.documentExists(id);
+      const attendanceFound: Attendance = await this.attendanceModel.findById(
+        id,
+      );
+      const { entity, employee, vehicle } = attendanceFound;
+      await this.expulsionService.create({
+        entity,
+        employee,
+        vehicle,
+        username: currentUser.username,
+      });
+      await this.attendanceModel.findByIdAndDelete(id);
+      console.log('Attendance was deleted successfully!');
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err);
     }
   }
 }

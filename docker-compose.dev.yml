@@ -28,7 +28,8 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./static:/app/static
+      - .:/app/
+      - /app/node_modules
     environment:
       PORT: ${PORT}
       STAGE: ${STAGE}

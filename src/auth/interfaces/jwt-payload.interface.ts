@@ -19,3 +19,10 @@ export interface JwtPayload {
   company: Company;
   sub_company?: SubCompany;
 }
+
+export interface CurrentUser {
+  role: Role;
+  _id: string;
+  iat: number;
+  username: string;
+}

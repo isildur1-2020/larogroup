@@ -3,8 +3,12 @@ dist
 fly.toml
 .gitignore
 Dockerfile
+docker-compose.yml
+docker-compose.dev.yml
 docker.env
 .dockerignore
 node_modules
 mongo-data/*
 README.md
+.env
+.env.template

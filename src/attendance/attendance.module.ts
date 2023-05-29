@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AttendanceService } from './attendance.service';
 import { AttendanceController } from './attendance.controller';
+import { ExpulsionModule } from 'src/expulsion/expulsion.module';
 import { Attendance, AttendanceSchema } from './entities/attendance.entity';
 
 @Module({
@@ -12,6 +13,7 @@ import { Attendance, AttendanceSchema } from './entities/attendance.entity';
         schema: AttendanceSchema,
       },
     ]),
+    ExpulsionModule,
   ],
   controllers: [AttendanceController],
   providers: [AttendanceService],

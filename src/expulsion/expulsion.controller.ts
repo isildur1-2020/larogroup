@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Controller,
+} from '@nestjs/common';
 import { ExpulsionService } from './expulsion.service';
 import { CreateExpulsionDto } from './dto/create-expulsion.dto';
 import { UpdateExpulsionDto } from './dto/update-expulsion.dto';
@@ -9,7 +17,8 @@ export class ExpulsionController {
 
   @Post()
   create(@Body() createExpulsionDto: CreateExpulsionDto) {
-    return this.expulsionService.create(createExpulsionDto);
+    // return this.expulsionService.create(createExpulsionDto);
+    return null;
   }
 
   @Get()
@@ -19,16 +28,19 @@ export class ExpulsionController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.expulsionService.findOne(+id);
+    return this.expulsionService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExpulsionDto: UpdateExpulsionDto) {
-    return this.expulsionService.update(+id, updateExpulsionDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateExpulsionDto: UpdateExpulsionDto,
+  ) {
+    return this.expulsionService.update(id, updateExpulsionDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.expulsionService.remove(+id);
+    return this.expulsionService.remove(id);
   }
 }
