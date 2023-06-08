@@ -1,10 +1,7 @@
 import * as mongoose from 'mongoose';
-import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceService } from 'src/device/device.service';
-import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
-import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { CustomRequest } from './interfaces/authRecord.interface';
 import { directionQuery } from 'src/common/queries/directionQuery';
@@ -15,7 +12,6 @@ import { AccessGroupService } from 'src/access_group/access_group.service';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
-  Scope,
   Inject,
   Injectable,
   forwardRef,
@@ -27,10 +23,9 @@ import {
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class AuthenticationRecordService {
   constructor(
-    @Inject(REQUEST) private readonly request: CustomRequest,
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
     @Inject(forwardRef(() => DeviceService))
@@ -44,6 +39,7 @@ export class AuthenticationRecordService {
   ) {}
 
   async create(
+    req: CustomRequest,
     createAuthenticationRecordDto: CreateAuthenticationRecordDto,
   ): Promise<{
     code: string;
@@ -52,9 +48,9 @@ export class AuthenticationRecordService {
     employee: Employee | null;
   }> {
     try {
-      const vehicleFound = this.request.vehicleFound;
-      const employeeFound = this.request.employeeFound;
-      const authorizedGroup = this.request.authorizedGroup;
+      const vehicleFound = req.vehicleFound;
+      const employeeFound = req.employeeFound;
+      const authorizedGroup = req.authorizedGroup;
       const { sn, auth_method } = createAuthenticationRecordDto;
       const deviceFound = await this.deviceService.findOneBySN(sn);
       const authMethodFound =

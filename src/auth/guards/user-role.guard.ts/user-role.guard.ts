@@ -11,14 +11,12 @@ import {
 @Injectable()
 export class UserRoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
-
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const target = context.getHandler();
     const req = context.switchToHttp().getRequest();
     const ValidRoles: string[] = this.reflector.get(META_ROLES, target);
-    // if(!ValidRoles ) return true
     const isRoleValid = ValidRoles.some((el) => el === req?.user?.role?.name);
     if (!isRoleValid) {
       throw new ForbiddenException(

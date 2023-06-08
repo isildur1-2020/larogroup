@@ -1,5 +1,6 @@
 import {
   Get,
+  Req,
   Post,
   Body,
   Param,
@@ -8,6 +9,7 @@ import {
   Controller,
   UseInterceptors,
 } from '@nestjs/common';
+import { CustomRequest } from './interfaces/authRecord.interface';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseDatePipe } from 'src/common/pipes/parse-date/parse-date.pipe';
@@ -32,8 +34,12 @@ export class AuthenticationRecordController {
     IsActiveUserInterceptor,
     ContractActiveInterceptor,
   )
-  create(@Body() createAuthenticationRecordDto: CreateAuthenticationRecordDto) {
+  create(
+    @Req() req: CustomRequest,
+    @Body() createAuthenticationRecordDto: CreateAuthenticationRecordDto,
+  ) {
     return this.authenticationRecordService.create(
+      req,
       createAuthenticationRecordDto,
     );
   }

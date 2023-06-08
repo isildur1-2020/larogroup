@@ -30,8 +30,8 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./src:/app/src
-      # - /app/node_modules
+      - ./:/app/
+      - /app/node_modules
     environment:
       PORT: ${PORT}
       STAGE: ${STAGE}
