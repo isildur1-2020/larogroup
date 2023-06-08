@@ -4,9 +4,9 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
   Controller,
-  Query,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { IsOnlineDto } from './dto/is-online.dto';

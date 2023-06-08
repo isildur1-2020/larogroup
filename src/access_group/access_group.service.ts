@@ -83,7 +83,7 @@ export class AccessGroupService {
           },
         },
       ]);
-      console.log('Accessgroup by device id found successfully');
+      console.log('Access groups by device id found successfully');
       return accessGroupFound;
     } catch (err) {
       console.log(err);

@@ -8,7 +8,10 @@ docker-compose.dev.yml
 docker.env
 .dockerignore
 node_modules
-mongo-data/*
+mongo-data
 README.md
 .env
 .env.template
+.DS_Store
+mongo-init.example.js
+test

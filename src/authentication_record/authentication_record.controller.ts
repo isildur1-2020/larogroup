@@ -6,13 +6,18 @@ import {
   Query,
   Delete,
   Controller,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseDatePipe } from 'src/common/pipes/parse-date/parse-date.pipe';
 import { AuthenticationRecordService } from './authentication_record.service';
+import { AccessGroupInterceptor } from './interceptors/access-group.interceptor';
+import { IsActiveUserInterceptor } from './interceptors/is-active-user.interceptor';
+import { ContractActiveInterceptor } from './interceptors/contract-date.interceptor';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
+import { DiscoverEntityInterceptor } from './interceptors/discover-entity.interceptor';
 
 @Controller('authentication-record')
 export class AuthenticationRecordController {
@@ -21,6 +26,12 @@ export class AuthenticationRecordController {
   ) {}
 
   @Post()
+  @UseInterceptors(
+    DiscoverEntityInterceptor,
+    AccessGroupInterceptor,
+    IsActiveUserInterceptor,
+    ContractActiveInterceptor,
+  )
   create(@Body() createAuthenticationRecordDto: CreateAuthenticationRecordDto) {
     return this.authenticationRecordService.create(
       createAuthenticationRecordDto,

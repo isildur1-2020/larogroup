@@ -1,8 +1,10 @@
 FROM node:18-alpine as dev
 WORKDIR /app
 COPY ./package.json ./
-RUN yarn install --frozen-lockfile
-CMD ["yarn", "start:dev"]
+RUN npm install
+COPY . .
+RUN npm run build
+CMD ["npm", "run", "start:dev"]
 
 # FROM --platform=$BUILDPLATFORM node:18-alpine as deps-prod
 FROM node:18-alpine as deps-prod

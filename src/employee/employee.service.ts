@@ -108,8 +108,9 @@ export class EmployeeService {
 
   async findOne(id: string): Promise<Employee> {
     try {
+      const _id = new mongoose.Types.ObjectId(id);
       const employeeFound = await this.employeeModel.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        { $match: { _id } },
         ...employeeQuery,
       ]);
       if (employeeFound.length === 0) {

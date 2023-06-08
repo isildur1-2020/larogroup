@@ -1,22 +1,21 @@
-import * as moment from 'moment';
-import * as hex2dec from 'hex2dec';
 import * as mongoose from 'mongoose';
+import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
-import { Entity } from './interfaces/entity.interface';
 import { DeviceService } from 'src/device/device.service';
 import { VehicleService } from 'src/vehicle/vehicle.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { CustomRequest } from './interfaces/authRecord.interface';
 import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AttendanceService } from 'src/attendance/attendance.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AccessGroupService } from 'src/access_group/access_group.service';
-import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
+  Scope,
   Inject,
   Injectable,
   forwardRef,
@@ -28,19 +27,16 @@ import {
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthenticationRecordService {
   constructor(
+    @Inject(REQUEST) private readonly request: CustomRequest,
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
     @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
     @Inject(forwardRef(() => AuthenticationMethodService))
     private authenticationMethodService: AuthenticationMethodService,
-    @Inject(forwardRef(() => EmployeeService))
-    private employeeService: EmployeeService,
-    @Inject(forwardRef(() => VehicleService))
-    private vehicleService: VehicleService,
     @Inject(forwardRef(() => AccessGroupService))
     private accessGroupService: AccessGroupService,
     @Inject(AttendanceService)
@@ -56,80 +52,14 @@ export class AuthenticationRecordService {
     employee: Employee | null;
   }> {
     try {
-      let entity: Entity;
-      let vehicleFound: Vehicle = null;
-      let employeeFound: Employee = null;
-      const { data, sn, auth_method } = createAuthenticationRecordDto;
-
+      const vehicleFound = this.request.vehicleFound;
+      const employeeFound = this.request.employeeFound;
+      const authorizedGroup = this.request.authorizedGroup;
+      const { sn, auth_method } = createAuthenticationRecordDto;
       const deviceFound = await this.deviceService.findOneBySN(sn);
       const authMethodFound =
         await this.authenticationMethodService.findOneByKey(auth_method);
 
-      switch (auth_method) {
-        case AuthMethods.barcode:
-          vehicleFound = await this.vehicleService.findOneByBarcode(data);
-          if (vehicleFound !== undefined) break;
-          employeeFound = await this.employeeService.findOneByBarcode(data);
-          if (!employeeFound) {
-            throw new BadRequestException('Código QR NO existe');
-          }
-          break;
-        case AuthMethods.rfid:
-          const hexReversed = `${data?.[6]}${data?.[7]}${data?.[4]}${data?.[5]}${data?.[2]}${data?.[3]}${data?.[0]}${data?.[1]}`;
-          const decimalData = hex2dec.hexToDec(hexReversed);
-          employeeFound = await this.employeeService.findOneByRfid(decimalData);
-          if (!employeeFound) {
-            throw new BadRequestException('Tarjeta RFID NO existe');
-          }
-          break;
-        case AuthMethods.fingerprint:
-          employeeFound = await this.employeeService.findOne(data);
-          break;
-      }
-      // VERIFY IS_ACTIVE
-      entity = vehicleFound ? vehicleFound : employeeFound;
-      if (!Boolean(entity.is_active)) {
-        return {
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'INACTIVO',
-          code: '101',
-        };
-      }
-      // VERIFY CONTRACT_END_DATE
-      const isInactiveByContract = moment().isAfter(entity.contract_end_date);
-      if (isInactiveByContract) {
-        return {
-          code: '102',
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'ENTIDAD BLOQUEADA POR CONTRATO',
-        };
-      }
-      // VERIFY ACCESS_GROUP
-      const deviceId = deviceFound._id.toString();
-      const groupsFound = await this.accessGroupService.findByDevice(deviceId);
-      if (groupsFound.length === 0) {
-        return {
-          code: '400',
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'DISPOSITIVO AISLADO',
-        };
-      }
-      const authorizedGroup = groupsFound[0]._id.toString();
-      const userGroups = entity.access_group.map((el) => el._id.toString());
-      const isUserAuthorized = userGroups.some(
-        (_id) => _id === authorizedGroup,
-      );
-      if (!isUserAuthorized) {
-        return {
-          code: '104',
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'GRUPO DE ACCESO INVALIDO',
-        };
-      }
       // VERIFY ANTI_PASSBACK
       const devicesCount = await this.accessGroupService.findDevicesCountById(
         authorizedGroup,
