@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
+import { ParseDatePipe } from 'src/common/pipes/parse-date/parse-date.pipe';
 import { AuthenticationRecordService } from './authentication_record.service';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
@@ -29,8 +30,8 @@ export class AuthenticationRecordController {
   @Get()
   @Auth(ValidRoles.superadmin, ValidRoles.administrator, ValidRoles.coordinator)
   findAll(
-    @Query('start_date') start_date?: string,
-    @Query('end_date') end_date?: string,
+    @Query('start_date', ParseDatePipe) start_date: string,
+    @Query('end_date', ParseDatePipe) end_date: string,
   ) {
     return this.authenticationRecordService.findAll(start_date, end_date);
   }

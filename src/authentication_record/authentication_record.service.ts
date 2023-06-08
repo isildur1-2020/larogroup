@@ -211,16 +211,12 @@ export class AuthenticationRecordService {
     end_date: string,
   ): Promise<AuthenticationRecord[]> {
     try {
-      console.log(start_date, end_date);
-      let dateFilter = {};
-      if (start_date && end_date) {
-        dateFilter = {
-          createdAt: {
-            $gte: new Date(start_date),
-            $lte: new Date(end_date),
-          },
-        };
-      }
+      const dateFilter = {
+        createdAt: {
+          $gte: new Date(start_date),
+          $lte: new Date(end_date),
+        },
+      };
       const authenticationRecordsFound =
         await this.authenticationRecordModel.aggregate([
           { $match: dateFilter },
