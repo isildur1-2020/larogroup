@@ -2,6 +2,7 @@ import { campusQuery } from 'src/common/queries/campusQuery';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { directionQuery } from 'src/common/queries/directionQuery';
+import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 export const attendanceQuery = [
   // VEHICLES
@@ -53,6 +54,7 @@ export const attendanceQuery = [
       foreignField: '_id',
       as: 'device',
       pipeline: [
+        ...zoneQuery,
         ...campusQuery,
         ...directionQuery,
         {

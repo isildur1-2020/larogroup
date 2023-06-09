@@ -8,6 +8,8 @@ export type ZoneDocument = HydratedDocument<Zone>;
   versionKey: false,
 })
 export class Zone {
+  public _id: string;
+
   @Prop({
     index: true,
     unique: true,

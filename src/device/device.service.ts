@@ -102,6 +102,18 @@ export class DeviceService {
     }
   }
 
+  async getDevicesCountByZone(zone: string): Promise<number> {
+    try {
+      const devicesFound = await this.deviceModel.find({ zone });
+      const devicesCount = devicesFound.length;
+      console.log('Devices count by zone found successfully');
+      return devicesCount;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async update(id: string, updateDeviceDto: UpdateDeviceDto): Promise<void> {
     try {
       await this.documentExists(id);

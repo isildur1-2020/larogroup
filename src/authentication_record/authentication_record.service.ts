@@ -6,13 +6,10 @@ import { CustomRequest } from './interfaces/authRecord.interface';
 import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AttendanceService } from 'src/attendance/attendance.service';
-import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
-import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
   Inject,
   Injectable,
-  forwardRef,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -26,8 +23,6 @@ export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
-    @Inject(forwardRef(() => AuthenticationMethodService))
-    private authenticationMethodService: AuthenticationMethodService,
     @Inject(AttendanceService)
     private attendanceService: AttendanceService,
   ) {}
@@ -42,44 +37,22 @@ export class AuthenticationRecordService {
     employee: Employee | null;
   }> {
     try {
-      const vehicleFound = req.vehicleFound;
-      const employeeFound = req.employeeFound;
-      // SAVE ATTENDANCE
-      const { check_attendance, uncheck_attendance } = req.deviceFound;
-      const attendanceData = {
-        device: req.deviceFound,
-        vehicle: vehicleFound,
-        employee: employeeFound,
-        entity: req.entityName,
-      };
-      if (check_attendance) {
-        const attendanceFound = await this.attendanceService.findOne(
-          attendanceData,
-        );
-        if (attendanceFound === null) {
-          await this.attendanceService.create(attendanceData);
-        }
-      } else if (uncheck_attendance) {
-        await this.attendanceService.remove(attendanceData);
-      }
-
-      // SAVE AUTHORIZE RECORD
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
         entity: req.entityName,
         access_group: req.authorizedGroup,
         entity_id: req.entity._id.toString(),
         device: req.deviceFound._id.toString(),
-        vehicle: vehicleFound?._id?.toString() ?? null,
-        employee: employeeFound?._id?.toString() ?? null,
+        vehicle: req.vehicleFound?._id?.toString() ?? null,
+        employee: req.employeeFound?._id?.toString() ?? null,
         authentication_method: req.authMethodFound,
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
       return {
         code: '100',
-        vehicle: vehicleFound ?? null,
-        employee: employeeFound ?? null,
+        vehicle: req.vehicleFound ?? null,
+        employee: req.employeeFound ?? null,
         message: 'AUTENTICACIÓN EXITOSA',
       };
     } catch (err) {
