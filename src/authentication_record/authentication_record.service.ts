@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { zoneQuery } from 'src/common/queries/zoneQuery';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { CustomRequest } from './interfaces/authRecord.interface';
@@ -15,7 +16,6 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
-import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 @Injectable()
 export class AuthenticationRecordService {

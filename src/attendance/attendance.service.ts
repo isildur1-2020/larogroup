@@ -104,9 +104,9 @@ export class AttendanceService {
       const attendanceFound = await this.findOne(createAttendanceDto);
       if (attendanceFound !== null) {
         const attendanceId = attendanceFound._id.toString();
-        await this.documentExists(attendanceId);
         await this.attendanceModel.findByIdAndDelete(attendanceId);
       }
+      console.log('Attendance was deleted successfully');
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
@@ -116,9 +116,7 @@ export class AttendanceService {
   async deleteOne(id: string, currentUser: CurrentUser): Promise<void> {
     try {
       await this.documentExists(id);
-      const attendanceFound: Attendance = await this.attendanceModel.findById(
-        id,
-      );
+      const attendanceFound = await this.attendanceModel.findById(id);
       const { entity, employee, vehicle } = attendanceFound;
       await this.expulsionService.create({
         entity,

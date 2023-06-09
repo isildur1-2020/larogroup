@@ -20,21 +20,19 @@ export class AttendanceInterceptor implements NestInterceptor {
     const req: CustomRequest = context.switchToHttp().getRequest();
     const { vehicleFound, employeeFound, deviceFound } = req;
     const { check_attendance, uncheck_attendance } = deviceFound;
-    const attendanceData = {
+    const body = {
       device: deviceFound,
       vehicle: vehicleFound,
       employee: employeeFound,
       entity: req.entityName,
     };
+    if (!check_attendance && !uncheck_attendance) return next.handle();
+    const attendanceFound = await this.attendanceService.findOne(body);
     if (check_attendance) {
-      const attendanceFound = await this.attendanceService.findOne(
-        attendanceData,
-      );
-      if (attendanceFound === null) {
-        await this.attendanceService.create(attendanceData);
-      }
-    } else if (uncheck_attendance) {
-      await this.attendanceService.remove(attendanceData);
+      if (attendanceFound !== null) await this.attendanceService.remove(body);
+      await this.attendanceService.create(body);
+    } else if (uncheck_attendance && attendanceFound !== null) {
+      await this.attendanceService.remove(body);
     }
     return next.handle();
   }
