@@ -13,6 +13,7 @@ import { CustomRequest } from './interfaces/authRecord.interface';
 import { Auth } from 'src/auth/decorators/auth-decorator.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseDatePipe } from 'src/common/pipes/parse-date/parse-date.pipe';
+import { AttendanceInterceptor } from './interceptors/attendance.interceptor';
 import { AuthenticationRecordService } from './authentication_record.service';
 import { AccessGroupInterceptor } from './interceptors/access-group.interceptor';
 import { AntiPassbackInterceptor } from './interceptors/antipassback.interceptor';
@@ -35,6 +36,7 @@ export class AuthenticationRecordController {
     IsActiveUserInterceptor,
     ContractActiveInterceptor,
     AntiPassbackInterceptor,
+    AttendanceInterceptor,
   )
   create(
     @Req() req: CustomRequest,
