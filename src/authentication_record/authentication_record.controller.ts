@@ -15,6 +15,7 @@ import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { ParseDatePipe } from 'src/common/pipes/parse-date/parse-date.pipe';
 import { AuthenticationRecordService } from './authentication_record.service';
 import { AccessGroupInterceptor } from './interceptors/access-group.interceptor';
+import { AntiPassbackInterceptor } from './interceptors/antipassback.interceptor';
 import { IsActiveUserInterceptor } from './interceptors/is-active-user.interceptor';
 import { ContractActiveInterceptor } from './interceptors/contract-date.interceptor';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
@@ -33,6 +34,7 @@ export class AuthenticationRecordController {
     AccessGroupInterceptor,
     IsActiveUserInterceptor,
     ContractActiveInterceptor,
+    AntiPassbackInterceptor,
   )
   create(
     @Req() req: CustomRequest,

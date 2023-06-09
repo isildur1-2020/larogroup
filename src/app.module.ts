@@ -30,6 +30,7 @@ import { AdministratorModule } from './administrator/administrator.module';
 import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
+import { ZoneModule } from './zone/zone.module';
 
 const DB_HOST = process.env.MONGO_HOST;
 const DB_PWD = process.env.ROOT_PASSWORD;
@@ -71,6 +72,7 @@ const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
     AuthenticationMethodModule,
     AuthenticationRecordModule,
     MongooseModule.forRoot(MONGODB_URI),
+    ZoneModule,
   ],
 })
 export class AppModule {}

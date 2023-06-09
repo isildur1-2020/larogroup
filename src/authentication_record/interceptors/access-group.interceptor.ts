@@ -58,6 +58,7 @@ export class AccessGroupInterceptor implements NestInterceptor {
       );
     }
     req.authorizedGroup = authorizedGroup;
+    req.deviceFound = deviceFound;
     return next.handle();
   }
 }

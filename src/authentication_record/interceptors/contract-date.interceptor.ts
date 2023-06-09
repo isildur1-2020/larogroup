@@ -16,7 +16,6 @@ export class ContractActiveInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> {
     const req: CustomRequest = context.switchToHttp().getRequest();
-    // VERIFY CONTRACT_END_DATE
     const isInactiveByContract = moment().isAfter(req.entity.contract_end_date);
     if (isInactiveByContract) {
       throw new HttpException(

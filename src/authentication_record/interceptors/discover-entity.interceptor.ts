@@ -6,6 +6,7 @@ import { EmployeeService } from 'src/employee/employee.service';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import { AuthMethods } from 'src/authentication_method/enums/auth-methods.enum';
+import { AuthenticationMethodService } from 'src/authentication_method/authentication_method.service';
 import {
   Inject,
   Injectable,
@@ -26,6 +27,8 @@ export class DiscoverEntityInterceptor implements NestInterceptor {
     private vehicleService: VehicleService,
     @Inject(EmployeeService)
     private employeeService: EmployeeService,
+    @Inject(AuthenticationMethodService)
+    private authMethodService: AuthenticationMethodService,
   ) {}
   async intercept(
     context: ExecutionContext,
@@ -36,6 +39,9 @@ export class DiscoverEntityInterceptor implements NestInterceptor {
     const { auth_method, data } = body;
     let vehicleFound: Vehicle = null;
     let employeeFound: Employee = null;
+    const authMethodFound = await this.authMethodService.findOneByKey(
+      auth_method,
+    );
     switch (auth_method) {
       case AuthMethods.barcode:
         vehicleFound = await this.vehicleService.findOneByBarcode(data);
@@ -56,6 +62,7 @@ export class DiscoverEntityInterceptor implements NestInterceptor {
     req.employeeFound = employeeFound;
     req.entity = vehicleFound ? vehicleFound : employeeFound;
     req.entityName = vehicleFound ? ValidRoles.vehicle : ValidRoles.employee;
+    req.authMethodFound = authMethodFound._id.toString();
     return next.handle();
   }
 }

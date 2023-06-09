@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeviceService } from 'src/device/device.service';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { CustomRequest } from './interfaces/authRecord.interface';
@@ -8,7 +7,6 @@ import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { AttendanceService } from 'src/attendance/attendance.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
-import { AccessGroupService } from 'src/access_group/access_group.service';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import { AuthenticationMethodService } from '../authentication_method/authentication_method.service';
 import {
@@ -28,12 +26,8 @@ export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
-    @Inject(forwardRef(() => DeviceService))
-    private deviceService: DeviceService,
     @Inject(forwardRef(() => AuthenticationMethodService))
     private authenticationMethodService: AuthenticationMethodService,
-    @Inject(forwardRef(() => AccessGroupService))
-    private accessGroupService: AccessGroupService,
     @Inject(AttendanceService)
     private attendanceService: AttendanceService,
   ) {}
@@ -50,49 +44,13 @@ export class AuthenticationRecordService {
     try {
       const vehicleFound = req.vehicleFound;
       const employeeFound = req.employeeFound;
-      const authorizedGroup = req.authorizedGroup;
-      const { sn, auth_method } = createAuthenticationRecordDto;
-      const deviceFound = await this.deviceService.findOneBySN(sn);
-      const authMethodFound =
-        await this.authenticationMethodService.findOneByKey(auth_method);
-
-      // VERIFY ANTI_PASSBACK
-      const devicesCount = await this.accessGroupService.findDevicesCountById(
-        authorizedGroup,
-      );
-      if (devicesCount > 1) {
-        let recordFound = null;
-        if (vehicleFound) {
-          recordFound = await this.findByEntityIdAndAccessGroup(
-            vehicleFound._id.toString(),
-            authorizedGroup,
-          );
-        } else {
-          recordFound = await this.findByEntityIdAndAccessGroup(
-            employeeFound._id.toString(),
-            authorizedGroup,
-          );
-        }
-        if (recordFound !== null) {
-          const lastDeviceDirectionSaved = recordFound.device.direction.name;
-          const currentDeviceDirection = deviceFound.direction.name;
-          if (lastDeviceDirectionSaved === currentDeviceDirection) {
-            return {
-              code: '103',
-              vehicle: vehicleFound ?? null,
-              employee: employeeFound ?? null,
-              message: 'BLOQUEADO POR DOBLE MARCACIÓN',
-            };
-          }
-        }
-      }
       // SAVE ATTENDANCE
-      const { check_attendance, uncheck_attendance } = deviceFound;
+      const { check_attendance, uncheck_attendance } = req.deviceFound;
       const attendanceData = {
-        device: deviceFound,
+        device: req.deviceFound,
         vehicle: vehicleFound,
         employee: employeeFound,
-        entity: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
+        entity: req.entityName,
       };
       if (check_attendance) {
         const attendanceFound = await this.attendanceService.findOne(
@@ -108,15 +66,13 @@ export class AuthenticationRecordService {
       // SAVE AUTHORIZE RECORD
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
-        access_group: authorizedGroup,
-        device: deviceFound._id.toString(),
+        entity: req.entityName,
+        access_group: req.authorizedGroup,
+        entity_id: req.entity._id.toString(),
+        device: req.deviceFound._id.toString(),
         vehicle: vehicleFound?._id?.toString() ?? null,
         employee: employeeFound?._id?.toString() ?? null,
-        authentication_method: authMethodFound._id.toString(),
-        entity: vehicleFound ? ValidRoles.vehicle : ValidRoles.employee,
-        entity_id: vehicleFound
-          ? vehicleFound._id.toString()
-          : employeeFound._id.toString(),
+        authentication_method: req.authMethodFound,
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
