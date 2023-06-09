@@ -1,11 +1,10 @@
 import {
-  IsBooleanString,
-  IsMongoId,
-  IsNotEmpty,
-  IsNumberString,
-  IsOptional,
   IsString,
+  IsMongoId,
   MinLength,
+  IsNotEmpty,
+  IsOptional,
+  IsBooleanString,
 } from 'class-validator';
 
 export class CreateDeviceDto {
@@ -24,8 +23,8 @@ export class CreateDeviceDto {
   @IsMongoId()
   public direction: string;
 
-  @IsString()
-  @MinLength(4)
+  @IsOptional()
+  @IsMongoId()
   public zone: string;
 
   @IsOptional()

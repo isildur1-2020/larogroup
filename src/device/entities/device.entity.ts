@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { Zone } from 'src/zone/entities/zone.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Direction } from 'src/direction/entities/direction.entity';
@@ -45,9 +46,10 @@ export class Device {
   public direction: Direction;
 
   @Prop({
-    required: true,
+    ref: 'Zone',
+    type: mongoose.Schema.Types.ObjectId,
   })
-  public zone: string;
+  public zone: Zone;
 
   @Prop({
     default: false,

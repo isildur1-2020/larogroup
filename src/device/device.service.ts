@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { IsOnlineDto } from './dto/is-online.dto';
+import { ZoneService } from 'src/zone/zone.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
@@ -16,6 +17,7 @@ import {
   forwardRef,
   BadRequestException,
 } from '@nestjs/common';
+import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 @Injectable()
 export class DeviceService {
@@ -30,20 +32,22 @@ export class DeviceService {
     private accessGroupService: AccessGroupService,
     @Inject(forwardRef(() => AuthenticationRecordService))
     private authenticationRecordService: AuthenticationRecordService,
+    @Inject(forwardRef(() => ZoneService))
+    private zoneService: ZoneService,
   ) {}
 
   async create(createDeviceDto: CreateDeviceDto): Promise<Device> {
     try {
-      let { campus, direction, check_attendance, uncheck_attendance } =
-        createDeviceDto;
+      const { check_attendance, uncheck_attendance } = createDeviceDto;
       if (check_attendance === 'true' && uncheck_attendance === 'true') {
         throw new BadRequestException(
           'check_attendance and uncheck_attendance cannot be true at same time',
         );
       }
+      const { campus, direction, zone } = createDeviceDto;
+      if (zone) await this.zoneService.documentExists(zone);
       await this.campusService.documentExists(campus);
       await this.directionService.documentExists(direction);
-      console.log(createDeviceDto);
       const newDevice = new this.deviceModel(createDeviceDto);
       const deviceSaved = await newDevice.save();
       console.log('Device created successfully');
@@ -59,6 +63,7 @@ export class DeviceService {
       const devicesFound = await this.deviceModel.aggregate([
         ...directionQuery,
         ...campusQuery,
+        ...zoneQuery,
       ]);
       console.log('Devices found successfully');
       return devicesFound;
@@ -159,6 +164,18 @@ export class DeviceService {
   async validateByCampus(campus: string): Promise<void> {
     try {
       const devicesFound = await this.deviceModel.find({ campus });
+      if (devicesFound.length > 0) {
+        throw new BadRequestException('There are associated devices');
+      }
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async validateByZone(zone: string): Promise<void> {
+    try {
+      const devicesFound = await this.deviceModel.find({ zone });
       if (devicesFound.length > 0) {
         throw new BadRequestException('There are associated devices');
       }

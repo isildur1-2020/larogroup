@@ -1,5 +1,6 @@
 import { DeviceService } from './device.service';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ZoneModule } from 'src/zone/zone.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { DeviceController } from './device.controller';
 import { CampusModule } from 'src/campus/campus.module';
@@ -16,6 +17,7 @@ import { AuthenticationRecordModule } from 'src/authentication_record/authentica
         schema: DeviceSchema,
       },
     ]),
+    forwardRef(() => ZoneModule),
     forwardRef(() => CampusModule),
     forwardRef(() => DirectionModule),
     forwardRef(() => AccessGroupModule),

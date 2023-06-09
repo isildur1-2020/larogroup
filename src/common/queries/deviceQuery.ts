@@ -1,3 +1,4 @@
+import { zoneQuery } from './zoneQuery';
 import { campusQuery } from './campusQuery';
 import { directionQuery } from './directionQuery';
 
@@ -11,6 +12,7 @@ export const deviceQuery = [
         { $match: { $expr: { $in: ['$_id', '$$pid'] } } },
         ...directionQuery,
         ...campusQuery,
+        ...zoneQuery,
         {
           $project: {
             createdAt: 0,
