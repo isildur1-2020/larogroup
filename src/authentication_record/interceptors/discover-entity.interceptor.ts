@@ -63,6 +63,9 @@ export class DiscoverEntityInterceptor implements NestInterceptor {
     req.entity = vehicleFound ? vehicleFound : employeeFound;
     req.entityName = vehicleFound ? ValidRoles.vehicle : ValidRoles.employee;
     req.authMethodFound = authMethodFound._id.toString();
+    req.entityId = vehicleFound
+      ? vehicleFound._id.toString()
+      : employeeFound._id.toString();
     return next.handle();
   }
 }

@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { ZoneService } from 'src/zone/zone.service';
 import { DeviceService } from 'src/device/device.service';
 import { CustomRequest } from '../interfaces/authRecord.interface';
 import { AccessGroupService } from 'src/access_group/access_group.service';
@@ -20,6 +21,8 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     private authRecordService: AuthenticationRecordService,
     @Inject(DeviceService)
     private deviceService: DeviceService,
+    @Inject(ZoneService)
+    private zoneService: ZoneService,
   ) {}
 
   async intercept(
@@ -27,34 +30,34 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
-    const { authorizedGroup, vehicleFound, employeeFound, deviceFound } = req;
+    const { vehicleFound, employeeFound, authZone } = req;
+    const { authorizedGroup, deviceFound, entityId } = req;
     // VERIFYING IF IS ANTIPASSBACK LOCAL OR GLOBAL
     let devicesCount = 0;
-    // GLOBAL
-    if ('zone' in deviceFound) {
-      const zoneId = deviceFound.zone._id.toString();
-      devicesCount = await this.deviceService.getDevicesCountByZone(zoneId);
-    }
-    // LOCAL
-    else {
-      devicesCount = await this.accessGroupService.findDevicesCountById(
-        authorizedGroup,
-      );
-    }
-    // TO VALIDATE ANTIPASSBACK MUST EXISTS MORE THAN ONE DEVICE
-    if (devicesCount < 2) return next.handle();
-    // VALIDATE ANTIPASSBACK WITH AUTH RECORDS
     let recordFound = null;
-    if (vehicleFound) {
-      recordFound = await this.authRecordService.findByEntityIdAndAccessGroup(
-        vehicleFound._id.toString(),
+    // ** GLOBAL
+    if ('zone' in deviceFound) {
+      await this.zoneService.documentExists(authZone);
+      devicesCount = await this.deviceService.getDevicesCountByZone(authZone);
+      if (devicesCount < 2) return next.handle();
+      recordFound = await this.authRecordService.findByEntityIdAndZone(
+        entityId,
+        authZone,
+      );
+      // console.log('GLOBAL', { deviceFound, recordFound });
+    }
+    // ** LOCAL
+    else {
+      devicesCount = await this.accessGroupService.getDevicesCountById(
         authorizedGroup,
       );
-    } else {
+      if (devicesCount < 2) return next.handle();
+      // VALIDATE ANTIPASSBACK WITH AUTH RECORDS
       recordFound = await this.authRecordService.findByEntityIdAndAccessGroup(
-        employeeFound._id.toString(),
+        entityId,
         authorizedGroup,
       );
+      // console.log('LOCAL', { deviceFound, recordFound });
     }
     // IF DOES NOT EXISTS ANY RECORD, THEN NEXT HANDLER
     if (recordFound === null) return next.handle();

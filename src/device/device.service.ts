@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { IsOnlineDto } from './dto/is-online.dto';
 import { ZoneService } from 'src/zone/zone.service';
+import { zoneQuery } from 'src/common/queries/zoneQuery';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { CampusService } from 'src/campus/campus.service';
@@ -17,7 +18,6 @@ import {
   forwardRef,
   BadRequestException,
 } from '@nestjs/common';
-import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 @Injectable()
 export class DeviceService {
@@ -117,12 +117,13 @@ export class DeviceService {
   async update(id: string, updateDeviceDto: UpdateDeviceDto): Promise<void> {
     try {
       await this.documentExists(id);
-      const { check_attendance, uncheck_attendance } = updateDeviceDto;
+      const { check_attendance, uncheck_attendance, zone } = updateDeviceDto;
       if (check_attendance === 'true' && uncheck_attendance === 'true') {
         throw new BadRequestException(
           'check_attendance and uncheck_attendance cannot be true at same time',
         );
       }
+      if (zone) await this.zoneService.documentExists(zone);
       await this.deviceModel.findByIdAndUpdate(id, updateDeviceDto);
       console.log(`Device with id ${id} was updated successfully`);
     } catch (err) {

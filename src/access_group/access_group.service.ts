@@ -91,7 +91,7 @@ export class AccessGroupService {
     }
   }
 
-  async findDevicesCountById(id: string): Promise<number> {
+  async getDevicesCountById(id: string): Promise<number> {
     try {
       const accessGroupFound: AccessGroup =
         await this.accessGroupModel.findById(id);

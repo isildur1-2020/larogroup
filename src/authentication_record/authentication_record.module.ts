@@ -1,4 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { ZoneModule } from 'src/zone/zone.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { DeviceModule } from 'src/device/device.module';
 import { VehicleModule } from 'src/vehicle/vehicle.module';
@@ -21,6 +22,7 @@ import {
         schema: AuthenticationRecordSchema,
       },
     ]),
+    ZoneModule,
     AttendanceModule,
     forwardRef(() => DeviceModule),
     forwardRef(() => VehicleModule),

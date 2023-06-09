@@ -11,6 +11,8 @@ export interface AuthRecordBody {
 }
 
 export interface CustomRequest extends Request {
+  entityId: string;
+  authZone: string;
   deviceFound: Device;
   vehicleFound: Vehicle;
   entityName: ValidRoles;

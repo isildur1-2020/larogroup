@@ -1,4 +1,4 @@
-import { zoneQuery } from './zoneQuery';
+// import { zoneQuery } from './zoneQuery';
 import { directionQuery } from './directionQuery';
 import { categoriesQuery } from './categoriesQuery';
 
@@ -11,7 +11,7 @@ export const authRecordQuery = [
       foreignField: '_id',
       as: 'device',
       pipeline: [
-        ...zoneQuery,
+        // ...zoneQuery,
         ...directionQuery,
         {
           $project: {
@@ -128,6 +128,7 @@ export const authRecordQuery = [
   {
     $project: {
       data: 0,
+      zone: 0,
       entity_id: 0,
       updatedAt: 0,
       access_group: 0,

@@ -5,10 +5,8 @@ import { Employee } from 'src/employee/entities/employee.entity';
 import { CustomRequest } from './interfaces/authRecord.interface';
 import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
-import { AttendanceService } from 'src/attendance/attendance.service';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import {
-  Inject,
   Injectable,
   BadRequestException,
   UnauthorizedException,
@@ -17,14 +15,13 @@ import {
   AuthenticationRecord,
   AuthenticationRecordDocument,
 } from './entities/authentication_record.entity';
+import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 @Injectable()
 export class AuthenticationRecordService {
   constructor(
     @InjectModel(AuthenticationRecord.name)
     private authenticationRecordModel: mongoose.Model<AuthenticationRecordDocument>,
-    @Inject(AttendanceService)
-    private attendanceService: AttendanceService,
   ) {}
 
   async create(
@@ -40,12 +37,13 @@ export class AuthenticationRecordService {
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
         entity: req.entityName,
+        zone: req.deviceFound?.zone,
         access_group: req.authorizedGroup,
         entity_id: req.entity._id.toString(),
         device: req.deviceFound._id.toString(),
+        authentication_method: req.authMethodFound,
         vehicle: req.vehicleFound?._id?.toString() ?? null,
         employee: req.employeeFound?._id?.toString() ?? null,
-        authentication_method: req.authMethodFound,
       });
       await newAuthenticationRecord.save();
       console.log('Authentication record created successfully');
@@ -108,6 +106,41 @@ export class AuthenticationRecordService {
           },
         },
         { $unwind: '$device' },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]);
+      return dataFound?.[0] ?? null;
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async findByEntityIdAndZone(
+    entity_id: string,
+    zone: string,
+  ): Promise<AuthenticationRecord> {
+    try {
+      const dataFound = await this.authenticationRecordModel.aggregate([
+        {
+          $lookup: {
+            from: 'devices',
+            localField: 'device',
+            foreignField: '_id',
+            as: 'device',
+            pipeline: [...directionQuery, ...zoneQuery],
+          },
+        },
+        { $unwind: '$device' },
+        {
+          $match: {
+            entity_id: new mongoose.Types.ObjectId(entity_id),
+            'device.zone._id': new mongoose.Types.ObjectId(zone),
+          },
+        },
         {
           $sort: {
             createdAt: -1,
