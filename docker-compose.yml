@@ -10,7 +10,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
     ports: 
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - ./mongo-data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -49,11 +49,12 @@ services:
       dockerfile: ./caddy/Dockerfile
     image: laroaccess-caddy
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
     volumes:
-      - ./caddy/data:/data
-      - ./caddy/config:/config
+      - /data
+      - /config
     environment:
       - PORT=${PORT}
       - DOMAIN_NAME=${DOMAIN_NAME}
