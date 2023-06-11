@@ -1,5 +1,9 @@
 version: '3'
 
+volumes:
+  - caddy-data: {}
+  - caddy-config: {}
+
 services:
   mongodb:
     image: mongo:5
@@ -53,8 +57,8 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - /data
-      - /config
+      - caddy-data:/data
+      - caddy-config:/config
     environment:
       - PORT=${PORT}
       - DOMAIN_NAME=${DOMAIN_NAME}
