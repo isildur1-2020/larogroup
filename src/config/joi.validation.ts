@@ -1,8 +1,8 @@
 import * as joi from 'joi';
 
 export const joiValidationSchema = joi.object({
-  STAGE: joi.required(),
   JWT_SECRET: joi.required(),
+  MONGO_HOST: joi.required(),
   ROOT_USERNAME: joi.required(),
   PORT: joi.number().required(),
   ROOT_PASSWORD: joi.required(),

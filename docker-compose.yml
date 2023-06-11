@@ -13,7 +13,6 @@ services:
       - 27017:27017
     volumes:
       - ./mongo-data:/data/db
-      - ./mongo-data/log:/var/log/mongodb
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     command: ['--auth']
 
@@ -23,7 +22,7 @@ services:
       - mongodb
     build:
       context: .
-      target: ${STAGE}
+      target: prod
       dockerfile: Dockerfile
     image: laroaccess-app
     container_name: larosoft_app
@@ -33,9 +32,9 @@ services:
       - ./static:/app/static
     environment:
       PORT: ${PORT}
-      STAGE: ${STAGE}
       JWT_SECRET: ${JWT_SECRET}
       MONGO_HOST: ${MONGO_HOST}
       ROOT_USERNAME: ${ROOT_USERNAME}
       ROOT_PASSWORD: ${ROOT_PASSWORD}
       MONGO_DATABASE: ${MONGO_DATABASE}
+      MONGO_REMOTE_HOST: ${MONGO_REMOTE_HOST}

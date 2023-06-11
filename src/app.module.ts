@@ -6,6 +6,7 @@ import { SeedModule } from './seed/seed.module';
 import { CityModule } from './city/city.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
+import { ZoneModule } from './zone/zone.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CampusModule } from './campus/campus.module';
 import { DeviceModule } from './device/device.module';
@@ -30,12 +31,12 @@ import { AdministratorModule } from './administrator/administrator.module';
 import { ProfilePictureModule } from './profile_picture/profile_picture.module';
 import { AuthenticationMethodModule } from './authentication_method/authentication_method.module';
 import { AuthenticationRecordModule } from './authentication_record/authentication_record.module';
-import { ZoneModule } from './zone/zone.module';
 
-const DB_HOST = process.env.MONGO_HOST;
 const DB_PWD = process.env.ROOT_PASSWORD;
 const DB_USER = process.env.ROOT_USERNAME;
 const DB_NAME = process.env.MONGO_DATABASE;
+const DB_REMOTE_HOST = process.env.MONGO_REMOTE_HOST;
+const DB_HOST = DB_REMOTE_HOST || process.env.MONGO_HOST;
 const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
 
 @Module({
@@ -51,6 +52,7 @@ const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
     RoleModule,
     AuthModule,
     SeedModule,
+    ZoneModule,
     DeviceModule,
     CampusModule,
     CountryModule,
@@ -72,7 +74,6 @@ const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
     AuthenticationMethodModule,
     AuthenticationRecordModule,
     MongooseModule.forRoot(MONGODB_URI),
-    ZoneModule,
   ],
 })
 export class AppModule {}
