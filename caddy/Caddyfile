@@ -3,7 +3,5 @@
 }
 
 {env.DOMAIN_NAME} {
-    reverse_proxy larosoft_app:{env.PORT}
-    log stdout
-    errors stdout
+    reverse_proxy laroaccess_app:{env.PORT}
 }

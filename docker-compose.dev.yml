@@ -25,7 +25,7 @@ services:
       target: dev
       dockerfile: Dockerfile
     image: laroaccess-app
-    container_name: larosoft_app
+    container_name: laroaccess_app
     ports:
       - "${PORT}:${PORT}"
     volumes:

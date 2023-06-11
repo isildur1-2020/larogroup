@@ -32,7 +32,7 @@ services:
       target: prod
       dockerfile: Dockerfile
     image: laroaccess-app
-    container_name: larosoft_app
+    container_name: laroaccess-app
     ports:
       - "${PORT}:${PORT}"
     volumes:
@@ -50,13 +50,13 @@ services:
   
   caddy:
     restart: unless-stopped
-    container_name: laroaccess-caddy
     depends_on:
       - app
     build: 
       context: .
       dockerfile: ./caddy/Dockerfile
     image: laroaccess-caddy
+    container_name: laroaccess-caddy
     ports:
       - "80:80"
       - "443:443"
