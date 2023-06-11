@@ -4,6 +4,9 @@ volumes:
   caddy-data: {}
   caddy-config: {}
 
+networks:
+  caddy:
+
 services:
   mongodb:
     image: mongo:5
@@ -34,6 +37,8 @@ services:
       - "${PORT}:${PORT}"
     volumes:
       - ./static:/app/static
+    networks:
+      - caddy
     environment:
       PORT: ${PORT}
       JWT_SECRET: ${JWT_SECRET}
@@ -55,10 +60,11 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "443:443/udp"
     volumes:
       - caddy-data:/data
       - caddy-config:/config
+    networks:
+      - caddy
     environment:
       - PORT=${PORT}
       - DOMAIN_NAME=${DOMAIN_NAME}
