@@ -1,0 +1,9 @@
+{
+    email {env.SSL_CERT_EMAIL}
+}
+
+{env.DOMAIN_NAME} {
+    reverse_proxy larosoft_app:{env.PORT}
+    log stdout
+    errors stdout
+}
