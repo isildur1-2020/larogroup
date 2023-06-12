@@ -30,10 +30,10 @@ services:
       dockerfile: Dockerfile
     image: laroaccess_app
     container_name: laroaccess_app
-    ports:
-      - "${PORT}:${PORT}"
     volumes:
       - ./static:/app/static
+    expose:
+      - ${PORT}
     environment:
       PORT: ${PORT}
       JWT_SECRET: ${JWT_SECRET}
@@ -58,6 +58,3 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-    environment:
-      - PORT=${PORT}
-      - DOMAIN_NAME=${DOMAIN_NAME}

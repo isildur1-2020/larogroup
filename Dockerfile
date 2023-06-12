@@ -22,6 +22,5 @@ FROM node:18-alpine as prod
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=deps-prod /app/node_modules ./node_modules
-EXPOSE 3000
 VOLUME [ "/static" ]
 CMD ["node", "dist/main" ]

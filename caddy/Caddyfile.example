@@ -3,5 +3,5 @@
 }
 
 YOUR_DOMAIN_NAME {
-    reverse_proxy larosoft_app:8080
+    reverse_proxy BACKEND_CONTAINER_NAME:PORT
 }
