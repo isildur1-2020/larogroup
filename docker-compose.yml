@@ -1,7 +1,8 @@
 version: '3'
 
 volumes:
-  caddy_data: {}
+  caddy_data:
+  caddy_config:
 
 services:
   mongodb:
@@ -52,10 +53,11 @@ services:
     image: laroaccess_caddy
     container_name: laroaccess_caddy
     ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
+      - "80:80"
+      - "443:443"
     volumes:
-      - caddy_data:/root/.caddy
+      - caddy_data:/data
+      - caddy_config:/config
     environment:
       - PORT=${PORT}
       - DOMAIN_NAME=${DOMAIN_NAME}

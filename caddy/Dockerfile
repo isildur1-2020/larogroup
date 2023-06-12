@@ -1,2 +1,2 @@
-FROM abiosoft/caddy:1.0.3
-COPY ./caddy/Caddyfile /etc/Caddyfile
+FROM caddy:2.7
+COPY ./caddy/Caddyfile /etc/caddy/Caddyfile

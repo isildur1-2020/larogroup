@@ -1,15 +1,7 @@
-www.{$DOMAIN_NAME} {
-    redir https://{$DOMAIN_NAME}
+{
+    email {env.SSL_CERT_EMAIL}
 }
 
-{$DOMAIN_NAME} {
-    proxy / laroaccess_app:{$PORT} {
-        header_upstream Host {host}
-        header_upstream X-Real-IP {remote}
-        header_upstream X-Forwarded-Proto {scheme}
-        header_upstream X-CSRFToken {~csrftoken}
-    }
-    log stdout
-    errors stdout
-    gzip
+{env.DOMAIN_NAME} {
+    reverse_proxy larosoft_app:{env.PORT}
 }
