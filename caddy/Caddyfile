@@ -1,7 +1,7 @@
 {
-    email {$SSL_CERT_EMAIL}
+    email julio@larogroup.co
 }
 
-{$DOMAIN_NAME} {
-    reverse_proxy larosoft_app:{$PORT}
+dyslexia3-test.online {
+    reverse_proxy larosoft_app:8080
 }
