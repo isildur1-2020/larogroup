@@ -1,7 +1,7 @@
 {
-    email {env.SSL_CERT_EMAIL}
+    email {$SSL_CERT_EMAIL}
 }
 
-{env.DOMAIN_NAME} {
-    reverse_proxy larosoft_app:{env.PORT}
+{$DOMAIN_NAME} {
+    reverse_proxy larosoft_app:{$PORT}
 }
