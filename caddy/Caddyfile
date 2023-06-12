@@ -1,7 +1,11 @@
 {
-    email julio@larogroup.co
+    email mail@blue-hippo.org
 }
 
-dyslexia3-test.online {
-    reverse_proxy larosoft_app:8080
+http://{$DOMAIN_NAME} {
+    redir https://{host}{uri}
+}
+
+https://{$DOMAIN_NAME} {
+    reverse_proxy laroaccess_app:{$PORT}
 }

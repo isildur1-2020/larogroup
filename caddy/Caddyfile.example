@@ -1,7 +1,0 @@
-{
-    email YOUR_EMAIL@EXAMPLE.COM
-}
-
-YOUR_DOMAIN_NAME {
-    reverse_proxy BACKEND_CONTAINER_NAME:PORT
-}

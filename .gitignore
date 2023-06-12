@@ -7,7 +7,6 @@ static/fingerprints/*
 static/profile/*
 static/tmp/*
 .env
-caddy/Caddyfile
 
 # Logs
 logs
