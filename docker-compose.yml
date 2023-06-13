@@ -28,7 +28,7 @@ services:
       context: .
       target: prod
       dockerfile: Dockerfile
-    image: laroaccess_app
+    image: laroaccess
     container_name: laroaccess_app
     volumes:
       - ./static:/app/static

@@ -37,7 +37,7 @@ const DB_USER = process.env.ROOT_USERNAME;
 const DB_NAME = process.env.MONGO_DATABASE;
 const DB_REMOTE_HOST = process.env.MONGO_REMOTE_HOST;
 const DB_HOST = DB_REMOTE_HOST || process.env.MONGO_HOST;
-const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}`;
+const MONGODB_URI = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`;
 
 @Module({
   imports: [

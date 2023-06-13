@@ -2,12 +2,12 @@
 // is create an user to get authentication
 // successfully
 db.createUser({
-  user: 'YOUR_USERNAME',
-  pwd: 'YOUR_USER_PASSWORD',
+  user: 'ROOT_USERNAME',
+  pwd: 'ROOT_PASSWORD',
   roles: [
     {
       role: 'readWrite',
-      db: 'YOUR_DATABASE_NAME',
+      db: 'MONGO_DATABASE',
     },
   ],
 });

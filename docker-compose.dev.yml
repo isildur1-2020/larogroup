@@ -24,7 +24,7 @@ services:
       context: .
       target: dev
       dockerfile: Dockerfile
-    image: laroaccess-app
+    image: laroaccess
     container_name: laroaccess_app
     ports:
       - "${PORT}:${PORT}"
