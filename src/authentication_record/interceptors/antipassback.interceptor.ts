@@ -26,10 +26,10 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
-    const { vehicleFound, employeeFound, deviceFound, entityId, entityName } =
-      req;
+    const { entity, entityId, entityName } = req;
+    const { vehicleFound, employeeFound, deviceFound } = req;
     // VERIFY WHERE IS CURRENTLY ENTITY ZONE
-    req.currentEntityZone = employeeFound?.current_zone?.toString() ?? null;
+    req.currentEntityZone = entity?.current_zone?.toString() ?? null;
     if (!req.currentEntityZone) {
       throw new BadRequestException('Please allocate a current_zone to entity');
     }

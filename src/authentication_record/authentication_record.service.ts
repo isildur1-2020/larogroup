@@ -82,15 +82,6 @@ export class AuthenticationRecordService {
 
   async remove(id: string): Promise<void> {
     throw new UnauthorizedException('This endpoint is forbidden');
-    try {
-      await this.authenticationRecordModel.findByIdAndDelete(id);
-      console.log(
-        `Authentication record with id ${id} was deleted successfully`,
-      );
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
   }
 
   async validateByAuthMethod(authentication_method: string): Promise<void> {
