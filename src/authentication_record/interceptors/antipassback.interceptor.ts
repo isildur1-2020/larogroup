@@ -28,15 +28,20 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     const req: CustomRequest = context.switchToHttp().getRequest();
     const { entity, entityId, entityName } = req;
     const { vehicleFound, employeeFound, deviceFound } = req;
-    // VERIFY WHERE IS CURRENTLY ENTITY ZONE
-    req.currentEntityZone = entity?.current_zone?.toString() ?? null;
-    if (!req.currentEntityZone) {
-      throw new BadRequestException('Please allocate a current_zone to entity');
-    }
     // VERIFY WHICH ZONE GOING TO ACCESS
     req.accessZone = deviceFound?.access_zone?._id?.toString() ?? null;
     if (!req.accessZone) {
-      throw new BadRequestException('Please allocate an access_zone to entity');
+      throw new BadRequestException('Please allocate an access_zone to device');
+    }
+    // VERIFY WHERE IS CURRENTLY ENTITY ZONE
+    // IF CURRENT_ZONE DOES NOT EXISTS ON ENTITY, CURRENT ZONE IS ACCESS_ZONE
+    req.currentEntityZone = entity?.current_zone?.toString();
+    if (!req.currentEntityZone) {
+      req.currentEntityZone = req.accessZone;
+      entityName === ValidRoles.employee
+        ? await this.employeeService.updateCurrentZone(entityId, req.accessZone)
+        : await this.vehicleService.updateCurrentZone(entityId, req.accessZone);
+      return next.handle();
     }
     if (req.currentEntityZone === req.accessZone) {
       throw new HttpException(
