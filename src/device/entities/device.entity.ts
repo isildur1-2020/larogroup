@@ -60,6 +60,11 @@ export class Device {
     default: false,
   })
   public uncheck_attendance: boolean;
+
+  @Prop({
+    default: false,
+  })
+  public unique: boolean;
 }
 
 export const DeviceSchema = SchemaFactory.createForClass(Device);

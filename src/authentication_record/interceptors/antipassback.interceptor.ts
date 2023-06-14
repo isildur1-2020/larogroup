@@ -43,6 +43,8 @@ export class AntiPassbackInterceptor implements NestInterceptor {
         : await this.vehicleService.updateCurrentZone(entityId, req.accessZone);
       return next.handle();
     }
+    // IF DEVICE IS ALONE IN A ZONE
+    if (deviceFound.unique) return next.handle();
     if (req.currentEntityZone === req.accessZone) {
       throw new HttpException(
         {
