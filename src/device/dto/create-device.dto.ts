@@ -25,7 +25,7 @@ export class CreateDeviceDto {
 
   @IsOptional()
   @IsMongoId()
-  public zone: string;
+  public access_zone: string;
 
   @IsOptional()
   @IsBooleanString()

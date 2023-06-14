@@ -1,10 +1,8 @@
 import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { zoneQuery } from 'src/common/queries/zoneQuery';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Employee } from 'src/employee/entities/employee.entity';
 import { CustomRequest } from './interfaces/authRecord.interface';
-import { directionQuery } from 'src/common/queries/directionQuery';
 import { authRecordQuery } from 'src/common/queries/authRecordQuery';
 import { CreateAuthenticationRecordDto } from './dto/create-authentication_record.dto';
 import {
@@ -37,10 +35,8 @@ export class AuthenticationRecordService {
       const newAuthenticationRecord = new this.authenticationRecordModel({
         ...createAuthenticationRecordDto,
         entity: req.entityName,
-        zone: req.deviceFound?.zone,
-        access_group: req.authorizedGroup,
-        entity_id: req.entity._id.toString(),
-        device: req.deviceFound._id.toString(),
+        device: req.deviceFoundId,
+        zone: req.currentEntityZone,
         authentication_method: req.authMethodFound,
         vehicle: req.vehicleFound?._id?.toString() ?? null,
         employee: req.employeeFound?._id?.toString() ?? null,
@@ -78,76 +74,6 @@ export class AuthenticationRecordService {
         ]);
       console.log('Authentication records found successfully');
       return authenticationRecordsFound;
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async findByEntityIdAndAccessGroup(
-    entity_id: string,
-    access_group: string,
-  ): Promise<AuthenticationRecord> {
-    try {
-      const dataFound = await this.authenticationRecordModel.aggregate([
-        {
-          $match: {
-            entity_id: new mongoose.Types.ObjectId(entity_id),
-            access_group: new mongoose.Types.ObjectId(access_group),
-          },
-        },
-        {
-          $lookup: {
-            from: 'devices',
-            localField: 'device',
-            foreignField: '_id',
-            as: 'device',
-            pipeline: [...directionQuery],
-          },
-        },
-        { $unwind: '$device' },
-        {
-          $sort: {
-            createdAt: -1,
-          },
-        },
-      ]);
-      return dataFound?.[0] ?? null;
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async findByEntityIdAndZone(
-    entity_id: string,
-    zone: string,
-  ): Promise<AuthenticationRecord> {
-    try {
-      const dataFound = await this.authenticationRecordModel.aggregate([
-        {
-          $lookup: {
-            from: 'devices',
-            localField: 'device',
-            foreignField: '_id',
-            as: 'device',
-            pipeline: [...directionQuery, ...zoneQuery],
-          },
-        },
-        { $unwind: '$device' },
-        {
-          $match: {
-            entity_id: new mongoose.Types.ObjectId(entity_id),
-            'device.zone._id': new mongoose.Types.ObjectId(zone),
-          },
-        },
-        {
-          $sort: {
-            createdAt: -1,
-          },
-        },
-      ]);
-      return dataFound?.[0] ?? null;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateZoneDto } from './dto/create-zone.dto';
 import { UpdateZoneDto } from './dto/update-zone.dto';
@@ -16,7 +16,7 @@ import {
 export class ZoneService {
   constructor(
     @InjectModel(Zone.name)
-    private zoneModel: Model<ZoneDocument>,
+    private zoneModel: mongoose.Model<ZoneDocument>,
     @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
   ) {}
@@ -81,7 +81,7 @@ export class ZoneService {
   async remove(id: string): Promise<void> {
     try {
       await this.documentExists(id);
-      // RESTRICT DELETE
+      // RESTRICTED DELETE
       await this.deviceService.validateByZone(id);
       await this.zoneModel.findByIdAndDelete(id);
       console.log(`Zone with id ${id} was deleted successfully`);

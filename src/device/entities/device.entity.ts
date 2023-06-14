@@ -49,7 +49,7 @@ export class Device {
     ref: 'Zone',
     type: mongoose.Schema.Types.ObjectId,
   })
-  public zone: Zone;
+  public access_zone: Zone;
 
   @Prop({
     default: false,

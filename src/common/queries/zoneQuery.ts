@@ -1,14 +1,14 @@
 export const zoneQuery = [
-  // ZONE
   {
     $lookup: {
       from: 'zones',
-      localField: 'zone',
+      localField: 'access_zone',
       foreignField: '_id',
-      as: 'zone',
+      as: 'access_zone',
       pipeline: [
         {
           $project: {
+            devices: 0,
             createdAt: 0,
             updatedAt: 0,
           },
@@ -18,7 +18,7 @@ export const zoneQuery = [
   },
   {
     $unwind: {
-      path: '$zone',
+      path: '$access_zone',
       preserveNullAndEmptyArrays: true,
     },
   },

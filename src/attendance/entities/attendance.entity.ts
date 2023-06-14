@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { Zone } from 'src/zone/entities/zone.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
@@ -35,6 +36,12 @@ export class Attendance {
     required: true,
   })
   public entity: string;
+
+  @Prop({
+    ref: 'Zone',
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public zone: Zone;
 }
 
 export const AttendanceSchema = SchemaFactory.createForClass(Attendance);

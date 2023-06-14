@@ -1,4 +1,3 @@
-// import { zoneQuery } from './zoneQuery';
 import { directionQuery } from './directionQuery';
 import { categoriesQuery } from './categoriesQuery';
 
@@ -11,15 +10,16 @@ export const authRecordQuery = [
       foreignField: '_id',
       as: 'device',
       pipeline: [
-        // ...zoneQuery,
         ...directionQuery,
         {
           $project: {
             sn: 0,
+            zone: 0,
             campus: 0,
             is_online: 0,
             createdAt: 0,
             updatedAt: 0,
+            access_zone: 0,
             check_attendance: 0,
             uncheck_attendance: 0,
           },
@@ -84,6 +84,7 @@ export const authRecordQuery = [
             createdAt: 0,
             updatedAt: 0,
             is_active: 0,
+            current_zone: 0,
             access_group: 0,
             contract_end_date: 0,
             contract_start_date: 0,
@@ -124,11 +125,33 @@ export const authRecordQuery = [
       preserveNullAndEmptyArrays: true,
     },
   },
+  // ZONE
+  {
+    $lookup: {
+      from: 'zones',
+      localField: 'zone',
+      foreignField: '_id',
+      as: 'zone',
+      pipeline: [
+        {
+          $project: {
+            createdAt: 0,
+            updatedAt: 0,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$zone',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
   // GLOBAL PROJECT
   {
     $project: {
       data: 0,
-      zone: 0,
       entity_id: 0,
       updatedAt: 0,
       access_group: 0,

@@ -73,7 +73,7 @@ export class AccessGroupService {
 
   async findByDevice(device_id: string): Promise<AccessGroup[]> {
     try {
-      const accessGroupFound = this.accessGroupModel.aggregate([
+      const accessGroupFound = await this.accessGroupModel.aggregate([
         { $match: { device: new mongoose.Types.ObjectId(device_id) } },
         ...deviceQuery,
         {
@@ -85,19 +85,6 @@ export class AccessGroupService {
       ]);
       console.log('Access groups by device id found successfully');
       return accessGroupFound;
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
-  async getDevicesCountById(id: string): Promise<number> {
-    try {
-      const accessGroupFound: AccessGroup =
-        await this.accessGroupModel.findById(id);
-      const devicesCount = accessGroupFound.device.length;
-      console.log('Devices count found successfully');
-      return devicesCount;
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);

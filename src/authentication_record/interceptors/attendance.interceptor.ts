@@ -22,9 +22,10 @@ export class AttendanceInterceptor implements NestInterceptor {
     const { check_attendance, uncheck_attendance } = deviceFound;
     const body = {
       device: deviceFound,
+      zone: req.accessZone,
       vehicle: vehicleFound,
-      employee: employeeFound,
       entity: req.entityName,
+      employee: employeeFound,
     };
     if (!check_attendance && !uncheck_attendance) return next.handle();
     const attendanceFound = await this.attendanceService.findOne(body);

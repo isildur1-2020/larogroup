@@ -44,8 +44,8 @@ export class DeviceService {
           'check_attendance and uncheck_attendance cannot be true at same time',
         );
       }
-      const { campus, direction, zone } = createDeviceDto;
-      if (zone) await this.zoneService.documentExists(zone);
+      const { campus, direction, access_zone } = createDeviceDto;
+      if (access_zone) await this.zoneService.documentExists(access_zone);
       await this.campusService.documentExists(campus);
       await this.directionService.documentExists(direction);
       const newDevice = new this.deviceModel(createDeviceDto);
@@ -89,6 +89,7 @@ export class DeviceService {
     try {
       const deviceFound = await this.deviceModel.aggregate([
         { $match: { sn } },
+        ...zoneQuery,
         ...directionQuery,
       ]);
       if (deviceFound.length === 0) {
@@ -102,28 +103,17 @@ export class DeviceService {
     }
   }
 
-  async getDevicesCountByZone(zone: string): Promise<number> {
-    try {
-      const devicesFound = await this.deviceModel.find({ zone });
-      const devicesCount = devicesFound.length;
-      console.log('Devices count by zone found successfully');
-      return devicesCount;
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
-    }
-  }
-
   async update(id: string, updateDeviceDto: UpdateDeviceDto): Promise<void> {
     try {
       await this.documentExists(id);
-      const { check_attendance, uncheck_attendance, zone } = updateDeviceDto;
+      const { check_attendance, uncheck_attendance, access_zone } =
+        updateDeviceDto;
       if (check_attendance === 'true' && uncheck_attendance === 'true') {
         throw new BadRequestException(
           'check_attendance and uncheck_attendance cannot be true at same time',
         );
       }
-      if (zone) await this.zoneService.documentExists(zone);
+      if (access_zone) await this.zoneService.documentExists(access_zone);
       await this.deviceModel.findByIdAndUpdate(id, updateDeviceDto);
       console.log(`Device with id ${id} was updated successfully`);
     } catch (err) {
@@ -186,9 +176,9 @@ export class DeviceService {
     }
   }
 
-  async validateByZone(zone: string): Promise<void> {
+  async validateByZone(access_zone: string): Promise<void> {
     try {
-      const devicesFound = await this.deviceModel.find({ zone });
+      const devicesFound = await this.deviceModel.find({ access_zone });
       if (devicesFound.length > 0) {
         throw new BadRequestException('There are associated devices');
       }

@@ -1,9 +1,8 @@
 import { Observable } from 'rxjs';
-import { ZoneService } from 'src/zone/zone.service';
-import { DeviceService } from 'src/device/device.service';
+import { VehicleService } from 'src/vehicle/vehicle.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { CustomRequest } from '../interfaces/authRecord.interface';
-import { AccessGroupService } from 'src/access_group/access_group.service';
-import { AuthenticationRecordService } from '../authentication_record.service';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import {
   Inject,
   HttpStatus,
@@ -11,18 +10,15 @@ import {
   HttpException,
   NestInterceptor,
   ExecutionContext,
+  BadRequestException,
 } from '@nestjs/common';
 
 export class AntiPassbackInterceptor implements NestInterceptor {
   constructor(
-    @Inject(AccessGroupService)
-    private accessGroupService: AccessGroupService,
-    @Inject(AuthenticationRecordService)
-    private authRecordService: AuthenticationRecordService,
-    @Inject(DeviceService)
-    private deviceService: DeviceService,
-    @Inject(ZoneService)
-    private zoneService: ZoneService,
+    @Inject(EmployeeService)
+    private employeeService: EmployeeService,
+    @Inject(VehicleService)
+    private vehicleService: VehicleService,
   ) {}
 
   async intercept(
@@ -30,40 +26,19 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
-    const { vehicleFound, employeeFound, authZone } = req;
-    const { authorizedGroup, deviceFound, entityId } = req;
-    // VERIFYING IF IS ANTIPASSBACK LOCAL OR GLOBAL
-    let devicesCount = 0;
-    let recordFound = null;
-    // ** GLOBAL
-    if ('zone' in deviceFound) {
-      await this.zoneService.documentExists(authZone);
-      devicesCount = await this.deviceService.getDevicesCountByZone(authZone);
-      if (devicesCount < 2) return next.handle();
-      recordFound = await this.authRecordService.findByEntityIdAndZone(
-        entityId,
-        authZone,
-      );
-      // console.log('GLOBAL', { deviceFound, recordFound });
+    const { vehicleFound, employeeFound, deviceFound, entityId, entityName } =
+      req;
+    // VERIFY WHERE IS CURRENTLY ENTITY ZONE
+    req.currentEntityZone = employeeFound?.current_zone?.toString() ?? null;
+    if (!req.currentEntityZone) {
+      throw new BadRequestException('Please allocate a current_zone to entity');
     }
-    // ** LOCAL
-    else {
-      devicesCount = await this.accessGroupService.getDevicesCountById(
-        authorizedGroup,
-      );
-      if (devicesCount < 2) return next.handle();
-      // VALIDATE ANTIPASSBACK WITH AUTH RECORDS
-      recordFound = await this.authRecordService.findByEntityIdAndAccessGroup(
-        entityId,
-        authorizedGroup,
-      );
-      // console.log('LOCAL', { deviceFound, recordFound });
+    // VERIFY WHICH ZONE GOING TO ACCESS
+    req.accessZone = deviceFound?.access_zone?._id?.toString() ?? null;
+    if (!req.accessZone) {
+      throw new BadRequestException('Please allocate an access_zone to entity');
     }
-    // IF DOES NOT EXISTS ANY RECORD, THEN NEXT HANDLER
-    if (recordFound === null) return next.handle();
-    const lastDeviceDirectionSaved = recordFound.device.direction.name;
-    const currentDeviceDirection = deviceFound.direction.name;
-    if (lastDeviceDirectionSaved === currentDeviceDirection) {
+    if (req.currentEntityZone === req.accessZone) {
       throw new HttpException(
         {
           code: '103',
@@ -74,6 +49,9 @@ export class AntiPassbackInterceptor implements NestInterceptor {
         HttpStatus.OK,
       );
     }
+    entityName === ValidRoles.employee
+      ? await this.employeeService.updateCurrentZone(entityId, req.accessZone)
+      : await this.vehicleService.updateCurrentZone(entityId, req.accessZone);
     return next.handle();
   }
 }

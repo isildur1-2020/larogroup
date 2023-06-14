@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { Zone } from 'src/zone/entities/zone.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Vehicle } from 'src/vehicle/entities/vehicle.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
@@ -50,17 +51,11 @@ export class AuthenticationRecord {
   public entity: string;
 
   @Prop({
-    required: true,
-    ref: 'AccessGroup',
+    ref: 'Zone',
+    default: null,
     type: mongoose.Schema.Types.ObjectId,
   })
-  public access_group: AccessGroup;
-
-  @Prop({
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  public entity_id: Employee | Vehicle;
+  public zone: Zone;
 }
 
 export const AuthenticationRecordSchema =

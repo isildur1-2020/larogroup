@@ -26,6 +26,7 @@ import {
   Injectable,
   forwardRef,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 @Injectable()
@@ -203,6 +204,16 @@ export class EmployeeService {
       throw new BadRequestException(err.message);
     } finally {
       fs.unlinkSync(sourceFile);
+    }
+  }
+
+  async updateCurrentZone(id: string, current_zone: string): Promise<void> {
+    try {
+      await this.employeeModel.findByIdAndUpdate(id, { current_zone });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Error to attemp update current_zone',
+      );
     }
   }
 

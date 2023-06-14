@@ -19,6 +19,7 @@ import {
   Injectable,
   forwardRef,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 @Injectable()
@@ -121,6 +122,16 @@ export class VehicleService {
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err.message);
+    }
+  }
+
+  async updateCurrentZone(id: string, current_zone: string): Promise<void> {
+    try {
+      await this.vehicleModel.findByIdAndUpdate(id, { current_zone });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Error to attemp update current_zone',
+      );
     }
   }
 

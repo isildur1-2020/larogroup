@@ -3,6 +3,7 @@ import { Role } from 'src/role/entities/role.entity';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { AccessGroup } from 'src/access_group/entities/access_group.entity';
 import { ProfilePicture } from 'src/profile_picture/entities/profile_picture.entity';
+import { Zone } from 'src/zone/entities/zone.entity';
 
 export type VehicleDocument = mongoose.HydratedDocument<Vehicle>;
 
@@ -88,6 +89,13 @@ export class Vehicle {
     type: mongoose.Schema.Types.Date,
   })
   public contract_end_date: string;
+
+  @Prop({
+    ref: 'Zone',
+    default: null,
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public current_zone: Zone;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

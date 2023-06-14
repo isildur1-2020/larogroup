@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { City } from 'src/city/entities/city.entity';
 import { Role } from 'src/role/entities/role.entity';
+import { Zone } from 'src/zone/entities/zone.entity';
 import { Campus } from 'src/campus/entities/campus.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { DniType } from 'src/dni_type/entities/dni_type.entity';
@@ -135,6 +136,13 @@ export class Employee {
     ],
   })
   public access_group: AccessGroup[];
+
+  @Prop({
+    ref: 'Zone',
+    default: null,
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  public current_zone: Zone;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

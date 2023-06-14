@@ -1,10 +1,12 @@
+import { zoneQuery } from '../../common/queries/zoneQuery';
 import { campusQuery } from 'src/common/queries/campusQuery';
 import { vehicleQuery } from 'src/common/queries/vehicleQuery';
 import { employeeQuery } from 'src/common/queries/employeeQuery';
 import { directionQuery } from 'src/common/queries/directionQuery';
-import { zoneQuery } from 'src/common/queries/zoneQuery';
 
 export const attendanceQuery = [
+  // ZONE
+  ...zoneQuery,
   // VEHICLES
   {
     $lookup: {
@@ -54,11 +56,11 @@ export const attendanceQuery = [
       foreignField: '_id',
       as: 'device',
       pipeline: [
-        ...zoneQuery,
         ...campusQuery,
         ...directionQuery,
         {
           $project: {
+            zone: 0,
             createdAt: 0,
             updatedAt: 0,
           },

@@ -17,4 +17,7 @@ export class CreateAttendanceDto {
 
   @IsString()
   public entity: string;
+
+  @IsMongoId()
+  public zone: string;
 }

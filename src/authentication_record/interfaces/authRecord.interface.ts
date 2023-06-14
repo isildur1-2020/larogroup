@@ -12,12 +12,13 @@ export interface AuthRecordBody {
 
 export interface CustomRequest extends Request {
   entityId: string;
-  authZone: string;
+  accessZone: string;
   deviceFound: Device;
   vehicleFound: Vehicle;
+  deviceFoundId: string;
   entityName: ValidRoles;
   employeeFound: Employee;
-  authorizedGroup: string;
   authMethodFound: string;
+  currentEntityZone: string;
   entity: Vehicle | Employee;
 }

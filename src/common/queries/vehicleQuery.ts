@@ -17,6 +17,7 @@ export const vehicleQuery = [
     $project: {
       createdAt: 0,
       updatedAt: 0,
+      current_zone: 0,
     },
   },
 ];
