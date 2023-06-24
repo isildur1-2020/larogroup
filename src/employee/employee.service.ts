@@ -217,6 +217,17 @@ export class EmployeeService {
     }
   }
 
+  async updateLastActivity(id: string, last_activity: string): Promise<void> {
+    try {
+      await this.documentExists(id);
+      await this.employeeModel.findByIdAndUpdate(id, { last_activity });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Error to attemp update last_activity',
+      );
+    }
+  }
+
   async update(
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,

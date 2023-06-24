@@ -16,6 +16,11 @@ export class Zone {
     required: true,
   })
   public name: string;
+
+  @Prop({
+    default: true,
+  })
+  public antipassback: boolean;
 }
 
 export const ZoneSchema = SchemaFactory.createForClass(Zone);

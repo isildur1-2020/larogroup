@@ -96,6 +96,12 @@ export class Vehicle {
     type: mongoose.Schema.Types.ObjectId,
   })
   public current_zone: Zone;
+
+  @Prop({
+    default: '2023-03-01',
+    type: mongoose.Schema.Types.Date,
+  })
+  public last_activity: Date;
 }
 
 export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

@@ -18,6 +18,7 @@ export class AttendanceInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
+    if (req.internalError) return next.handle();
     const { vehicleFound, employeeFound, deviceFound } = req;
     const { check_attendance, uncheck_attendance } = deviceFound;
     const body = {

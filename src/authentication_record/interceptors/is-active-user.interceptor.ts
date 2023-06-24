@@ -1,13 +1,7 @@
 import { Observable } from 'rxjs';
 import { SpanishRoles } from 'src/common/enums';
 import { CustomRequest } from '../interfaces/authRecord.interface';
-import {
-  HttpStatus,
-  CallHandler,
-  HttpException,
-  NestInterceptor,
-  ExecutionContext,
-} from '@nestjs/common';
+import { CallHandler, NestInterceptor, ExecutionContext } from '@nestjs/common';
 
 export class IsActiveUserInterceptor implements NestInterceptor {
   intercept(
@@ -15,17 +9,14 @@ export class IsActiveUserInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> {
     const req: CustomRequest = context.switchToHttp().getRequest();
+    if (req.internalError) return next.handle();
     const isUserActive = req.entity.is_active;
     if (!Boolean(isUserActive)) {
-      throw new HttpException(
-        {
-          vehicle: req.vehicleFound ?? null,
-          employee: req.employeeFound ?? null,
-          message: `${SpanishRoles[req.entityName]} INACTIVO`,
-          code: '101',
-        },
-        HttpStatus.OK,
-      );
+      req.internalError = true;
+      req.internalAuthFlowBody = {
+        code: '101',
+        message: `${SpanishRoles[req.entityName]} INACTIVO`,
+      };
     }
     return next.handle();
   }

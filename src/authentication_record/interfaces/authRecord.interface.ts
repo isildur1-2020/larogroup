@@ -10,15 +10,22 @@ export interface AuthRecordBody {
   auth_method: string;
 }
 
+interface InternalErrorBody {
+  code: string;
+  message: string;
+}
+
 export interface CustomRequest extends Request {
   entityId: string;
   accessZone: string;
   deviceFound: Device;
   vehicleFound: Vehicle;
   deviceFoundId: string;
+  internalError: boolean;
   entityName: ValidRoles;
   employeeFound: Employee;
   authMethodFound: string;
   currentEntityZone: string;
   entity: Vehicle | Employee;
+  internalAuthFlowBody: InternalErrorBody;
 }

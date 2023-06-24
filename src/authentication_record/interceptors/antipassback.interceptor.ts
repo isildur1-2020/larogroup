@@ -5,9 +5,7 @@ import { CustomRequest } from '../interfaces/authRecord.interface';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
 import {
   Inject,
-  HttpStatus,
   CallHandler,
-  HttpException,
   NestInterceptor,
   ExecutionContext,
   BadRequestException,
@@ -26,6 +24,7 @@ export class AntiPassbackInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
+    if (req.internalError) return next.handle();
     const { entity, entityId, entityName } = req;
     const { vehicleFound, employeeFound, deviceFound } = req;
     // VERIFY WHICH ZONE GOING TO ACCESS
@@ -43,18 +42,15 @@ export class AntiPassbackInterceptor implements NestInterceptor {
         : await this.vehicleService.updateCurrentZone(entityId, req.accessZone);
       return next.handle();
     }
-    // IF DEVICE IS ALONE IN A ZONE
-    if (deviceFound.unique) return next.handle();
+    // IF ZONE DOES NOT ANTIPASSBACK
+    if (!deviceFound?.access_zone?.antipassback) return next.handle();
     if (req.currentEntityZone === req.accessZone) {
-      throw new HttpException(
-        {
-          code: '103',
-          vehicle: vehicleFound ?? null,
-          employee: employeeFound ?? null,
-          message: 'BLOQUEADO POR DOBLE MARCACIÓN',
-        },
-        HttpStatus.OK,
-      );
+      req.internalError = true;
+      req.internalAuthFlowBody = {
+        code: '103',
+        message: 'BLOQUEADO POR DOBLE MARCACIÓN',
+      };
+      return next.handle();
     }
     entityName === ValidRoles.employee
       ? await this.employeeService.updateCurrentZone(entityId, req.accessZone)

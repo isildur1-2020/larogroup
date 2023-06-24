@@ -6,10 +6,8 @@ import { AccessGroupService } from 'src/access_group/access_group.service';
 import {
   Inject,
   CallHandler,
-  HttpException,
   NestInterceptor,
   ExecutionContext,
-  HttpStatus,
 } from '@nestjs/common';
 
 export class AccessGroupInterceptor implements NestInterceptor {
@@ -30,15 +28,12 @@ export class AccessGroupInterceptor implements NestInterceptor {
     const groupsFound = await this.accessGroupService.findByDevice(deviceId);
     // THE DEVICE DOES NOT BELONGS TO ANY ACCESS GROUP
     if (groupsFound.length === 0) {
-      throw new HttpException(
-        {
-          code: '400',
-          vehicle: req.vehicleFound ?? null,
-          employee: req.employeeFound ?? null,
-          message: 'DISPOSITIVO SIN GRUPO DE ACCESO',
-        },
-        HttpStatus.OK,
-      );
+      req.internalError = true;
+      req.internalAuthFlowBody = {
+        code: '400',
+        message: 'DISPOSITIVO SIN GRUPO DE ACCESO',
+      };
+      return next.handle();
     }
     // DEVICES JUST COULD BELONG TO ONE AN ONLY ONE ACCESS GROUP
     const authorizedGroup = groupsFound[0]._id.toString();
@@ -47,15 +42,12 @@ export class AccessGroupInterceptor implements NestInterceptor {
     // VERIFYING IF SOME OF THEM ARE THE AUTH GROUP
     const isUserAuthorized = userGroups.some((_id) => _id === authorizedGroup);
     if (!isUserAuthorized) {
-      throw new HttpException(
-        {
-          code: '104',
-          vehicle: req.vehicleFound ?? null,
-          employee: req.employeeFound ?? null,
-          message: 'GRUPO DE ACCESO INVALIDO',
-        },
-        HttpStatus.OK,
-      );
+      req.internalError = true;
+      req.internalAuthFlowBody = {
+        code: '104',
+        message: 'GRUPO DE ACCESO INVALIDO',
+      };
+      return next.handle();
     }
     req.deviceFound = deviceFound;
     req.deviceFoundId = deviceFound._id.toString();
