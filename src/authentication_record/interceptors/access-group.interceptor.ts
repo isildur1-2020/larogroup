@@ -23,9 +23,11 @@ export class AccessGroupInterceptor implements NestInterceptor {
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
     const body: AuthRecordBody = req.body;
-    const deviceFound = await this.deviceService.findOneBySN(body.sn);
-    const deviceId = deviceFound._id.toString();
-    const groupsFound = await this.accessGroupService.findByDevice(deviceId);
+    req.deviceFound = await this.deviceService.findOneBySN(body.sn);
+    req.deviceFoundId = req.deviceFound._id.toString();
+    const groupsFound = await this.accessGroupService.findByDevice(
+      req.deviceFoundId,
+    );
     // THE DEVICE DOES NOT BELONGS TO ANY ACCESS GROUP
     if (groupsFound.length === 0) {
       req.internalError = true;
@@ -49,8 +51,6 @@ export class AccessGroupInterceptor implements NestInterceptor {
       };
       return next.handle();
     }
-    req.deviceFound = deviceFound;
-    req.deviceFoundId = deviceFound._id.toString();
     return next.handle();
   }
 }
