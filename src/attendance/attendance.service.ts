@@ -1,6 +1,8 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { attendanceQuery } from './queries/attendance.query';
+import { VehicleService } from 'src/vehicle/vehicle.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { ExpulsionService } from 'src/expulsion/expulsion.service';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles.interface';
@@ -9,6 +11,7 @@ import { Attendance, AttendanceDocument } from './entities/attendance.entity';
 import {
   Inject,
   Injectable,
+  forwardRef,
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -20,6 +23,10 @@ export class AttendanceService {
     private attendanceModel: Model<AttendanceDocument>,
     @Inject(ExpulsionService)
     private expulsionService: ExpulsionService,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
+    @Inject(forwardRef(() => VehicleService))
+    private vehicleService: VehicleService,
   ) {}
 
   async create(createAttendanceDto: CreateAttendanceDto): Promise<Attendance> {
@@ -118,6 +125,15 @@ export class AttendanceService {
       await this.documentExists(id);
       const attendanceFound = await this.attendanceModel.findById(id);
       const { entity, employee, vehicle } = attendanceFound;
+      entity === ValidRoles.employee
+        ? await this.employeeService.updateCurrentZone(
+            employee?._id?.toString(),
+            null,
+          )
+        : await this.vehicleService.updateCurrentZone(
+            vehicle?._id?.toString(),
+            null,
+          );
       await this.expulsionService.create({
         entity,
         employee,

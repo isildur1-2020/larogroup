@@ -1,6 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AttendanceService } from './attendance.service';
+import { VehicleModule } from 'src/vehicle/vehicle.module';
+import { EmployeeModule } from 'src/employee/employee.module';
 import { AttendanceController } from './attendance.controller';
 import { ExpulsionModule } from 'src/expulsion/expulsion.module';
 import { Attendance, AttendanceSchema } from './entities/attendance.entity';
@@ -14,6 +16,8 @@ import { Attendance, AttendanceSchema } from './entities/attendance.entity';
       },
     ]),
     ExpulsionModule,
+    forwardRef(() => VehicleModule),
+    forwardRef(() => EmployeeModule),
   ],
   controllers: [AttendanceController],
   providers: [AttendanceService],

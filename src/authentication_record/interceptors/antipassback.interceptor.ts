@@ -25,8 +25,7 @@ export class AntiPassbackInterceptor implements NestInterceptor {
   ): Promise<Observable<any>> {
     const req: CustomRequest = context.switchToHttp().getRequest();
     if (req.internalError) return next.handle();
-    const { entity, entityId, entityName } = req;
-    const { vehicleFound, employeeFound, deviceFound } = req;
+    const { entity, entityId, entityName, deviceFound } = req;
     // VERIFY WHICH ZONE GOING TO ACCESS
     req.accessZone = deviceFound?.access_zone?._id?.toString() ?? null;
     if (!req.accessZone) {
