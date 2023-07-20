@@ -88,13 +88,12 @@ export class AuthenticationRecordService {
           $lte: new Date(end_date),
         },
       };
-      const authenticationRecordsFound = await this.authenticationRecordModel
-        .aggregate([
+      const authenticationRecordsFound =
+        await this.authenticationRecordModel.aggregate([
+          { $sort: { createdAt: -1 } },
           { $match: dateFilter },
           ...authRecordQuery,
-          { $sort: { createdAt: -1 } },
-        ])
-        .allowDiskUse(true);
+        ]);
       console.log('Authentication records found successfully');
       return authenticationRecordsFound;
     } catch (err) {
